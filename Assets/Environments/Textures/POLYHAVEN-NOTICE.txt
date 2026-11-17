@@ -1,0 +1,9 @@
+The files in this folder come from Poly Haven (https://polyhaven.com) and are released under CC0 1.0
+(https://creativecommons.org/publicdomain/zero/1.0/).
+
+  laminate_floor_02   Laminate Floor 02   by Dario Barresi and Charlotte Baglioni   https://polyhaven.com/a/laminate_floor_02
+  white_plaster_02    White Plaster 02    by Rob Tuytel                             https://polyhaven.com/a/white_plaster_02
+  small_empty_room_1  Small Empty Room 1  by Sergej Majboroda                       https://polyhaven.com/a/small_empty_room_1
+
+What is here: the floor's 1k colour and normal textures, the plaster's 1k normal texture only (the walls
+have a plain colour), and the room picture at 1k (HDR), used for reflections in the test room.

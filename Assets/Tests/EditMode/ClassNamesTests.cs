@@ -70,7 +70,7 @@ namespace ArObjectLabels.Tests
 
         [TestCase("cup", "Cup")]
         [TestCase("potted plant", "Potted plant")]
-        [TestCase("tv", "TV")]
+        [TestCase("tv", "Screen")]
         [TestCase("cell phone", "Phone")]
         [TestCase("dining table", "Table")]
         [TestCase("scissors", "Scissors")]

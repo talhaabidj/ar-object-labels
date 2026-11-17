@@ -1,0 +1,18 @@
+Two models in this folder come from Sketchfab and are licensed under Creative Commons Attribution 4.0
+(CC BY 4.0, http://creativecommons.org/licenses/by/4.0/). The authors must be credited.
+
+monitor_dell_p2314h/monitor.fbx
+  This work is based on "Monitor Dell P2314H"
+  (https://sketchfab.com/3d-models/monitor-dell-p2314h-c69f09bb812e46cdbd5bf6c62499b848)
+  by GregorJan (https://sketchfab.com/login166), licensed under CC BY 4.0.
+  Changes: turned from glTF into FBX; its many small parts joined into one mesh with three materials;
+  scaled to real size (54 cm wide). The picture on its screen was replaced by a plain desktop picture
+  made for this project (monitor_screen.png); the original screen picture is not included.
+
+mouse_and_keyboard/keyboard.fbx and mouse_and_keyboard/mouse.fbx
+  This work is based on "Mouse and Keyboard"
+  (https://sketchfab.com/3d-models/mouse-and-keyboard-c63ee81b71ff45b68a778101b4df3d46)
+  by gorzi (https://sketchfab.com/gorzi90), licensed under CC BY 4.0.
+  Changes: turned from glTF into FBX and split into two files; materials merged; scaled to real size
+  (keyboard 44 cm long); thinned from 131,360 to 21,605 faces (keyboard) and from 32,628 to 5,944
+  faces (mouse); two small loose parts left out. keyboard_keys.png is the model's own key texture.
