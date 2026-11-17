@@ -8,7 +8,9 @@ using UnityEngine.XR.ARSubsystems;
 
 namespace ArObjectLabels
 {
-    /// <summary>Places one cube on a surface that faces up, and lets a press select it and a drag move it.</summary>
+    /// <summary>
+    /// Places one cube on a surface that faces up. A drag moves it; a click picks it up and a second click puts it down.
+    /// </summary>
     public class CubePlacer : MonoBehaviour
     {
         [SerializeField] ARRaycastManager raycastManager;
@@ -17,6 +19,7 @@ namespace ArObjectLabels
         [SerializeField] SelectableCube cubePrefab;
         [SerializeField] float wallHintSeconds = 3f;
         [SerializeField] float maxPressDistance = 20f;
+        [SerializeField] float clickMoveShareOfHeight = 0.025f;
 
         static readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
@@ -24,10 +27,13 @@ namespace ArObjectLabels
         InputAction point;
         float wallHintUntil;
         bool dragging;
+        Vector2 pressPoint;
+        float farthestMove;
 
         public SelectableCube Cube { get; private set; }
         public bool CubeExists => Cube != null;
         public bool CubeSelected { get; private set; }
+        public bool CubeCarried { get; private set; }
         public bool WallWasClicked => Time.time < wallHintUntil;
 
         void Awake()
@@ -51,18 +57,25 @@ namespace ArObjectLabels
         void Update()
         {
             Vector2 screenPoint = point.ReadValue<Vector2>();
+            bool held = press.IsPressed();
             if (press.WasPressedThisFrame())
             {
                 bool overUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
                 HandlePress(screenPoint, overUi);
             }
-            else if (press.IsPressed())
+            else if (held)
             {
                 HandleDrag(screenPoint);
             }
-            else
+
+            // Checked apart from the press, because a quick tap can go down and up within one frame.
+            if (!held && dragging)
             {
-                dragging = false;
+                HandleRelease();
+            }
+            else if (!held && CubeCarried)
+            {
+                MoveCubeTo(screenPoint);
             }
         }
 
@@ -71,7 +84,8 @@ namespace ArObjectLabels
         {
             bool onCube = CubeExists && Cube.IsUnder(viewCamera.ScreenPointToRay(screenPoint), maxPressDistance);
             bool hitSurface = TryHitSurface(screenPoint, out Vector3 hitPoint, out bool facesUp);
-            PressOutcome outcome = PlacementRule.Decide(pointerOverUi, CubeExists, onCube, hitSurface, facesUp);
+            PressOutcome outcome = PlacementRule.Decide(
+                pointerOverUi, CubeExists, CubeCarried, onCube, hitSurface, facesUp);
 
             switch (outcome)
             {
@@ -85,8 +99,14 @@ namespace ArObjectLabels
                 case PressOutcome.SelectCube:
                     SetSelected(true);
                     dragging = true;
+                    pressPoint = screenPoint;
+                    farthestMove = 0f;
                     break;
                 case PressOutcome.Deselect:
+                    SetSelected(false);
+                    break;
+                case PressOutcome.PutDownCube:
+                    Cube.transform.position = hitPoint;
                     SetSelected(false);
                     break;
             }
@@ -102,15 +122,30 @@ namespace ArObjectLabels
                 return;
             }
 
-            bool hitSurface = TryHitSurface(screenPoint, out Vector3 hitPoint, out bool facesUp);
-            Cube.transform.position = DragRule.NextPosition(Cube.transform.position, hitSurface, facesUp, hitPoint);
+            farthestMove = Mathf.Max(farthestMove, Vector2.Distance(pressPoint, screenPoint));
+            MoveCubeTo(screenPoint);
         }
 
-        /// <summary>Removes the cube. Ends any drag first.</summary>
+        /// <summary>
+        /// Ends a press that began on the cube. If the pointer hardly moved, it was a click and the cube is picked up.
+        /// Public so a test can call it without a mouse.
+        /// </summary>
+        public void HandleRelease()
+        {
+            bool pressBeganOnCube = dragging;
+            dragging = false;
+            if (pressBeganOnCube && CubeExists)
+            {
+                CubeCarried = ClickRule.IsClick(farthestMove, viewCamera.pixelHeight, clickMoveShareOfHeight);
+            }
+        }
+
+        /// <summary>Removes the cube. Ends any drag or carry first.</summary>
         public void ResetCube()
         {
             dragging = false;
             CubeSelected = false;
+            CubeCarried = false;
             if (CubeExists)
             {
                 Destroy(Cube.gameObject);
@@ -121,8 +156,15 @@ namespace ArObjectLabels
         void SetSelected(bool selected)
         {
             CubeSelected = selected;
+            CubeCarried = false;
             dragging = false;
             Cube.SetSelected(selected);
+        }
+
+        void MoveCubeTo(Vector2 screenPoint)
+        {
+            bool hitSurface = TryHitSurface(screenPoint, out Vector3 hitPoint, out bool facesUp);
+            Cube.transform.position = DragRule.NextPosition(Cube.transform.position, hitSurface, facesUp, hitPoint);
         }
 
         bool TryHitSurface(Vector2 screenPoint, out Vector3 hitPoint, out bool facesUp)

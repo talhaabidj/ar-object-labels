@@ -10,7 +10,8 @@ namespace ArObjectLabels.Core
         FindSurface,
         PlaceCube,
         SelectCube,
-        DragCube
+        DragCube,
+        CarryCube
     }
 
     /// <summary>The facts the hint depends on, gathered once per frame.</summary>
@@ -23,6 +24,7 @@ namespace ArObjectLabels.Core
         public bool AnySurfaceFound;
         public bool CubeExists;
         public bool CubeSelected;
+        public bool CubeCarried;
     }
 
     /// <summary>Picks the hint. The first rule that applies wins.</summary>
@@ -37,6 +39,7 @@ namespace ArObjectLabels.Core
             if (!facts.Tracking) return justStarted ? Hint.Starting : Hint.TrackingLost;
             if (facts.WallWasClicked) return Hint.UseFlatSurface;
             if (!facts.CubeExists) return facts.AnySurfaceFound ? Hint.PlaceCube : Hint.FindSurface;
+            if (facts.CubeCarried) return Hint.CarryCube;
             return facts.CubeSelected ? Hint.DragCube : Hint.SelectCube;
         }
     }

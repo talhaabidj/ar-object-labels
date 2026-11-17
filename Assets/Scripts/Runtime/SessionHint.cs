@@ -30,7 +30,8 @@ namespace ArObjectLabels
                 WallWasClicked = cubePlacer.WallWasClicked,
                 AnySurfaceFound = planeManager.trackables.count > 0,
                 CubeExists = cubePlacer.CubeExists,
-                CubeSelected = cubePlacer.CubeSelected
+                CubeSelected = cubePlacer.CubeSelected,
+                CubeCarried = cubePlacer.CubeCarried
             };
 
             Current = HintRule.Pick(facts);

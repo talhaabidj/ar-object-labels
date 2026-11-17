@@ -28,9 +28,12 @@ namespace ArObjectLabels
                 case Hint.PlaceCube:
                     return "Click the table or the floor to place the cube.";
                 case Hint.SelectCube:
-                    return "Click the cube to select it.";
+                    return "Click the cube to pick it up, or drag it to move it.";
                 case Hint.DragCube:
-                    return "Drag the cube to move it. Click anywhere else to let go of it.";
+                    return "Drag the cube to move it, or click it to pick it up.\n" +
+                           "Click anywhere else to let go of it.";
+                case Hint.CarryCube:
+                    return "Carrying the cube. Click the table or the floor to put it down. R removes it.";
                 default:
                     return string.Empty;
             }

@@ -67,5 +67,31 @@ namespace ArObjectLabels.Tests
             facts.CubeSelected = true;
             Assert.AreEqual(Hint.DragCube, HintRule.Pick(facts));
         }
+
+        [Test]
+        public void CubeCarried_SaysHowToPutItDown()
+        {
+            HintFacts facts = Running();
+            facts.AnySurfaceFound = true;
+            facts.CubeExists = true;
+            facts.CubeSelected = true;
+            facts.CubeCarried = true;
+
+            Assert.AreEqual(Hint.CarryCube, HintRule.Pick(facts));
+        }
+
+        [Test]
+        public void WallClick_WhileCarrying_WinsUntilItsTimeIsUp()
+        {
+            HintFacts facts = Running();
+            facts.AnySurfaceFound = true;
+            facts.CubeExists = true;
+            facts.CubeCarried = true;
+            facts.WallWasClicked = true;
+            Assert.AreEqual(Hint.UseFlatSurface, HintRule.Pick(facts));
+
+            facts.WallWasClicked = false;
+            Assert.AreEqual(Hint.CarryCube, HintRule.Pick(facts));
+        }
     }
 }
