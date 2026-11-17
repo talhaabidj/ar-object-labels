@@ -1,0 +1,14 @@
+{
+    "name": "ArObjectLabels",
+    "rootNamespace": "ArObjectLabels",
+    "references": [
+        "ArObjectLabels.Core",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "Unity.XR.ARFoundation",
+        "Unity.XR.ARSubsystems",
+        "Unity.XR.CoreUtils",
+        "UnityEngine.UI"
+    ],
+    "autoReferenced": true
+}
