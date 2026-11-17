@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.AppSettings
   label:
     nearLimit: 0.5
-    farLimit: 3.5
-    maxWidth: 0.35
+    farLimit: 2.5
+    maxWidth: 0
     fadeStart: 3.5
     fadeEnd: 4.5
     gap: 0.02

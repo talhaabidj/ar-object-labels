@@ -10,10 +10,10 @@ namespace ArObjectLabels.Core
         public float nearLimit = 0.5f;
 
         /// <summary>Beyond this distance, in metres, the label stops growing.</summary>
-        public float farLimit = 3.5f;
+        public float farLimit = 2.5f;
 
         /// <summary>The label is never wider than this, in metres. 0 means no limit.</summary>
-        public float maxWidth = 0.35f;
+        public float maxWidth = 0f;
 
         /// <summary>From this distance, in metres, the label starts to fade out.</summary>
         public float fadeStart = 3.5f;
