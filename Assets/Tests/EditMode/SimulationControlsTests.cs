@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 namespace ArObjectLabels.Tests
 {
     /// <summary>Pins how the simulated camera is controlled, so a reset to Unity's defaults is noticed.</summary>
+    [Timeout(5000)]
     public class SimulationControlsTests
     {
         const string ActionsPath = "Assets/Settings/SimulationControls.inputactions";

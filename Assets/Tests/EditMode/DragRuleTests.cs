@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ArObjectLabels.Tests
 {
+    [Timeout(5000)]
     public class DragRuleTests
     {
         static readonly Vector3 lastGood = new Vector3(1f, 0f, 2f);

@@ -325,3 +325,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArObjectLabels.SelectableCube
   pressCollider: {fileID: 7723714934597390101}
   outline: {fileID: 8034532791855637393}
+  body: {fileID: 712959938419203185}
+  labelPrefab: {fileID: 403429357729837533, guid: 05b4b54bf040d4d2d874c992a2d3d603, type: 3}
+  labelText: Cube

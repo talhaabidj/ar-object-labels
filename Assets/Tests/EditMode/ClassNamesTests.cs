@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace ArObjectLabels.Tests
 {
+    [Timeout(5000)]
     public class ClassNamesTests
     {
         const string ClassListFile = "Models/coco_classes.txt";

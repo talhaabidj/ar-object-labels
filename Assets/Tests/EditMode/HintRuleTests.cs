@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace ArObjectLabels.Tests
 {
+    [Timeout(5000)]
     public class HintRuleTests
     {
         static HintFacts Running()
