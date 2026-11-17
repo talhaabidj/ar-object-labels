@@ -1,6 +1,6 @@
-# Label text for each class in yolox_classes.txt.
+# Label text for each class in coco_classes.txt.
 # One line per class: raw class name = text the label shows. Sentence case, at most 20 characters.
-# A different model needs its own class list and its own copy of this file.
+# A model with other classes needs its own class list and its own copy of this file.
 person = Person
 bicycle = Bicycle
 car = Car

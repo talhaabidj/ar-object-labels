@@ -1,0 +1,45 @@
+yolov9_t.onnx
+
+A YOLOv9-T object detector, trained on the COCO dataset (80 classes).
+
+Source of the model and its weights:
+  MultimediaTechLab/YOLO, https://github.com/MultimediaTechLab/YOLO
+  Release v1.0-alpha, file v9-t.pt. MIT License.
+  Copyright (c) 2024 Kin-Yiu Wong and Hao-Tang Tsui
+
+Converted by:
+  LibreYOLO, https://huggingface.co/LibreYOLO/LibreYOLO9t
+  File LibreYOLO9t.onnx, MIT License. Its model card says the conversion
+  renamed the weight keys only and left the learned values unchanged.
+  The file here is that file under another name, unchanged:
+  8,451,972 bytes, SHA-256
+  6956ca35e4429f92609b68e2599df2ebb2dd0ccecb526341b1268f84d96eb527
+
+Not used: the first YOLOv9 code, WongKinYiu/yolov9, which is under GPL-3.0.
+Nothing in this project comes from it.
+
+The class names this model reports are in coco_classes.txt.
+
+----------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2024 Kin-Yiu Wong and Hao-Tang Tsui
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

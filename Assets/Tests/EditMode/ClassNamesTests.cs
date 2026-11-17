@@ -9,8 +9,8 @@ namespace ArObjectLabels.Tests
 {
     public class ClassNamesTests
     {
-        const string ClassListFile = "Models/yolox_classes.txt";
-        const string DisplayNamesFile = "Models/yolox_display_names.txt";
+        const string ClassListFile = "Models/coco_classes.txt";
+        const string DisplayNamesFile = "Models/coco_display_names.txt";
         const int ClassCount = 80;
 
         static List<string> Classes()
