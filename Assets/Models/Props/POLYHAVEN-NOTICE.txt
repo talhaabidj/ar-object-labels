@@ -1,0 +1,12 @@
+The models in this folder come from Poly Haven (https://polyhaven.com) and are released under CC0 1.0
+(https://creativecommons.org/publicdomain/zero/1.0/).
+
+  potted_plant_01   Potted Plant 01   by Rico Cilliers     https://polyhaven.com/a/potted_plant_01
+  ceramic_vase_01   Ceramic Vase 01   by James Ray Cock    https://polyhaven.com/a/ceramic_vase_01
+  dining_chair_02   Dining Chair 02   by James Ray Cock    https://polyhaven.com/a/dining_chair_02
+  classic_laptop    Classic Laptop    by Arrangemonk       https://polyhaven.com/a/classic_laptop
+
+What is here: each model's FBX mesh, and its 1k colour and normal textures (JPG) from the same asset.
+
+One file was changed: potted_plant_01_leaves_diff_alpha_1k.png is the leaf colour texture with Poly
+Haven's leaf alpha texture put into its alpha channel, so the leaves can be cut out by one material.
