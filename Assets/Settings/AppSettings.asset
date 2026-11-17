@@ -24,3 +24,6 @@ MonoBehaviour:
     maxLabels: 6
     sameDistanceStep: 0.5
     leaderThickness: 0.004
+  detection:
+    boxPoint: 0
+    maxDistance: 5

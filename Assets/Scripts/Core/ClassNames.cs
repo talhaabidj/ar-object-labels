@@ -54,7 +54,16 @@ namespace ArObjectLabels.Core
                 return "Object " + classNumber;
             }
 
-            string raw = classes[classNumber];
+            return LabelFor(classes[classNumber], displayNames);
+        }
+
+        /// <summary>The label text for a class name. A class with no display name shows its raw name with a capital.</summary>
+        public static string LabelFor(string raw, IReadOnlyDictionary<string, string> displayNames)
+        {
+            if (string.IsNullOrEmpty(raw))
+            {
+                return "Object";
+            }
             if (displayNames.TryGetValue(raw, out string label) && label.Length > 0)
             {
                 return label;

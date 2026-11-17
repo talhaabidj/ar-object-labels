@@ -109,5 +109,25 @@ namespace ArObjectLabels.Tests
             Assert.AreEqual("TV", names["tv"]);
             Assert.AreEqual("Cup", names["cup"]);
         }
+
+        [Test]
+        public void LabelForAName_UsesTheDisplayName()
+        {
+            var displayNames = new Dictionary<string, string> { { "tv", "Screen" } };
+
+            Assert.AreEqual("Screen", ClassNames.LabelFor("tv", displayNames));
+        }
+
+        [Test]
+        public void LabelForANameWithoutADisplayName_IsTheRawNameWithACapital()
+        {
+            Assert.AreEqual("Teddy bear", ClassNames.LabelFor("teddy bear", new Dictionary<string, string>()));
+        }
+
+        [Test]
+        public void LabelForAnEmptyName_IsStillAWord()
+        {
+            Assert.AreEqual("Object", ClassNames.LabelFor("", new Dictionary<string, string>()));
+        }
     }
 }

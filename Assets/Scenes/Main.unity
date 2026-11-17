@@ -1748,6 +1748,91 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArObjectLabels.ResetButton
   button: {fileID: 1484508755}
   cubePlacer: {fileID: 1986298850}
+--- !u!1 &2026489858
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026489862}
+  - component: {fileID: 2026489861}
+  - component: {fileID: 2026489860}
+  - component: {fileID: 2026489859}
+  m_Layer: 0
+  m_Name: Detections
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2026489859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026489858}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbb771fab4a0944ee8891e208a9e3ff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectionLabels
+  source: {fileID: 2026489861}
+  placer: {fileID: 2026489860}
+  labelPrefab: {fileID: 403429357729837533, guid: 05b4b54bf040d4d2d874c992a2d3d603, type: 3}
+  displayNamesFile: {fileID: 4900000, guid: 1c65bd0a29fe64833a71d43551fdb625, type: 3}
+--- !u!114 &2026489860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026489858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0f905f9da8445baa478af9fb9223bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectionPlacer
+  settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
+  raycastManager: {fileID: 1201849238}
+--- !u!114 &2026489861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026489858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7bc1af37c374bab926e81027103b8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.FixedBoxSource
+  viewCamera: {fileID: 773699675}
+  className: laptop
+  score: 1
+  box:
+    serializedVersion: 2
+    x: 0.435
+    y: 0.48
+    width: 0.054
+    height: 0.102
+--- !u!4 &2026489862
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026489858}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1760,3 +1845,4 @@ SceneRoots:
   - {fileID: 1495812189}
   - {fileID: 1641214977}
   - {fileID: 556933063}
+  - {fileID: 2026489862}

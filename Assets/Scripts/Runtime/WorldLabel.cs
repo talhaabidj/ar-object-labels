@@ -27,6 +27,7 @@ namespace ArObjectLabels
         Vector3 objectTop;
         float objectRadius;
         LabelLayout layout;
+        string shownText;
 
         /// <summary>Half the plate's width and height in metres, at the size the label is drawn now.</summary>
         public Vector2 HalfSize => plate.rect.size * 0.5f * plate.lossyScale.x;
@@ -47,6 +48,11 @@ namespace ArObjectLabels
 
         public void SetText(string labelText)
         {
+            if (labelText == shownText)
+            {
+                return;
+            }
+            shownText = labelText;
             text.text = labelText;
             text.ForceMeshUpdate();
             plate.sizeDelta = text.GetPreferredValues(labelText) + platePadding * 2f;

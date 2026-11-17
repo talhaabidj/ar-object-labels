@@ -8,5 +8,6 @@ namespace ArObjectLabels
     public class AppSettings : ScriptableObject
     {
         public LabelSettings label = new LabelSettings();
+        public DetectionSettings detection = new DetectionSettings();
     }
 }
