@@ -3,6 +3,7 @@
     "rootNamespace": "ArObjectLabels.Tests",
     "references": [
         "ArObjectLabels.Core",
+        "Unity.InputSystem",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

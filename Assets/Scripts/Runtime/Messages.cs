@@ -6,8 +6,8 @@ namespace ArObjectLabels
     public static class Messages
     {
         public const string Controls =
-            "Right mouse + move: look · W A S D: move · Q E: down, up · Shift: faster\n" +
-            "R Reset";
+            "W A S D: move · Q E: down, up · Shift: faster · Hold right mouse: look\n" +
+            "R removes the cube";
 
         public static string For(Hint hint)
         {
@@ -23,7 +23,7 @@ namespace ArObjectLabels
                 case Hint.UseFlatSurface:
                     return "Place it on a flat surface, such as the table or the floor.";
                 case Hint.FindSurface:
-                    return "Hold the right mouse button and move the mouse to look around. W A S D to move.\n" +
+                    return "Move with W A S D. Hold the right mouse button and move the mouse to look.\n" +
                            "Find the table or the floor.";
                 case Hint.PlaceCube:
                     return "Click the table or the floor to place the cube.";
