@@ -10,6 +10,12 @@ namespace ArObjectLabels.Core
     {
         public string className;
         public float depth;
+
+        /// <summary>
+        /// For a class whose box is much wider than what it stands on, such as a plant with wide leaves:
+        /// the set-back, which otherwise uses the box width, uses no more than this depth.
+        /// </summary>
+        public bool limitsSetBack;
     }
 
     /// <summary>
@@ -22,18 +28,27 @@ namespace ArObjectLabels.Core
         const float SteepestAngle = 75f;
 
         /// <summary>False for a class that is not in the table.</summary>
-        public static bool TryUsual(string className, IReadOnlyList<ClassDepth> table, out float depth)
+        public static bool TryUsual(string className, IReadOnlyList<ClassDepth> table, out ClassDepth usual)
         {
             for (int i = 0; i < table.Count; i++)
             {
                 if (table[i].className == className)
                 {
-                    depth = table[i].depth;
+                    usual = table[i];
                     return true;
                 }
             }
-            depth = 0f;
+            usual = null;
             return false;
+        }
+
+        /// <summary>
+        /// The depth the set-back uses: the box width, held to the usual depth for a class that limits it.
+        /// <paramref name="usual"/> is null for a class that is not in the table.
+        /// </summary>
+        public static float ForSetBack(float boxWidth, ClassDepth usual)
+        {
+            return usual != null && usual.limitsSetBack ? Mathf.Min(boxWidth, usual.depth) : boxWidth;
         }
 
         /// <summary>

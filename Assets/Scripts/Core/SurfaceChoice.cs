@@ -54,5 +54,15 @@ namespace ArObjectLabels.Core
             }
             return 0;
         }
+
+        /// <summary>
+        /// The set-back moves a point from an object's front foot to under its middle. That only makes sense
+        /// for an object standing on something. An object whose ray ends on an upright surface, such as a
+        /// clock on a wall, is not set back: it would be pushed into the wall.
+        /// </summary>
+        public static bool AllowsSetBack(SurfaceHit chosen)
+        {
+            return !chosen.Upright;
+        }
     }
 }

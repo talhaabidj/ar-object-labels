@@ -38,10 +38,15 @@ namespace ArObjectLabels
             {
                 return false;
             }
-            ARRaycastHit hit = hits[SurfaceChoice.Pick(AsSurfaces(hits), rules)];
+            int chosen = SurfaceChoice.Pick(AsSurfaces(hits), rules);
+            ARRaycastHit hit = hits[chosen];
             if (hit.distance > rules.maxDistance)
             {
                 return false;
+            }
+            if (used == BoxPointKind.BottomCentreSetBack && !SurfaceChoice.AllowsSetBack(surfaces[chosen]))
+            {
+                used = BoxPointKind.BottomCentre;
             }
 
             Vector3 point = hit.pose.position;
@@ -51,9 +56,9 @@ namespace ArObjectLabels
             // The usual depth of a class shapes the room box and corrects the height. A class with no usual
             // depth is taken to be as deep as it is wide, and its height stays as seen.
             float depth = width;
-            if (ObjectDepth.TryUsual(detection.ClassName, rules.usualDepths, out float usualDepth))
+            if (ObjectDepth.TryUsual(detection.ClassName, rules.usualDepths, out ClassDepth usual))
             {
-                depth = usualDepth;
+                depth = usual.depth;
                 if (used != BoxPointKind.Centre)
                 {
                     height = ObjectDepth.Height(height, depth, DegreesLookedDown(frame.RayThrough(detection.Centre)));
@@ -63,9 +68,9 @@ namespace ArObjectLabels
             Vector3 away = point - frame.Position;
             if (used == BoxPointKind.BottomCentreSetBack)
             {
-                // Set back by the box width for every class: measured on the test room, that put objects
-                // nearer their true place than the usual depths did.
-                point = BoxPoint.SetBack(point, frame.Position, width);
+                // Set back by the box width: measured on the test room, that put objects nearer their true
+                // place than the usual depths did. A plant is the exception; its box is far wider than its pot.
+                point = BoxPoint.SetBack(point, frame.Position, ObjectDepth.ForSetBack(width, usual));
             }
             placed = new PlacedDetection(detection, point, width, height, depth, away, used);
             return true;

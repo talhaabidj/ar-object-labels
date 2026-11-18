@@ -69,6 +69,24 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ObjectOnATableTop_MayBeSetBack()
+        {
+            Assert.IsTrue(SurfaceChoice.AllowsSetBack(tableTop));
+        }
+
+        [Test]
+        public void ObjectOnAWall_IsNotSetBack()
+        {
+            Assert.IsFalse(SurfaceChoice.AllowsSetBack(backWall));
+        }
+
+        [Test]
+        public void RayThatEndsOnASmallUprightSurface_IsNotSetBackEither()
+        {
+            Assert.IsFalse(SurfaceChoice.AllowsSetBack(tableEdge));
+        }
+
+        [Test]
         public void SecondSmallUprightSurfaceInBetween_DoesNotStopTheSearch()
         {
             var secondEdge = new SurfaceHit(new Vector3(0f, 0.77f, 3.33f), 2.53f, false, true, 0.3f);

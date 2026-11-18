@@ -17,8 +17,8 @@ namespace ArObjectLabels.Tests
         [Test]
         public void ClassInTheTable_HasItsUsualDepth()
         {
-            Assert.IsTrue(ObjectDepth.TryUsual("chair", table, out float depth));
-            Assert.AreEqual(0.50f, depth);
+            Assert.IsTrue(ObjectDepth.TryUsual("chair", table, out ClassDepth usual));
+            Assert.AreEqual(0.50f, usual.depth);
         }
 
         [Test]
@@ -28,14 +28,14 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void DefaultTable_HoldsTheClassesThatAreNotRound()
+        public void DefaultTable_HoldsTheClassesThatAreNotRound_AndThePlant()
         {
             List<ClassDepth> usual = new DetectionSettings().usualDepths;
 
-            foreach (string className in new[] { "laptop", "keyboard", "mouse", "tv", "chair", "clock" })
+            foreach (string className in new[] { "laptop", "keyboard", "mouse", "tv", "chair", "clock", "potted plant" })
             {
-                Assert.IsTrue(ObjectDepth.TryUsual(className, usual, out float depth), className);
-                Assert.Greater(depth, 0f, className);
+                Assert.IsTrue(ObjectDepth.TryUsual(className, usual, out ClassDepth found), className);
+                Assert.Greater(found.depth, 0f, className);
             }
         }
 
@@ -44,10 +44,29 @@ namespace ArObjectLabels.Tests
         {
             List<ClassDepth> usual = new DetectionSettings().usualDepths;
 
-            foreach (string className in new[] { "vase", "cup", "bottle", "potted plant", "pen" })
+            foreach (string className in new[] { "vase", "cup", "bottle", "pen" })
             {
                 Assert.IsFalse(ObjectDepth.TryUsual(className, usual, out _), className);
             }
+        }
+
+        [Test]
+        public void SetBack_UsesTheBoxWidth_ForAClassThatDoesNotLimitIt()
+        {
+            ObjectDepth.TryUsual("laptop", new DetectionSettings().usualDepths, out ClassDepth laptop);
+
+            Assert.AreEqual(0.39f, ObjectDepth.ForSetBack(0.39f, laptop));
+            Assert.AreEqual(0.39f, ObjectDepth.ForSetBack(0.39f, null), "a class that is not in the table");
+        }
+
+        [Test]
+        public void SetBack_OfAPlant_IsHeldToItsUsualDepth()
+        {
+            ObjectDepth.TryUsual("potted plant", new DetectionSettings().usualDepths, out ClassDepth plant);
+
+            // Its leaves make the box a metre wide; the pot is about 0.3 m.
+            Assert.AreEqual(0.30f, ObjectDepth.ForSetBack(1.0f, plant));
+            Assert.AreEqual(0.20f, ObjectDepth.ForSetBack(0.20f, plant), "a small plant keeps its box width");
         }
 
         [Test]

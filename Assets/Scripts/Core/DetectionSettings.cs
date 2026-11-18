@@ -32,10 +32,11 @@ namespace ArObjectLabels.Core
         public float sameHeight = 0.1f;
 
         /// <summary>
-        /// Usual depths, front to back, of classes that are not round, from everyday sizes and not measured
-        /// on the test room's objects. They give the room box its depth and correct the height seen from
-        /// above; the set-back does not use them. A class that is not listed is taken to be as deep as its
-        /// box is wide, which is right for round things such as a vase, a cup, a bottle or a plant pot.
+        /// Usual depths, front to back, from everyday sizes and not measured on the test room's objects.
+        /// They give the room box its depth and correct the height seen from above. The set-back uses the
+        /// box width, except for a class marked as limiting it: a plant's leaves make its box much wider
+        /// than its pot. A class that is not listed is taken to be as deep as its box is wide, which is
+        /// right for round things such as a vase, a cup or a bottle.
         /// </summary>
         public List<ClassDepth> usualDepths = new List<ClassDepth>
         {
@@ -44,7 +45,8 @@ namespace ArObjectLabels.Core
             new ClassDepth { className = "mouse", depth = 0.11f },
             new ClassDepth { className = "tv", depth = 0.20f },
             new ClassDepth { className = "chair", depth = 0.50f },
-            new ClassDepth { className = "clock", depth = 0.05f }
+            new ClassDepth { className = "clock", depth = 0.05f },
+            new ClassDepth { className = "potted plant", depth = 0.30f, limitsSetBack = true }
         };
     }
 }

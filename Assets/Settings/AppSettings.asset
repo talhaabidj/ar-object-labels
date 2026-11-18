@@ -35,16 +35,25 @@ MonoBehaviour:
     usualDepths:
     - className: laptop
       depth: 0.24
+      limitsSetBack: 0
     - className: keyboard
       depth: 0.14
+      limitsSetBack: 0
     - className: mouse
       depth: 0.11
+      limitsSetBack: 0
     - className: tv
       depth: 0.2
+      limitsSetBack: 0
     - className: chair
       depth: 0.5
+      limitsSetBack: 0
     - className: clock
       depth: 0.05
+      limitsSetBack: 0
+    - className: potted plant
+      depth: 0.3
+      limitsSetBack: 1
   model:
     inputSize: 640
     minScore: 0.45
