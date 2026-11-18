@@ -18,10 +18,10 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float overlapLimit = 0.45f;
 
-        /// <summary>How long the model may work in one frame, in milliseconds. One run is spread over frames.</summary>
-        public float millisecondsPerFrame = 5f;
-
-        /// <summary>Run the model on the graphics card. Off: on the processor.</summary>
-        public bool onGraphicsCard = true;
+        /// <summary>
+        /// A new run of the model starts at most every this many frames: 1 is every frame, 3 every third.
+        /// A run also waits for the one before it to finish.
+        /// </summary>
+        public int framesBetweenRuns = 3;
     }
 }

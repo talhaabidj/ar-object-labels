@@ -45,3 +45,8 @@ MonoBehaviour:
       depth: 0.5
     - className: clock
       depth: 0.05
+  model:
+    inputSize: 640
+    minScore: 0.45
+    overlapLimit: 0.45
+    framesBetweenRuns: 3

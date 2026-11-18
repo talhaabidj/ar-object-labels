@@ -4,6 +4,7 @@
     "references": [
         "ArObjectLabels.Core",
         "Unity.InputSystem",
+        "Unity.InferenceEngine",
         "Unity.TextMeshPro",
         "Unity.XR.ARFoundation",
         "Unity.XR.ARSubsystems",

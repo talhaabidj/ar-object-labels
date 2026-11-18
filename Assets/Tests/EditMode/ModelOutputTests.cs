@@ -24,9 +24,9 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void Length_IsFourBoxRowsAndOneRowAClass()
+        public void Table_HasFourBoxRowsAndOneRowAClass()
         {
-            Assert.AreEqual(84 * 8400, ModelOutput.Length(8400, 80));
+            Assert.AreEqual(84, ModelOutput.Rows(80));
         }
 
         [Test]

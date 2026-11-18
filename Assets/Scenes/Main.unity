@@ -2026,6 +2026,7 @@ MonoBehaviour:
   sources:
   - {fileID: 2026489861}
   - {fileID: 2026489863}
+  - {fileID: 2026489864}
 --- !u!1 &2026489858
 GameObject:
   m_ObjectHideFlags: 0
@@ -2039,6 +2040,7 @@ GameObject:
   - component: {fileID: 2026489860}
   - component: {fileID: 2026489859}
   - component: {fileID: 2026489863}
+  - component: {fileID: 2026489864}
   m_Layer: 0
   m_Name: Detections
   m_TagString: Untagged
@@ -2126,6 +2128,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.TrueBoxSource
   viewCamera: {fileID: 773699675}
   settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
+--- !u!114 &2026489864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026489858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 725cabf30e2784f2aa63770601988136, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.ModelSource
+  viewCamera: {fileID: 773699675}
+  cameraManager: {fileID: 773699673}
+  settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
+  modelFile: {fileID: 5022602860645237092, guid: 8e17bfeeaf9e84265985c9f9ac56eb7c, type: 3}
+  classListFile: {fileID: 4900000, guid: b1bacd1747efd4a1ea1ed90e9f248eb3, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

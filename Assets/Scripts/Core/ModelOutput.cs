@@ -11,10 +11,10 @@ namespace ArObjectLabels.Core
     {
         const int BoxRows = 4;
 
-        /// <summary>How many numbers the output holds for this many columns and classes.</summary>
-        public static int Length(int columns, int classCount)
+        /// <summary>How many rows the table has for this many classes.</summary>
+        public static int Rows(int classCount)
         {
-            return (BoxRows + classCount) * columns;
+            return BoxRows + classCount;
         }
 
         /// <summary>

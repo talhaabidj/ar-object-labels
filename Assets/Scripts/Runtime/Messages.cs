@@ -11,6 +11,7 @@ namespace ArObjectLabels
 
         public const string FixedBoxSource = "fixed box";
         public const string TrueBoxSource = "true box";
+        public const string ModelSource = "model";
         public const string NoSource = "off";
 
         /// <summary>The text on the source switch.</summary>

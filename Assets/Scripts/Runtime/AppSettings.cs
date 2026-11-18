@@ -9,5 +9,6 @@ namespace ArObjectLabels
     {
         public LabelSettings label = new LabelSettings();
         public DetectionSettings detection = new DetectionSettings();
+        public ModelSettings model = new ModelSettings();
     }
 }
