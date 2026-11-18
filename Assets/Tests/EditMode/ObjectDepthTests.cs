@@ -28,16 +28,26 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void DefaultTable_KnowsTheClassesOfTheTestRoom_AndNoPen()
+        public void DefaultTable_HoldsTheClassesThatAreNotRound()
         {
             List<ClassDepth> usual = new DetectionSettings().usualDepths;
 
-            foreach (string className in new[] { "laptop", "keyboard", "mouse", "tv", "cup", "bottle", "vase", "potted plant", "chair", "clock" })
+            foreach (string className in new[] { "laptop", "keyboard", "mouse", "tv", "chair", "clock" })
             {
                 Assert.IsTrue(ObjectDepth.TryUsual(className, usual, out float depth), className);
                 Assert.Greater(depth, 0f, className);
             }
-            Assert.IsFalse(ObjectDepth.TryUsual("pen", usual, out _));
+        }
+
+        [Test]
+        public void DefaultTable_LeavesRoundClassesToTheirBoxWidth()
+        {
+            List<ClassDepth> usual = new DetectionSettings().usualDepths;
+
+            foreach (string className in new[] { "vase", "cup", "bottle", "potted plant", "pen" })
+            {
+                Assert.IsFalse(ObjectDepth.TryUsual(className, usual, out _), className);
+            }
         }
 
         [Test]

@@ -22,9 +22,20 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float edgeMargin = 0.01f;
 
+        /// <summary>An upright surface whose longer side is at most this, in metres, counts as small: an edge of furniture, not a wall.</summary>
+        public float smallSurface = 1.5f;
+
+        /// <summary>How far behind a small upright surface, in metres along the ray, an upward-facing one may lie to be used instead.</summary>
+        public float justBehind = 0.3f;
+
+        /// <summary>How far apart in height, in metres, the two meeting points may be for that.</summary>
+        public float sameHeight = 0.1f;
+
         /// <summary>
-        /// Usual depths, front to back, of the classes met so far, from everyday sizes and not measured on
-        /// the test room's objects. A class that is not listed is taken to be as deep as its box is wide.
+        /// Usual depths, front to back, of classes that are not round, from everyday sizes and not measured
+        /// on the test room's objects. They give the room box its depth and correct the height seen from
+        /// above; the set-back does not use them. A class that is not listed is taken to be as deep as its
+        /// box is wide, which is right for round things such as a vase, a cup, a bottle or a plant pot.
         /// </summary>
         public List<ClassDepth> usualDepths = new List<ClassDepth>
         {
@@ -32,10 +43,6 @@ namespace ArObjectLabels.Core
             new ClassDepth { className = "keyboard", depth = 0.14f },
             new ClassDepth { className = "mouse", depth = 0.11f },
             new ClassDepth { className = "tv", depth = 0.20f },
-            new ClassDepth { className = "cup", depth = 0.08f },
-            new ClassDepth { className = "bottle", depth = 0.07f },
-            new ClassDepth { className = "vase", depth = 0.15f },
-            new ClassDepth { className = "potted plant", depth = 0.30f },
             new ClassDepth { className = "chair", depth = 0.50f },
             new ClassDepth { className = "clock", depth = 0.05f }
         };

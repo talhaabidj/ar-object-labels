@@ -8,7 +8,7 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// Turns a found box into a place and a size in the room: a ray from the camera's stored pose through one
-    /// point of the box, to the nearest found surface. The depth comes from the class's usual depth.
+    /// point of the box, to the found surface the object stands on.
     /// </summary>
     public class DetectionPlacer : MonoBehaviour
     {
@@ -16,6 +16,7 @@ namespace ArObjectLabels
         [SerializeField] ARRaycastManager raycastManager;
 
         readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
+        readonly List<SurfaceHit> surfaces = new List<SurfaceHit>();
 
         /// <summary>False when the ray meets no found surface within the distance set in the settings.</summary>
         public bool TryPlace(Detection detection, CameraFrame frame, out PlacedDetection placed)
@@ -33,17 +34,22 @@ namespace ArObjectLabels
             BoxPointKind used = BoxPoint.KindFor(detection, boxPoint, frame.PictureHeight, rules.edgeMargin);
             Ray ray = frame.RayThrough(BoxPoint.Pick(detection, used));
             placed = default;
-            if (!raycastManager.Raycast(ray, hits, TrackableType.PlaneWithinPolygon)
-                || hits[0].distance > rules.maxDistance)
+            if (!raycastManager.Raycast(ray, hits, TrackableType.PlaneWithinPolygon))
+            {
+                return false;
+            }
+            ARRaycastHit hit = hits[SurfaceChoice.Pick(AsSurfaces(hits), rules)];
+            if (hit.distance > rules.maxDistance)
             {
                 return false;
             }
 
-            Vector3 point = hits[0].pose.position;
+            Vector3 point = hit.pose.position;
             float ahead = Vector3.Dot(point - frame.Position, frame.Rotation * Vector3.forward);
             float width = frame.MetresFor(detection.Width, ahead);
             float height = frame.MetresFor(detection.Height, ahead);
-            // A class with no usual depth is taken to be as deep as it is wide, and its height stays as seen.
+            // The usual depth of a class shapes the room box and corrects the height. A class with no usual
+            // depth is taken to be as deep as it is wide, and its height stays as seen.
             float depth = width;
             if (ObjectDepth.TryUsual(detection.ClassName, rules.usualDepths, out float usualDepth))
             {
@@ -57,10 +63,27 @@ namespace ArObjectLabels
             Vector3 away = point - frame.Position;
             if (used == BoxPointKind.BottomCentreSetBack)
             {
-                point = BoxPoint.SetBack(point, frame.Position, depth);
+                // Set back by the box width for every class: measured on the test room, that put objects
+                // nearer their true place than the usual depths did.
+                point = BoxPoint.SetBack(point, frame.Position, width);
             }
             placed = new PlacedDetection(detection, point, width, height, depth, away, used);
             return true;
+        }
+
+        // What the rule for choosing a surface needs to know about each surface the ray meets, nearest first.
+        List<SurfaceHit> AsSurfaces(List<ARRaycastHit> met)
+        {
+            surfaces.Clear();
+            foreach (ARRaycastHit one in met)
+            {
+                var plane = one.trackable as ARPlane;
+                bool facesUp = plane != null && plane.alignment == PlaneAlignment.HorizontalUp;
+                bool upright = plane != null && plane.alignment == PlaneAlignment.Vertical;
+                float longestSide = plane != null ? Mathf.Max(plane.size.x, plane.size.y) : 0f;
+                surfaces.Add(new SurfaceHit(one.pose.position, one.distance, facesUp, upright, longestSide));
+            }
+            return surfaces;
         }
 
         static float DegreesLookedDown(Ray ray)
