@@ -4,8 +4,8 @@ using UnityEngine;
 namespace ArObjectLabels.Core
 {
     /// <summary>
-    /// Finds a free place for a label among other objects and the labels placed before it. All rectangles are in
-    /// the viewer's flat picture, in the same units.
+    /// Finds a free place for a label among other objects and the labels placed before it, inside the picture.
+    /// All rectangles are in the viewer's flat picture, in the same units.
     /// </summary>
     public static class LabelArrange
     {
@@ -15,19 +15,47 @@ namespace ArObjectLabels.Core
         /// step up, beside the object on the right, on the left, up and to the right, up and to the left, two
         /// steps up. A free place touches no other object and no label placed before. If none of them is free,
         /// the label moves straight up until it is clear of everything.
+        ///
+        /// Every place is first pulled inside <paramref name="picture"/>, the part of the flat picture the
+        /// viewer sees, so a label is never cut by the picture's edge. A label whose object is not in the
+        /// picture at all is left where it is.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
-            IReadOnlyList<Rect> placedLabels, float margin)
+            IReadOnlyList<Rect> placedLabels, float margin, Rect picture)
         {
+            bool objectInPicture = Touches(ownObject, picture, 0f);
             for (int choice = 0; choice < NearbyPlaces; choice++)
             {
                 Rect place = Nearby(choice, label, ownObject, margin);
+                if (objectInPicture)
+                {
+                    place = KeepInside(place, picture);
+                }
                 if (IsFree(place, otherObjects, placedLabels, margin))
                 {
                     return new Vector2(place.x - label.x, place.y - label.y);
                 }
             }
-            return new Vector2(0f, LabelOverlap.LiftToClear(label, placedLabels, otherObjects, margin));
+
+            var lifted = new Rect(label.x, label.y + LabelOverlap.LiftToClear(label, placedLabels, otherObjects, margin), label.width, label.height);
+            if (objectInPicture)
+            {
+                lifted = KeepInside(lifted, picture);
+            }
+            return new Vector2(lifted.x - label.x, lifted.y - label.y);
+        }
+
+        /// <summary>
+        /// The rectangle moved by the least needed to lie inside the picture. One that is wider or higher
+        /// than the picture is put in its middle.
+        /// </summary>
+        public static Rect KeepInside(Rect place, Rect picture)
+        {
+            float x = place.width > picture.width ? picture.center.x - place.width / 2f
+                : Mathf.Clamp(place.x, picture.xMin, picture.xMax - place.width);
+            float y = place.height > picture.height ? picture.center.y - place.height / 2f
+                : Mathf.Clamp(place.y, picture.yMin, picture.yMax - place.height);
+            return new Rect(x, y, place.width, place.height);
         }
 
         const int NearbyPlaces = 7;

@@ -11,6 +11,11 @@ namespace ArObjectLabels.Tests
         const float Margin = 0.01f;
         static readonly List<Rect> none = new List<Rect>();
 
+        // A picture so large that its edge plays no part.
+        static readonly Rect everywhere = new Rect(-100f, -100f, 200f, 200f);
+        // A picture of a camera that sees 60 degrees up and down: 1.06 wide and 0.58 high, one metre away.
+        static readonly Rect picture = new Rect(-0.53f, -0.29f, 1.06f, 0.58f);
+
         // An object 0.10 wide and high with its foot at the origin, and its label 0.12 x 0.05 a gap of 0.02 above it.
         static readonly Rect cube = new Rect(-0.05f, 0f, 0.10f, 0.10f);
         static readonly Rect label = new Rect(-0.06f, 0.12f, 0.12f, 0.05f);
@@ -18,7 +23,7 @@ namespace ArObjectLabels.Tests
         // Run under a time limit: the rule uses the overlap rule, which has a loop.
         static Vector2 Offset(List<Rect> otherObjects, List<Rect> placedLabels)
         {
-            return TimeLimit.Run(() => LabelArrange.Offset(label, cube, otherObjects, placedLabels, Margin));
+            return TimeLimit.Run(() => LabelArrange.Offset(label, cube, otherObjects, placedLabels, Margin, everywhere));
         }
 
         static Rect Moved(Vector2 offset)
@@ -147,6 +152,83 @@ namespace ArObjectLabels.Tests
             {
                 Assert.IsFalse(LabelArrange.Touches(moved, other, Margin - 0.0001f));
             }
+        }
+
+        static Rect At(Rect rect, float x, float y)
+        {
+            return new Rect(x, y, rect.width, rect.height);
+        }
+
+        static Rect MovedFrom(Rect from, Vector2 offset)
+        {
+            return new Rect(from.x + offset.x, from.y + offset.y, from.width, from.height);
+        }
+
+        [Test]
+        public void LabelInsideThePicture_DoesNotMove()
+        {
+            Assert.AreEqual(Vector2.zero, LabelArrange.Offset(label, cube, none, none, Margin, picture));
+        }
+
+        [Test]
+        public void LabelCutByTheRightEdge_MovesJustInside()
+        {
+            // The object stands at the right edge; its label would reach 0.04 past it.
+            Rect objectAtTheEdge = At(cube, 0.46f, 0f);
+            Rect ownLabel = At(label, 0.45f, 0.12f);
+
+            Vector2 offset = LabelArrange.Offset(ownLabel, objectAtTheEdge, none, none, Margin, picture);
+
+            Assert.AreEqual(picture.xMax, MovedFrom(ownLabel, offset).xMax, 0.0001f);
+            Assert.AreEqual(0f, offset.y, 0.0001f, "only as far as needed");
+        }
+
+        [Test]
+        public void LabelAboveTheTopEdge_MovesDownIntoThePicture()
+        {
+            // A clock near the ceiling: its label's own place is above the picture.
+            Rect clock = At(cube, -0.05f, 0.17f);
+            Rect ownLabel = At(label, -0.06f, 0.30f);
+
+            Vector2 offset = LabelArrange.Offset(ownLabel, clock, none, none, Margin, picture);
+
+            Rect moved = MovedFrom(ownLabel, offset);
+            Assert.LessOrEqual(moved.yMax, picture.yMax + 0.0001f);
+            Assert.GreaterOrEqual(moved.xMin, picture.xMin);
+            Assert.LessOrEqual(moved.xMax, picture.xMax);
+        }
+
+        [Test]
+        public void PulledInsideOntoAnotherLabel_TakesAnotherPlaceInside()
+        {
+            Rect objectAtTheEdge = At(cube, 0.46f, 0f);
+            Rect ownLabel = At(label, 0.45f, 0.12f);
+            // Another label already sits where ours would be pulled to.
+            var taken = new List<Rect> { new Rect(0.41f, 0.12f, 0.12f, 0.05f) };
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(ownLabel, objectAtTheEdge, none, taken, Margin, picture));
+
+            Rect moved = MovedFrom(ownLabel, offset);
+            Assert.IsFalse(LabelArrange.Touches(moved, taken[0], Margin), "clear of the other label");
+            Assert.LessOrEqual(moved.xMax, picture.xMax + 0.0001f);
+            Assert.LessOrEqual(moved.yMax, picture.yMax + 0.0001f);
+        }
+
+        [Test]
+        public void ObjectOutsideThePicture_ItsLabelIsNotPulledIn()
+        {
+            Rect farToTheRight = At(cube, 0.80f, 0f);
+            Rect ownLabel = At(label, 0.79f, 0.12f);
+
+            Assert.AreEqual(Vector2.zero, LabelArrange.Offset(ownLabel, farToTheRight, none, none, Margin, picture));
+        }
+
+        [Test]
+        public void RectangleWiderThanThePicture_IsPutInItsMiddle()
+        {
+            Rect kept = LabelArrange.KeepInside(new Rect(0.3f, 0f, 2f, 0.05f), picture);
+
+            Assert.AreEqual(picture.center.x, kept.center.x, 0.0001f);
         }
     }
 }

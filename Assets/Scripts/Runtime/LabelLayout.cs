@@ -46,15 +46,23 @@ namespace ArObjectLabels
         {
             if (viewCamera != null)
             {
-                Arrange(viewCamera.transform.position, viewCamera.transform.rotation);
+                // How far the picture reaches from its middle, one metre in front of the camera.
+                Matrix4x4 lens = viewCamera.projectionMatrix;
+                var halfPicture = new Vector2(1f / lens.m00, 1f / lens.m11);
+                Arrange(viewCamera.transform.position, viewCamera.transform.rotation, halfPicture);
             }
         }
 
-        /// <summary>Places every label for a camera at this place, looking this way.</summary>
-        public void Arrange(Vector3 cameraPosition, Quaternion cameraRotation)
+        /// <summary>
+        /// Places every label for a camera at this place, looking this way. <paramref name="halfPicture"/>
+        /// is half the picture's width and height, one metre in front of the camera.
+        /// </summary>
+        public void Arrange(Vector3 cameraPosition, Quaternion cameraRotation, Vector2 halfPicture)
         {
             Quaternion toPicture = Quaternion.Inverse(cameraRotation);
             LabelSettings rules = settings.label;
+            Rect picture = Rect.MinMaxRect(-halfPicture.x + rules.labelMargin, -halfPicture.y + rules.labelMargin,
+                halfPicture.x - rules.labelMargin, halfPicture.y - rules.labelMargin);
 
             // 1. Every label at its own place. Labels behind the camera or faded out are not shown.
             inView.Clear();
@@ -82,7 +90,8 @@ namespace ArObjectLabels
                 inView[i].SetShown(chosen.Contains(i));
             }
 
-            // 3. In that order, each label moves aside if another object or an earlier label is in its place.
+            // 3. In that order, each label moves if another object or an earlier label is in its place, or if
+            //    the picture's edge would cut it.
             placedLabels.Clear();
             foreach (int index in chosen)
             {
@@ -107,7 +116,7 @@ namespace ArObjectLabels
                         otherObjects.Add(otherObject);
                     }
                 }
-                Vector2 move = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin);
+                Vector2 move = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture);
                 if (move != Vector2.zero)
                 {
                     label.MoveAside(cameraRotation * new Vector3(move.x * depth, move.y * depth, 0f), cameraPosition);
