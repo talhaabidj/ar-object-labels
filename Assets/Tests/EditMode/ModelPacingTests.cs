@@ -27,9 +27,10 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void WithTheSettingsAsTheyCome_TenRunsASecond()
+        public void WithTheSettingsAsTheyCome_TenRunsASecond_FortyLayersAFrame()
         {
             Assert.AreEqual(10f, new ModelSettings().runsPerSecond);
+            Assert.AreEqual(40, new ModelSettings().layersPerFrame);
         }
     }
 }

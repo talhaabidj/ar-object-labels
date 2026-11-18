@@ -50,4 +50,4 @@ MonoBehaviour:
     minScore: 0.45
     overlapLimit: 0.45
     runsPerSecond: 10
-    layersPerFrame: 0
+    layersPerFrame: 40
