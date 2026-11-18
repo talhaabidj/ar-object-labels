@@ -5,8 +5,9 @@ using UnityEngine;
 namespace ArObjectLabels
 {
     /// <summary>
-    /// Places all labels of the scene together, once a frame: each at its own place first, then the nearest
-    /// ones are chosen, and a label that would sit on another label or inside another object is moved aside.
+    /// Places all labels of the scene together, once a frame: each at its own place first, then the labels of
+    /// the objects that are biggest in the picture are chosen, and a label that would sit on another label or
+    /// inside another object is moved aside.
     /// </summary>
     public class LabelLayout : MonoBehaviour
     {
@@ -15,7 +16,7 @@ namespace ArObjectLabels
 
         readonly List<WorldLabel> labels = new List<WorldLabel>();
         readonly List<WorldLabel> inView = new List<WorldLabel>();
-        readonly List<float> distances = new List<float>();
+        readonly List<float> sizes = new List<float>();
         readonly List<float> scores = new List<float>();
         readonly List<Rect> placedLabels = new List<Rect>();
         readonly List<Rect> otherObjects = new List<Rect>();
@@ -57,7 +58,7 @@ namespace ArObjectLabels
 
             // 1. Every label at its own place. Labels behind the camera or faded out are not shown.
             inView.Clear();
-            distances.Clear();
+            sizes.Clear();
             scores.Clear();
             foreach (WorldLabel label in labels)
             {
@@ -69,18 +70,19 @@ namespace ArObjectLabels
                     continue;
                 }
                 inView.Add(label);
-                distances.Add(Vector3.Distance(cameraPosition, label.ObjectTop));
+                Rect inPicture = InPicture(label.ObjectBounds, cameraPosition, toPicture);
+                sizes.Add(inPicture.width * inPicture.height);
                 scores.Add(label.Score);
             }
 
-            // 2. At most a set number is shown: nearest first, then the higher score.
-            List<int> chosen = LabelChoice.Pick(distances, scores, rules.maxLabels, rules.sameDistanceStep);
+            // 2. At most a set number is shown: the biggest object in the picture first, then the higher score.
+            List<int> chosen = LabelChoice.Pick(sizes, scores, rules.maxLabels, rules.sameSizeShare);
             for (int i = 0; i < inView.Count; i++)
             {
                 inView[i].SetShown(chosen.Contains(i));
             }
 
-            // 3. From the nearest on, each label moves aside if another object or an earlier label is in its place.
+            // 3. In that order, each label moves aside if another object or an earlier label is in its place.
             placedLabels.Clear();
             foreach (int index in chosen)
             {

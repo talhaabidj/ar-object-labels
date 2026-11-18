@@ -33,8 +33,11 @@ namespace ArObjectLabels.Core
         /// <summary>How many labels are shown at once at most.</summary>
         public int maxLabels = 6;
 
-        /// <summary>Objects whose distances differ by less than this, in metres, count as equally near when labels are chosen.</summary>
-        public float sameDistanceStep = 0.5f;
+        /// <summary>
+        /// When labels are chosen, objects count as equally big in the picture if their sizes there differ by
+        /// less than this share and fall on the same step of the rule. 0.25 means a quarter.
+        /// </summary>
+        public float sameSizeShare = 0.25f;
 
         /// <summary>Thickness of the line from a moved label to its object, in metres at 1 m distance.</summary>
         public float leaderThickness = 0.004f;

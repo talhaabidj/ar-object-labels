@@ -22,7 +22,7 @@ MonoBehaviour:
     wallMargin: 0.01
     labelMargin: 0.01
     maxLabels: 6
-    sameDistanceStep: 0.5
+    sameSizeShare: 0.25
     leaderThickness: 0.004
   detection:
     boxPoint: 2
