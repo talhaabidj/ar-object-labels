@@ -9,8 +9,14 @@ namespace ArObjectLabels.Core
         /// <summary>The side of the square picture the model takes, in pixels.</summary>
         public int inputSize = 640;
 
-        /// <summary>A found object with a lower score than this gives no label.</summary>
+        /// <summary>The score an object needs, in each of several runs in a row, to get a label.</summary>
         public float minScore = 0.45f;
+
+        /// <summary>An object that has a label keeps it while it is found with this score or more.</summary>
+        public float stayScore = 0.30f;
+
+        /// <summary>In how many runs in a row an object must be found before its label appears.</summary>
+        public int runsToAppear = 3;
 
         /// <summary>
         /// Two boxes of one class that share more than this part of their joint area count as the same

@@ -7,7 +7,8 @@ namespace ArObjectLabels
     /// <summary>
     /// Shows one label for each object the chosen source finds, at the place the placer gives it. A found
     /// object with no place in the room gets no label. With no source chosen, no label shows. An object
-    /// found again near where it was keeps its label's memory, so the label stays steady.
+    /// found again near where it was keeps its label's memory, so the label stays steady. What the model
+    /// finds gets its label only after several runs in a row.
     /// </summary>
     public class DetectionLabels : MonoBehaviour
     {
@@ -27,6 +28,13 @@ namespace ArObjectLabels
         readonly List<Vector3> earlierPlaces = new List<Vector3>();
         readonly List<LabelMemory> earlierMemories = new List<LabelMemory>();
         readonly List<int> continues = new List<int>();
+        readonly List<PlacedDetection> placedNow = new List<PlacedDetection>();
+        readonly ConfirmOverRuns confirm = new ConfirmOverRuns();
+        readonly List<string> runNames = new List<string>();
+        readonly List<float> runScores = new List<float>();
+        readonly List<Vector3> runPlaces = new List<Vector3>();
+        readonly List<bool> mayShow = new List<bool>();
+        float lastReadingTime = float.NegativeInfinity;
         Dictionary<string, string> displayNames;
         IDetectionSource chosen;
 
@@ -34,6 +42,9 @@ namespace ArObjectLabels
         public void Use(IDetectionSource newSource)
         {
             chosen = newSource;
+            placedNow.Clear();
+            confirm.Forget();
+            lastReadingTime = float.NegativeInfinity;
         }
 
         void Awake()
@@ -49,28 +60,75 @@ namespace ArObjectLabels
 
         void Update()
         {
-            names.Clear();
-            places.Clear();
-            int shown = 0;
             if (chosen != null && chosen.TryRead(detections, out CameraFrame frame))
             {
-                foreach (Detection detection in detections)
+                // A source that needs confirming gives the same reading until its next one is ready. Each
+                // reading is placed and judged once.
+                if (!chosen.NeedsConfirming)
                 {
-                    if (placer.TryPlace(detection, frame, out PlacedDetection placed))
-                    {
-                        WorldLabel label = LabelNumber(shown);
-                        string text = ClassNames.LabelFor(detection.ClassName, displayNames);
-                        label.SetText(text);
-                        label.PlaceAt(placed.RoomBox, placed.Turn);
-                        label.Score = detection.Score;
-                        names.Add(text);
-                        places.Add(placed.RoomBox.center);
-                        shown++;
-                    }
+                    PlaceAll(frame);
+                }
+                else if (frame.Time != lastReadingTime)
+                {
+                    PlaceAll(frame);
+                    KeepTheConfirmed();
+                    lastReadingTime = frame.Time;
                 }
             }
+            else
+            {
+                placedNow.Clear();
+            }
+
+            names.Clear();
+            places.Clear();
+            for (int i = 0; i < placedNow.Count; i++)
+            {
+                PlacedDetection placed = placedNow[i];
+                WorldLabel label = LabelNumber(i);
+                string text = ClassNames.LabelFor(placed.Detection.ClassName, displayNames);
+                label.SetText(text);
+                label.PlaceAt(placed.RoomBox, placed.Turn);
+                label.Score = placed.Detection.Score;
+                names.Add(text);
+                places.Add(placed.RoomBox.center);
+            }
             HandOnMemories();
-            ShowOnly(shown);
+            ShowOnly(placedNow.Count);
+        }
+
+        void PlaceAll(CameraFrame frame)
+        {
+            placedNow.Clear();
+            foreach (Detection detection in detections)
+            {
+                if (placer.TryPlace(detection, frame, out PlacedDetection placed))
+                {
+                    placedNow.Add(placed);
+                }
+            }
+        }
+
+        // Leaves only the objects that have been found often enough in a row to have a label.
+        void KeepTheConfirmed()
+        {
+            runNames.Clear();
+            runScores.Clear();
+            runPlaces.Clear();
+            foreach (PlacedDetection placed in placedNow)
+            {
+                runNames.Add(placed.Detection.ClassName);
+                runScores.Add(placed.Detection.Score);
+                runPlaces.Add(placed.RoomBox.center);
+            }
+            confirm.TakeRun(runNames, runScores, runPlaces, settings.model, settings.detection.sameObjectDistance, mayShow);
+            for (int i = placedNow.Count - 1; i >= 0; i--)
+            {
+                if (!mayShow[i])
+                {
+                    placedNow.RemoveAt(i);
+                }
+            }
         }
 
         // Labels are handed out in the order objects are found, which changes from frame to frame. What a

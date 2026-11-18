@@ -23,6 +23,8 @@ namespace ArObjectLabels
 
         public string Name => Messages.FixedBoxSource;
 
+        public bool NeedsConfirming => false;
+
         void Awake()
         {
             if (viewCamera == null)

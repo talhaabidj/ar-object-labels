@@ -61,6 +61,8 @@ MonoBehaviour:
   model:
     inputSize: 640
     minScore: 0.45
+    stayScore: 0.3
+    runsToAppear: 3
     overlapLimit: 0.45
     runsPerSecond: 10
     layersPerFrame: 40

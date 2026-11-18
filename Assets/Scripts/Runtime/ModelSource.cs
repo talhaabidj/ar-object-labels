@@ -37,6 +37,8 @@ namespace ArObjectLabels
 
         public string Name => Messages.ModelSource;
 
+        public bool NeedsConfirming => true;
+
         /// <summary>How many runs have finished since the app started. For measurements.</summary>
         public int RunsFinished { get; private set; }
 
@@ -154,7 +156,8 @@ namespace ArObjectLabels
             awaited = null;
 
             found.Clear();
-            ModelOutput.AddBoxes(table, table.Length / ModelOutput.Rows(classNames.Count), classNames, rules.minScore, found);
+            // Boxes are kept down to the score for staying; which of them get a label is decided over several runs.
+            ModelOutput.AddBoxes(table, table.Length / ModelOutput.Rows(classNames.Count), classNames, rules.stayScore, found);
             BoxOverlap.KeepTheBest(found, rules.overlapLimit);
             for (int i = 0; i < found.Count; i++)
             {
