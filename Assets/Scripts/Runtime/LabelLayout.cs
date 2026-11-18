@@ -70,7 +70,7 @@ namespace ArObjectLabels
                     continue;
                 }
                 inView.Add(label);
-                Rect inPicture = InPicture(label.ObjectBounds, cameraPosition, toPicture);
+                Rect inPicture = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
                 sizes.Add(inPicture.width * inPicture.height);
                 scores.Add(label.Score);
             }
@@ -93,7 +93,7 @@ namespace ArObjectLabels
                     continue;
                 }
                 Rect own = LabelInPicture(label, cameraPosition, toPicture);
-                Rect ownObject = InPicture(label.ObjectBounds, cameraPosition, toPicture);
+                Rect ownObject = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
                 otherObjects.Clear();
                 foreach (WorldLabel other in inView)
                 {
@@ -101,7 +101,7 @@ namespace ArObjectLabels
                     {
                         continue;
                     }
-                    Rect otherObject = InPicture(other.ObjectBounds, cameraPosition, toPicture);
+                    Rect otherObject = BoxInPicture.Around(other.ObjectBounds, other.ObjectTurn, cameraPosition, cameraRotation);
                     if (!LabelArrange.HoldsTheObject(otherObject, ownObject))
                     {
                         otherObjects.Add(otherObject);
@@ -123,26 +123,6 @@ namespace ArObjectLabels
             Vector3 seen = toPicture * (label.transform.position - cameraPosition);
             Vector2 half = label.HalfSize / seen.z;
             return new Rect(seen.x / seen.z - half.x, seen.y / seen.z - half.y, half.x * 2f, half.y * 2f);
-        }
-
-        // An object's box as a rectangle in the same picture. Corners behind the camera are left out.
-        static Rect InPicture(Bounds bounds, Vector3 cameraPosition, Quaternion toPicture)
-        {
-            var low = new Vector2(float.MaxValue, float.MaxValue);
-            var high = new Vector2(float.MinValue, float.MinValue);
-            for (int corner = 0; corner < 8; corner++)
-            {
-                var sign = new Vector3((corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f);
-                Vector3 seen = toPicture * (bounds.center + Vector3.Scale(bounds.extents, sign) - cameraPosition);
-                if (seen.z <= 0.01f)
-                {
-                    continue;
-                }
-                var point = new Vector2(seen.x / seen.z, seen.y / seen.z);
-                low = Vector2.Min(low, point);
-                high = Vector2.Max(high, point);
-            }
-            return high.x < low.x ? new Rect(0f, 0f, 0f, 0f) : Rect.MinMaxRect(low.x, low.y, high.x, high.y);
         }
     }
 }

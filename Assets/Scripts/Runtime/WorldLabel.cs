@@ -24,6 +24,7 @@ namespace ArObjectLabels
 
         Renderer followed;
         Bounds? placedBox;
+        Quaternion placedTurn = Quaternion.identity;
         Vector3 objectTop;
         float objectRadius;
         LabelLayout layout;
@@ -35,10 +36,13 @@ namespace ArObjectLabels
         /// <summary>The top of the object this label names.</summary>
         public Vector3 ObjectTop => objectTop;
 
-        /// <summary>The space the label's object takes up.</summary>
+        /// <summary>The space the label's object takes up, as a box in its own axes. <see cref="ObjectTurn"/> turns them into the room.</summary>
         public Bounds ObjectBounds => followed != null
             ? followed.bounds
             : placedBox ?? new Bounds(objectTop + Vector3.down * objectRadius, Vector3.one * objectRadius * 2f);
+
+        /// <summary>The turn of the object's box. A followed object's box is not turned.</summary>
+        public Quaternion ObjectTurn => followed == null && placedBox.HasValue ? placedTurn : Quaternion.identity;
 
         /// <summary>How sure the source of this label is, from 0 to 1. Used when there are more labels than are shown.</summary>
         public float Score { get; set; } = 1f;
@@ -65,11 +69,16 @@ namespace ArObjectLabels
             placedBox = null;
         }
 
-        /// <summary>The label sits above this box, for an object known as a place and a size in the room.</summary>
-        public void PlaceAt(Bounds box)
+        /// <summary>
+        /// The label sits above this box, for an object known as a place and a size in the room. The box is
+        /// given in its own axes, z along the view it was found from, with the turn of those axes.
+        /// </summary>
+        public void PlaceAt(Bounds box, Quaternion turn)
         {
-            PlaceAt(new Vector3(box.center.x, box.max.y, box.center.z), Mathf.Max(box.extents.x, box.extents.z));
+            // Seen from above, the label clears the object's far edge, which is half its depth away.
+            PlaceAt(new Vector3(box.center.x, box.max.y, box.center.z), box.extents.z);
             placedBox = box;
+            placedTurn = turn;
         }
 
         /// <summary>The label sits above this point, for an object known only as a place.</summary>

@@ -7,8 +7,8 @@ using UnityEngine.XR.ARSubsystems;
 namespace ArObjectLabels
 {
     /// <summary>
-    /// Turns a found box into a place in the room: a ray from the camera's stored pose through one point of the
-    /// box, to the nearest found surface.
+    /// Turns a found box into a place and a size in the room: a ray from the camera's stored pose through one
+    /// point of the box, to the nearest found surface. The depth comes from the class's usual depth.
     /// </summary>
     public class DetectionPlacer : MonoBehaviour
     {
@@ -42,13 +42,30 @@ namespace ArObjectLabels
             Vector3 point = hits[0].pose.position;
             float ahead = Vector3.Dot(point - frame.Position, frame.Rotation * Vector3.forward);
             float width = frame.MetresFor(detection.Width, ahead);
+            float height = frame.MetresFor(detection.Height, ahead);
+            // A class with no usual depth is taken to be as deep as it is wide, and its height stays as seen.
+            float depth = width;
+            if (ObjectDepth.TryUsual(detection.ClassName, rules.usualDepths, out float usualDepth))
+            {
+                depth = usualDepth;
+                if (used != BoxPointKind.Centre)
+                {
+                    height = ObjectDepth.Height(height, depth, DegreesLookedDown(frame.RayThrough(detection.Centre)));
+                }
+            }
+
+            Vector3 away = point - frame.Position;
             if (used == BoxPointKind.BottomCentreSetBack)
             {
-                // The object's depth is not known. Its width is the nearest thing to it that the box gives.
-                point = BoxPoint.SetBack(point, frame.Position, width);
+                point = BoxPoint.SetBack(point, frame.Position, depth);
             }
-            placed = new PlacedDetection(detection, point, width, frame.MetresFor(detection.Height, ahead), used);
+            placed = new PlacedDetection(detection, point, width, height, depth, away, used);
             return true;
+        }
+
+        static float DegreesLookedDown(Ray ray)
+        {
+            return Mathf.Asin(Mathf.Clamp(-ray.direction.y, -1f, 1f)) * Mathf.Rad2Deg;
         }
     }
 }

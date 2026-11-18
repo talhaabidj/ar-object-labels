@@ -29,3 +29,24 @@ MonoBehaviour:
     maxDistance: 5
     minVisibleShare: 0.5
     edgeMargin: 0.01
+    usualDepths:
+    - className: laptop
+      depth: 0.24
+    - className: keyboard
+      depth: 0.14
+    - className: mouse
+      depth: 0.11
+    - className: tv
+      depth: 0.2
+    - className: cup
+      depth: 0.08
+    - className: bottle
+      depth: 0.07
+    - className: vase
+      depth: 0.15
+    - className: potted plant
+      depth: 0.3
+    - className: chair
+      depth: 0.5
+    - className: clock
+      depth: 0.05

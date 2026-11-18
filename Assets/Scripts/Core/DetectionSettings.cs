@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ArObjectLabels.Core
 {
@@ -20,5 +21,23 @@ namespace ArObjectLabels.Core
         /// back. A share of the picture's height.
         /// </summary>
         public float edgeMargin = 0.01f;
+
+        /// <summary>
+        /// Usual depths, front to back, of the classes met so far, from everyday sizes and not measured on
+        /// the test room's objects. A class that is not listed is taken to be as deep as its box is wide.
+        /// </summary>
+        public List<ClassDepth> usualDepths = new List<ClassDepth>
+        {
+            new ClassDepth { className = "laptop", depth = 0.24f },
+            new ClassDepth { className = "keyboard", depth = 0.14f },
+            new ClassDepth { className = "mouse", depth = 0.11f },
+            new ClassDepth { className = "tv", depth = 0.20f },
+            new ClassDepth { className = "cup", depth = 0.08f },
+            new ClassDepth { className = "bottle", depth = 0.07f },
+            new ClassDepth { className = "vase", depth = 0.15f },
+            new ClassDepth { className = "potted plant", depth = 0.30f },
+            new ClassDepth { className = "chair", depth = 0.50f },
+            new ClassDepth { className = "clock", depth = 0.05f }
+        };
     }
 }

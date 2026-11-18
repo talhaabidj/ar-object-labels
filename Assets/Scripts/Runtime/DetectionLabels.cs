@@ -49,7 +49,7 @@ namespace ArObjectLabels
                     {
                         WorldLabel label = LabelNumber(shown);
                         label.SetText(ClassNames.LabelFor(detection.ClassName, displayNames));
-                        label.PlaceAt(placed.RoomBox);
+                        label.PlaceAt(placed.RoomBox, placed.Turn);
                         label.Score = detection.Score;
                         shown++;
                     }
