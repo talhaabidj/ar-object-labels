@@ -47,6 +47,12 @@ namespace ArObjectLabels
         /// <summary>How sure the source of this label is, from 0 to 1. Used when there are more labels than are shown.</summary>
         public float Score { get; set; } = 1f;
 
+        /// <summary>
+        /// What the label remembers from frame to frame. Labels that are handed from object to object are
+        /// given the memory that belongs to their object.
+        /// </summary>
+        public LabelMemory Memory { get; set; } = new LabelMemory();
+
         /// <summary>How clearly the label is drawn at its distance, from 0 to 1.</summary>
         public float Opacity { get; private set; } = 1f;
 

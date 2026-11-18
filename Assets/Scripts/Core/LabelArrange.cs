@@ -58,6 +58,20 @@ namespace ArObjectLabels.Core
             return new Rect(x, y, place.width, place.height);
         }
 
+        /// <summary>
+        /// True when a place the label already holds can be kept: it touches no other object and no label
+        /// placed before, and lies inside the picture.
+        /// </summary>
+        public static bool CanStay(Rect place, IReadOnlyList<Rect> otherObjects, IReadOnlyList<Rect> placedLabels,
+            float margin, Rect picture)
+        {
+            // A place that was pulled to the picture's edge lies on it, give or take rounding.
+            bool inside = place.xMin >= picture.xMin - Rounding && place.xMax <= picture.xMax + Rounding
+                && place.yMin >= picture.yMin - Rounding && place.yMax <= picture.yMax + Rounding;
+            return inside && IsFree(place, otherObjects, placedLabels, margin);
+        }
+
+        const float Rounding = 0.0001f;
         const int NearbyPlaces = 7;
 
         // The places a label may take, nearest to its own place first.

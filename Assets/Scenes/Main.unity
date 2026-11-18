@@ -2064,6 +2064,7 @@ MonoBehaviour:
   placer: {fileID: 2026489860}
   labelPrefab: {fileID: 403429357729837533, guid: 05b4b54bf040d4d2d874c992a2d3d603, type: 3}
   displayNamesFile: {fileID: 4900000, guid: 1c65bd0a29fe64833a71d43551fdb625, type: 3}
+  settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
 --- !u!114 &2026489860
 MonoBehaviour:
   m_ObjectHideFlags: 0

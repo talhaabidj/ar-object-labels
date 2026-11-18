@@ -22,6 +22,12 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float edgeMargin = 0.01f;
 
+        /// <summary>
+        /// An object found now is taken to be the same as one of the same name found the frame before when
+        /// the two lie no further apart than this, in metres. Its label then keeps what it remembers.
+        /// </summary>
+        public float sameObjectDistance = 0.5f;
+
         /// <summary>An upright surface whose longer side is at most this, in metres, counts as small: an edge of furniture, not a wall.</summary>
         public float smallSurface = 1.5f;
 

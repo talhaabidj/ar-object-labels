@@ -23,12 +23,16 @@ MonoBehaviour:
     labelMargin: 0.01
     maxLabels: 6
     sameSizeShare: 0.25
+    stayBonus: 0.5
+    holdSeconds: 0.5
+    glideSeconds: 0.2
     leaderThickness: 0.004
   detection:
     boxPoint: 2
     maxDistance: 5
     minVisibleShare: 0.5
     edgeMargin: 0.01
+    sameObjectDistance: 0.5
     smallSurface: 1.5
     justBehind: 0.3
     sameHeight: 0.1

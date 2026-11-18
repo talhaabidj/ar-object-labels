@@ -230,5 +230,23 @@ namespace ArObjectLabels.Tests
 
             Assert.AreEqual(picture.center.x, kept.center.x, 0.0001f);
         }
+
+        [Test]
+        public void HeldPlace_CanBeKept_WhileItIsFreeAndInsideThePicture()
+        {
+            Rect held = At(label, 0.10f, 0.12f);
+
+            Assert.IsTrue(LabelArrange.CanStay(held, none, none, Margin, picture));
+            Assert.IsFalse(LabelArrange.CanStay(held, none, new List<Rect> { At(label, 0.12f, 0.13f) }, Margin, picture), "another label is there now");
+            Assert.IsFalse(LabelArrange.CanStay(At(label, 0.50f, 0.12f), none, none, Margin, picture), "it would be cut by the edge");
+        }
+
+        [Test]
+        public void PlaceOnThePicturesEdge_CountsAsInside()
+        {
+            Rect atTheEdge = At(label, picture.xMax - label.width, 0.12f);
+
+            Assert.IsTrue(LabelArrange.CanStay(atTheEdge, none, none, Margin, picture));
+        }
     }
 }

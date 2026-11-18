@@ -39,6 +39,18 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float sameSizeShare = 0.25f;
 
+        /// <summary>
+        /// A label that is shown counts as this much bigger when the labels to show are chosen. 0.5 means
+        /// another object must be half as big again to take its place.
+        /// </summary>
+        public float stayBonus = 0.5f;
+
+        /// <summary>A moved label goes back to its own place only after no move has been needed for this many seconds.</summary>
+        public float holdSeconds = 0.5f;
+
+        /// <summary>A label takes about this many seconds to glide to a new place. 0 makes it jump.</summary>
+        public float glideSeconds = 0.2f;
+
         /// <summary>Thickness of the line from a moved label to its object, in metres at 1 m distance.</summary>
         public float leaderThickness = 0.004f;
     }
