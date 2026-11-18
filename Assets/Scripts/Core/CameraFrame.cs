@@ -9,6 +9,9 @@ namespace ArObjectLabels.Core
     /// </summary>
     public readonly struct CameraFrame
     {
+        // Nothing nearer than this, in metres ahead of the camera, has a place in the picture.
+        const float NearestSeen = 0.01f;
+
         public readonly Vector3 Position;
         public readonly Quaternion Rotation;
         public readonly float VerticalFieldOfView;
@@ -39,6 +42,27 @@ namespace ArObjectLabels.Core
             float halfWidth = halfHeight * PictureWidth / PictureHeight;
             var inCamera = new Vector3(across * halfWidth, upwards * halfHeight, 1f);
             return new Ray(Position, Rotation * inCamera.normalized);
+        }
+
+        /// <summary>
+        /// Where a point of the room shows in the picture, in pixels from the top-left corner. It is the way
+        /// back from <see cref="RayThrough"/>. False for a point beside or behind the camera.
+        /// </summary>
+        public bool TryPicturePoint(Vector3 roomPoint, out Vector2 picturePoint)
+        {
+            Vector3 inCamera = Quaternion.Inverse(Rotation) * (roomPoint - Position);
+            picturePoint = default;
+            if (inCamera.z < NearestSeen)
+            {
+                return false;
+            }
+
+            float halfHeight = Mathf.Tan(VerticalFieldOfView * 0.5f * Mathf.Deg2Rad);
+            float halfWidth = halfHeight * PictureWidth / PictureHeight;
+            float across = inCamera.x / inCamera.z / halfWidth;
+            float upwards = inCamera.y / inCamera.z / halfHeight;
+            picturePoint = new Vector2((across + 1f) / 2f * PictureWidth, (1f - upwards) / 2f * PictureHeight);
+            return true;
         }
 
         /// <summary>How long a stretch of this many pixels is in the room, at this distance straight ahead.</summary>

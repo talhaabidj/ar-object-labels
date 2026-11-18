@@ -16,6 +16,8 @@ namespace ArObjectLabels
         [Tooltip("The box as shares of the picture, from its top-left corner: left, top, width, height.")]
         [SerializeField] Rect box = new Rect(0.4f, 0.35f, 0.2f, 0.3f);
 
+        public string Name => Messages.FixedBoxSource;
+
         void Awake()
         {
             if (viewCamera == null)

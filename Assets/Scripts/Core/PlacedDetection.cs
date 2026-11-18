@@ -21,14 +21,14 @@ namespace ArObjectLabels.Core
         }
 
         /// <summary>
-        /// The room box a label is given. A point found through the box's lower edge is the object's foot, so
-        /// the box stands on it. A point found through the box's middle is taken as the object's middle.
+        /// The room box a label is given. A point found through the box's middle is taken as the object's
+        /// middle. A point found through the box's lower edge is under the object, so the box stands on it.
         /// </summary>
         public Bounds RoomBox
         {
             get
             {
-                Vector3 middle = Kind == BoxPointKind.BottomCentre ? Point + Vector3.up * (Height / 2f) : Point;
+                Vector3 middle = Kind == BoxPointKind.Centre ? Point : Point + Vector3.up * (Height / 2f);
                 return new Bounds(middle, new Vector3(Width, Height, Width));
             }
         }

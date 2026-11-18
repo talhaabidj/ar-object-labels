@@ -6,7 +6,8 @@ namespace ArObjectLabels.Core
     public enum BoxPointKind
     {
         Centre,
-        BottomCentre
+        BottomCentre,
+        BottomCentreSetBack
     }
 
     /// <summary>Picks the point of a box that the ray into the room goes through.</summary>
@@ -14,7 +15,41 @@ namespace ArObjectLabels.Core
     {
         public static Vector2 Pick(Detection detection, BoxPointKind kind)
         {
-            return kind == BoxPointKind.BottomCentre ? detection.BottomCentre : detection.Centre;
+            return kind == BoxPointKind.Centre ? detection.Centre : detection.BottomCentre;
+        }
+
+        /// <summary>
+        /// The box point to use for this box. A box that touches the picture's bottom edge is cut off there,
+        /// and setting it back then overshoots, so it is given the plain bottom centre.
+        /// </summary>
+        public static BoxPointKind KindFor(Detection detection, BoxPointKind wanted, int pictureHeight, float edgeMargin)
+        {
+            bool cutOff = wanted == BoxPointKind.BottomCentreSetBack && TouchesBottomEdge(detection, pictureHeight, edgeMargin);
+            return cutOff ? BoxPointKind.BottomCentre : wanted;
+        }
+
+        /// <summary>
+        /// True when the box's lower edge is at the picture's bottom edge, or within the margin of it. The
+        /// margin is a share of the picture's height.
+        /// </summary>
+        public static bool TouchesBottomEdge(Detection detection, int pictureHeight, float edgeMargin)
+        {
+            return detection.Bottom >= pictureHeight * (1f - edgeMargin);
+        }
+
+        /// <summary>
+        /// A ray through the lower edge of a box meets the surface at the object's front foot. This moves that
+        /// point to under the object's middle: half the object's depth further from the camera, at the same height.
+        /// </summary>
+        public static Vector3 SetBack(Vector3 frontFoot, Vector3 cameraPosition, float depth)
+        {
+            Vector3 away = frontFoot - cameraPosition;
+            away.y = 0f;
+            if (away.sqrMagnitude < 0.000001f)
+            {
+                return frontFoot;
+            }
+            return frontFoot + away.normalized * (depth / 2f);
         }
     }
 }

@@ -9,6 +9,16 @@ namespace ArObjectLabels
             "W A S D: move · Q E: down, up · Shift: faster · Hold right mouse: look\n" +
             "R removes the cube";
 
+        public const string FixedBoxSource = "fixed box";
+        public const string TrueBoxSource = "true box";
+        public const string NoSource = "off";
+
+        /// <summary>The text on the source switch.</summary>
+        public static string ForSource(string sourceName)
+        {
+            return "Detection: " + sourceName;
+        }
+
         public static string For(Hint hint)
         {
             switch (hint)

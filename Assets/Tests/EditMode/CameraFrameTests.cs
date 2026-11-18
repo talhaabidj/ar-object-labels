@@ -70,6 +70,29 @@ namespace ArObjectLabels.Tests
             }
         }
 
+        [TestCase(0f, 0f)]
+        [TestCase(993f, 473f)]
+        [TestCase(120f, 400f)]
+        [TestCase(700f, 55f)]
+        public void PicturePoint_IsTheWayBackFromTheRay(float x, float y)
+        {
+            CameraFrame frame = FrameAt(new Vector3(0.4f, 1.45f, -1.2f), Quaternion.Euler(25f, -40f, 0f));
+            Vector3 roomPoint = frame.RayThrough(new Vector2(x, y)).GetPoint(2.7f);
+
+            Assert.IsTrue(frame.TryPicturePoint(roomPoint, out Vector2 picturePoint));
+            Assert.AreEqual(x, picturePoint.x, 0.01f);
+            Assert.AreEqual(y, picturePoint.y, 0.01f);
+        }
+
+        [Test]
+        public void PointBehindTheCamera_HasNoPlaceInThePicture()
+        {
+            CameraFrame frame = FrameAt(Vector3.zero, Quaternion.identity);
+
+            Assert.IsFalse(frame.TryPicturePoint(new Vector3(0.2f, 0.1f, -3f), out _));
+            Assert.IsFalse(frame.TryPicturePoint(new Vector3(1f, 0f, 0f), out _), "level with the camera, to its side");
+        }
+
         [Test]
         public void PixelsToMetres_TheWholeHeightAtOneMetre()
         {

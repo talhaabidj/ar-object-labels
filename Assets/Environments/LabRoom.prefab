@@ -939,6 +939,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6204740515627981326}
+  - component: {fileID: 3531342634493563076}
   m_Layer: 0
   m_Name: Vase
   m_TagString: Untagged
@@ -962,6 +963,19 @@ Transform:
   - {fileID: 8696434382074022806}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3531342634493563076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101517497498974456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: vase
 --- !u!1 &1530462361346573230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1680,6 +1694,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3843105764604352380}
+  - component: {fileID: 705820807709609413}
   m_Layer: 0
   m_Name: Plant
   m_TagString: Untagged
@@ -1703,6 +1718,19 @@ Transform:
   - {fileID: 9061999750167105556}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &705820807709609413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2231644793379699413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: potted plant
 --- !u!1 &2359878838543865952
 GameObject:
   m_ObjectHideFlags: 0
@@ -2603,6 +2631,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2857124831494643637}
+  - component: {fileID: 9151253438011461996}
   m_Layer: 0
   m_Name: Chair
   m_TagString: Untagged
@@ -2626,6 +2655,19 @@ Transform:
   - {fileID: 242337324439987322}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9151253438011461996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3563885565711651748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: chair
 --- !u!1 &3725519907763799655
 GameObject:
   m_ObjectHideFlags: 0
@@ -2635,6 +2677,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1173915867442138636}
+  - component: {fileID: 3149118715809696467}
   m_Layer: 0
   m_Name: Mouse
   m_TagString: Untagged
@@ -2658,6 +2701,19 @@ Transform:
   - {fileID: 1496407252530467459}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3149118715809696467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3725519907763799655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: mouse
 --- !u!1 &3966865065751715204
 GameObject:
   m_ObjectHideFlags: 0
@@ -3020,6 +3076,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 402065643421427946}
+  - component: {fileID: 3889099410288992168}
   m_Layer: 0
   m_Name: Laptop
   m_TagString: Untagged
@@ -3043,6 +3100,19 @@ Transform:
   - {fileID: 5342966592338080542}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3889099410288992168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4771615481153462880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: laptop
 --- !u!1 &4893298850423191310
 GameObject:
   m_ObjectHideFlags: 0
@@ -3199,6 +3269,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8271529596142346982}
+  - component: {fileID: 4887918426884663936}
   m_Layer: 0
   m_Name: School Chair
   m_TagString: Untagged
@@ -3222,6 +3293,19 @@ Transform:
   - {fileID: 1158766390297260401}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4887918426884663936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4957613580139167213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: chair
 --- !u!1 &4957765373643353800
 GameObject:
   m_ObjectHideFlags: 0
@@ -4111,6 +4195,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4946463492290340547}
+  - component: {fileID: 5163204439989195093}
   m_Layer: 0
   m_Name: Monitor
   m_TagString: Untagged
@@ -4134,6 +4219,19 @@ Transform:
   - {fileID: 4152599644118991223}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5163204439989195093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6215892264555742031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: tv
 --- !u!1 &6809921066940784571
 GameObject:
   m_ObjectHideFlags: 0
@@ -4143,6 +4241,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 992146235412924978}
+  - component: {fileID: 943487892845607020}
   m_Layer: 0
   m_Name: Bottle
   m_TagString: Untagged
@@ -4166,6 +4265,19 @@ Transform:
   - {fileID: 7047750030101183053}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &943487892845607020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6809921066940784571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: bottle
 --- !u!1 &6825803909407918058
 GameObject:
   m_ObjectHideFlags: 0
@@ -4623,6 +4735,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8730620946872960377}
+  - component: {fileID: 1482006497146893654}
   m_Layer: 0
   m_Name: Clock
   m_TagString: Untagged
@@ -4646,6 +4759,19 @@ Transform:
   - {fileID: 2646769333343585711}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1482006497146893654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7532011453269257129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: clock
 --- !u!1 &7538315483720167678
 GameObject:
   m_ObjectHideFlags: 0
@@ -4916,6 +5042,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4622999343530120912}
+  - component: {fileID: 9008798096447018217}
   m_Layer: 0
   m_Name: Keyboard
   m_TagString: Untagged
@@ -4939,6 +5066,19 @@ Transform:
   - {fileID: 520836442606306810}
   m_Father: {fileID: 8641330039805782453}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9008798096447018217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8367849953540807938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: keyboard
 --- !u!1 &8744201797061711041
 GameObject:
   m_ObjectHideFlags: 0
@@ -6080,13 +6220,97 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -6289683009662788857, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8549802944639404659}
+    - targetCorrespondingSourceObject: {fileID: -9092380664515816002, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7200870107361848040}
+    - targetCorrespondingSourceObject: {fileID: 4723311715353393907, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4170967276394464382}
+    - targetCorrespondingSourceObject: {fileID: 5550598542454637663, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 663359188144852238}
   m_SourcePrefab: {fileID: 100100000, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+--- !u!1 &2077388365843189860 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -6289683009662788857, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+  m_PrefabInstance: {fileID: 3774811529898199907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8549802944639404659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077388365843189860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: pen
 --- !u!4 &3740356499719646344 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
   m_PrefabInstance: {fileID: 3774811529898199907}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &3869591414199688925 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -9092380664515816002, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+  m_PrefabInstance: {fileID: 3774811529898199907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7200870107361848040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3869591414199688925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: pen
+--- !u!1 &8497802032801247632 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4723311715353393907, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+  m_PrefabInstance: {fileID: 3774811529898199907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4170967276394464382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8497802032801247632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: pen
+--- !u!1 &8747535158664417084 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5550598542454637663, guid: 44629d93d4252498ba7ca459508194bc, type: 3}
+  m_PrefabInstance: {fileID: 3774811529898199907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &663359188144852238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8747535158664417084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862c169b725094e7d95b3831ba146b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectableObject
+  className: cup
 --- !u!1001 &4479469893441103516
 PrefabInstance:
   m_ObjectHideFlags: 0

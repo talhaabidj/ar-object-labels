@@ -2,6 +2,7 @@
     "name": "ArObjectLabels.Tests.EditMode",
     "rootNamespace": "ArObjectLabels.Tests",
     "references": [
+        "ArObjectLabels",
         "ArObjectLabels.Core",
         "Unity.InputSystem",
         "UnityEngine.TestRunner",

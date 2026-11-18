@@ -6,10 +6,11 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// Shows one label for each object the chosen source finds, at the place the placer gives it. A found
-    /// object with no place in the room gets no label.
+    /// object with no place in the room gets no label. With no source chosen, no label shows.
     /// </summary>
     public class DetectionLabels : MonoBehaviour
     {
+        [Tooltip("The source used when the app starts. Leave empty to start with none.")]
         [SerializeField] MonoBehaviour source;
         [SerializeField] DetectionPlacer placer;
         [SerializeField] WorldLabel labelPrefab;
@@ -18,9 +19,17 @@ namespace ArObjectLabels
         readonly List<Detection> detections = new List<Detection>();
         readonly List<WorldLabel> labels = new List<WorldLabel>();
         Dictionary<string, string> displayNames;
+        IDetectionSource chosen;
+
+        /// <summary>Chooses where the boxes come from. Null means nowhere.</summary>
+        public void Use(IDetectionSource newSource)
+        {
+            chosen = newSource;
+        }
 
         void Awake()
         {
+            chosen = source as IDetectionSource;
             displayNames = ClassNames.ParseDisplayNames(displayNamesFile != null ? displayNamesFile.text : "");
         }
 
@@ -32,7 +41,7 @@ namespace ArObjectLabels
         void Update()
         {
             int shown = 0;
-            if (source is IDetectionSource detector && detector.TryRead(detections, out CameraFrame frame))
+            if (chosen != null && chosen.TryRead(detections, out CameraFrame frame))
             {
                 foreach (Detection detection in detections)
                 {

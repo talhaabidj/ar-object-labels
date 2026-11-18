@@ -25,5 +25,7 @@ MonoBehaviour:
     sameDistanceStep: 0.5
     leaderThickness: 0.004
   detection:
-    boxPoint: 0
+    boxPoint: 2
     maxDistance: 5
+    minVisibleShare: 0.5
+    edgeMargin: 0.01
