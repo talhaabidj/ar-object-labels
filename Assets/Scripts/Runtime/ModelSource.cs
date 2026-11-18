@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using ArObjectLabels.Core;
 using Unity.InferenceEngine;
@@ -9,8 +10,9 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// Finds objects in the camera's picture with the detection model. One run takes longer than a frame, so
-    /// a run is started, and its result is picked up in a later frame, with the camera's pose from the
-    /// moment the picture was taken. It works only while it is the chosen source.
+    /// a run is started, spread over frames a few layers at a time, and its result is picked up in a later
+    /// frame, with the camera's pose from the moment the picture was taken. It works only while it is the
+    /// chosen source.
     /// </summary>
     public class ModelSource : MonoBehaviour, IDetectionSource
     {
@@ -25,12 +27,13 @@ namespace ArObjectLabels
         Worker worker;
         Tensor<float> input;
         Tensor<float> awaited;
+        IEnumerator layers;
+        float lastRunStarted = float.NegativeInfinity;
         ModelPicture square;
         Texture2D cameraPicture;
         CameraFrame runFrame;
         CameraFrame foundFrame;
         bool hasResult;
-        int framesSinceRunStarted;
 
         public string Name => Messages.ModelSource;
 
@@ -48,7 +51,6 @@ namespace ArObjectLabels
             worker = new Worker(ModelLoader.Load(modelFile), BackendType.GPUCompute);
             input = new Tensor<float>(new TensorShape(1, 3, rules.inputSize, rules.inputSize));
             square = new ModelPicture(rules.inputSize);
-            framesSinceRunStarted = rules.framesBetweenRuns;
         }
 
         void OnDestroy()
@@ -65,12 +67,15 @@ namespace ArObjectLabels
         /// <summary>Gives the result of the last finished run. False until the first run has finished.</summary>
         public bool TryRead(List<Detection> into, out CameraFrame frame)
         {
-            framesSinceRunStarted++;
             if (awaited != null)
             {
                 PickUpResultIfReady();
             }
-            else if (framesSinceRunStarted >= settings.model.framesBetweenRuns && TryTakePicture())
+            else if (layers != null)
+            {
+                StartMoreLayers();
+            }
+            else if (ModelPacing.RunIsDue(Time.unscaledTime, lastRunStarted, settings.model.runsPerSecond) && TryTakePicture())
             {
                 StartRun();
             }
@@ -112,10 +117,25 @@ namespace ArObjectLabels
         {
             var layout = new TextureTransform().SetCoordOrigin(CoordOrigin.TopLeft);
             TextureConverter.ToTensor(square.Draw(cameraPicture), input, layout);
-            worker.Schedule(input);
-            awaited = worker.PeekOutput() as Tensor<float>;
-            awaited.ReadbackRequest();
-            framesSinceRunStarted = 0;
+            layers = worker.ScheduleIterable(input);
+            lastRunStarted = Time.unscaledTime;
+            StartMoreLayers();
+        }
+
+        // Each step starts one layer of the model. When none is left, the result is asked for.
+        void StartMoreLayers()
+        {
+            int share = settings.model.layersPerFrame > 0 ? settings.model.layersPerFrame : int.MaxValue;
+            for (int i = 0; i < share; i++)
+            {
+                if (!layers.MoveNext())
+                {
+                    layers = null;
+                    awaited = worker.PeekOutput() as Tensor<float>;
+                    awaited.ReadbackRequest();
+                    return;
+                }
+            }
         }
 
         void PickUpResultIfReady()

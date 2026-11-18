@@ -49,4 +49,5 @@ MonoBehaviour:
     inputSize: 640
     minScore: 0.45
     overlapLimit: 0.45
-    framesBetweenRuns: 3
+    runsPerSecond: 10
+    layersPerFrame: 0

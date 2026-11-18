@@ -18,10 +18,13 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float overlapLimit = 0.45f;
 
+        /// <summary>How many runs of the model start in a second at most. A run also waits for the one before it to finish.</summary>
+        public float runsPerSecond = 10f;
+
         /// <summary>
-        /// A new run of the model starts at most every this many frames: 1 is every frame, 3 every third.
-        /// A run also waits for the one before it to finish.
+        /// One run is spread over frames: this many of the model's layers are started in a frame. 0 starts
+        /// all of them in one frame.
         /// </summary>
-        public int framesBetweenRuns = 3;
+        public int layersPerFrame = 0;
     }
 }
