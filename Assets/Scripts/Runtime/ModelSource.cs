@@ -39,6 +39,9 @@ namespace ArObjectLabels
 
         public bool NeedsConfirming => true;
 
+        /// <summary>Where the model runs: the graphics card, or the CPU on a device without compute shaders.</summary>
+        public BackendType Backend { get; private set; }
+
         /// <summary>How many runs have finished since the app started. For measurements.</summary>
         public int RunsFinished { get; private set; }
 
@@ -50,7 +53,9 @@ namespace ArObjectLabels
             }
             ModelSettings rules = settings.model;
             classNames = ClassNames.ParseClassList(classListFile.text);
-            worker = new Worker(ModelLoader.Load(modelFile), BackendType.GPUCompute);
+            // A device with no compute shaders cannot run the model on the graphics card; the CPU is slower but works.
+            Backend = SystemInfo.supportsComputeShaders ? BackendType.GPUCompute : BackendType.CPU;
+            worker = new Worker(ModelLoader.Load(modelFile), Backend);
             input = new Tensor<float>(new TensorShape(1, 3, rules.inputSize, rules.inputSize));
             square = new ModelPicture(rules.inputSize);
         }
