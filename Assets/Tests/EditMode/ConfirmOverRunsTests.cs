@@ -154,5 +154,64 @@ namespace ArObjectLabels.Tests
 
             Assert.IsFalse(Run("laptop", 0.9f, onTheTable));
         }
+
+        // One run that finds one object, with its box cut by the picture's edge or clear of it.
+        bool RunAtTheEdge(string name, float score, Vector3 place, bool clearOfEdge)
+        {
+            var mayShow = new List<bool>();
+            confirm.TakeRun(new List<string> { name }, new List<float> { score }, new List<Vector3> { place }, rules, SameObject,
+                mayShow, new List<bool> { clearOfEdge });
+            return mayShow[0];
+        }
+
+        [Test]
+        public void BoxCutByTheEdgeInEveryRun_GetsNoLabel()
+        {
+            for (int run = 0; run < 6; run++)
+            {
+                Assert.IsFalse(RunAtTheEdge("bicycle", 0.6f, onTheTable, false), "run " + run);
+            }
+        }
+
+        [Test]
+        public void BoxClearOfTheEdgeInOneOfTheThreeRuns_GetsItsLabel()
+        {
+            RunAtTheEdge("clock", 0.6f, onTheTable, false);
+            RunAtTheEdge("clock", 0.6f, onTheTable, true);
+
+            Assert.IsTrue(RunAtTheEdge("clock", 0.6f, onTheTable, false));
+        }
+
+        [Test]
+        public void ClearRunBeforeTheCountStartedAgain_DoesNotCount()
+        {
+            RunAtTheEdge("clock", 0.6f, onTheTable, true);
+            RunAtTheEdge("clock", 0.2f, onTheTable, true);
+            RunAtTheEdge("clock", 0.6f, onTheTable, false);
+            RunAtTheEdge("clock", 0.6f, onTheTable, false);
+
+            Assert.IsFalse(RunAtTheEdge("clock", 0.6f, onTheTable, false));
+        }
+
+        [Test]
+        public void ObjectWithALabel_KeepsIt_WhenItsBoxComesToTheEdge()
+        {
+            RunAtTheEdge("laptop", 0.9f, onTheTable, true);
+            RunAtTheEdge("laptop", 0.9f, onTheTable, true);
+            RunAtTheEdge("laptop", 0.9f, onTheTable, true);
+
+            Assert.IsTrue(RunAtTheEdge("laptop", 0.9f, onTheTable, false));
+        }
+
+        [Test]
+        public void BoxTouchingASideOfThePicture_IsNotClearOfTheEdge()
+        {
+            // A 1000 x 500 picture with a 1 % margin: 10 pixels at the sides, 5 at the top and bottom.
+            Assert.IsTrue(ConfirmOverRuns.IsClearOfEdge(new Detection("clock", 0.6f, 11f, 6f, 989f, 494f), 1000f, 500f, 0.01f));
+            Assert.IsFalse(ConfirmOverRuns.IsClearOfEdge(new Detection("clock", 0.6f, 10f, 100f, 200f, 200f), 1000f, 500f, 0.01f), "left");
+            Assert.IsFalse(ConfirmOverRuns.IsClearOfEdge(new Detection("clock", 0.6f, 100f, 100f, 990f, 200f), 1000f, 500f, 0.01f), "right");
+            Assert.IsFalse(ConfirmOverRuns.IsClearOfEdge(new Detection("clock", 0.6f, 100f, 5f, 200f, 200f), 1000f, 500f, 0.01f), "top");
+            Assert.IsFalse(ConfirmOverRuns.IsClearOfEdge(new Detection("clock", 0.6f, 100f, 100f, 200f, 495f), 1000f, 500f, 0.01f), "bottom");
+        }
     }
 }

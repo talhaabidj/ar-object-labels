@@ -29,6 +29,7 @@ namespace ArObjectLabels
         readonly List<float> runScores = new List<float>();
         readonly List<Vector3> runPlaces = new List<Vector3>();
         readonly List<bool> mayShow = new List<bool>();
+        readonly List<bool> runClear = new List<bool>();
         readonly List<Bounds> runBoxes = new List<Bounds>();
         readonly List<Quaternion> runTurns = new List<Quaternion>();
         float lastReadingTime = float.NegativeInfinity;
@@ -75,7 +76,7 @@ namespace ArObjectLabels
                 else if (frame.Time != lastReadingTime)
                 {
                     PlaceAll(frame);
-                    KeepTheConfirmed();
+                    KeepTheConfirmed(frame);
                     lastReadingTime = frame.Time;
                 }
             }
@@ -112,19 +113,23 @@ namespace ArObjectLabels
             }
         }
 
-        // Leaves only the objects that have been found often enough in a row to have a label.
-        void KeepTheConfirmed()
+        // Leaves only the objects that have been found often enough in a row, at least once clear of the
+        // picture's edge, to have a label.
+        void KeepTheConfirmed(CameraFrame frame)
         {
             runNames.Clear();
             runScores.Clear();
             runPlaces.Clear();
+            runClear.Clear();
             foreach (PlacedDetection placed in placedNow)
             {
                 runNames.Add(placed.Detection.ClassName);
                 runScores.Add(placed.Detection.Score);
                 runPlaces.Add(placed.RoomBox.center);
+                runClear.Add(ConfirmOverRuns.IsClearOfEdge(placed.Detection, frame.PictureWidth, frame.PictureHeight,
+                    settings.detection.edgeMargin));
             }
-            confirm.TakeRun(runNames, runScores, runPlaces, settings.model, settings.detection.sameObjectDistance, mayShow);
+            confirm.TakeRun(runNames, runScores, runPlaces, settings.model, settings.detection.sameObjectDistance, mayShow, runClear);
             for (int i = placedNow.Count - 1; i >= 0; i--)
             {
                 if (!mayShow[i])
