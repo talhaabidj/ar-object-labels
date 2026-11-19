@@ -251,6 +251,20 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void LabelNotPulledIn_IsNotMovedAside_EvenWhenAnotherLabelIsInItsPlace()
+        {
+            // Seen in S11, S18 and S20: the object is mostly out of the picture and not found, its own label place
+            // touches the picture, and another label is there. Moving it aside put it wholly off the picture.
+            Rect mostlyOut = At(cube, 0.50f, 0f);
+            Rect ownLabel = At(label, 0.49f, 0.12f);
+            var taken = new List<Rect> { ownLabel };
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(ownLabel, mostlyOut, none, taken, Margin, picture));
+
+            Assert.AreEqual(Vector2.zero, offset);
+        }
+
+        [Test]
         public void ObjectOutsideThePicture_ItsLabelIsNotPulledIn()
         {
             Rect farToTheRight = At(cube, 0.80f, 0f);

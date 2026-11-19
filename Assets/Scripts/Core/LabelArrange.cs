@@ -19,21 +19,23 @@ namespace ArObjectLabels.Core
         /// Every place is first pulled inside <paramref name="picture"/>, the part of the flat picture the
         /// viewer sees, so a label is never cut by the picture's edge, and out from under the app's
         /// <paramref name="panels"/>, which count as more of that edge. Only the label of an object found now
-        /// (<paramref name="objectFound"/>) or with its middle in the picture is pulled in; any other label
-        /// stays at its place in the room.
+        /// (<paramref name="objectFound"/>) or with its middle in the picture is placed this way; any other label
+        /// stays at its place in the room and is not moved aside either.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
             IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null,
             bool objectFound = false)
         {
             bool objectInPicture = Touches(ownObject, picture, 0f) && (objectFound || picture.Contains(ownObject.center));
+            // Seen in Play on 19 Nov: moved aside without being kept inside, such a label could end up wholly off
+            // the picture. It stays at its room point instead.
+            if (!objectInPicture)
+            {
+                return Vector2.zero;
+            }
             for (int choice = 0; choice < NearbyPlaces; choice++)
             {
-                Rect place = Nearby(choice, label, ownObject, margin);
-                if (objectInPicture)
-                {
-                    place = PanelEdges.KeepOut(KeepInside(place, picture), panels, margin, picture);
-                }
+                Rect place = PanelEdges.KeepOut(KeepInside(Nearby(choice, label, ownObject, margin), picture), panels, margin, picture);
                 if (IsFree(place, otherObjects, placedLabels, margin) && PanelEdges.IsClear(place, panels))
                 {
                     return new Vector2(place.x - label.x, place.y - label.y);
@@ -41,10 +43,7 @@ namespace ArObjectLabels.Core
             }
 
             var lifted = new Rect(label.x, label.y + LabelOverlap.LiftToClear(label, placedLabels, otherObjects, margin), label.width, label.height);
-            if (objectInPicture)
-            {
-                lifted = PanelEdges.KeepOut(KeepInside(lifted, picture), panels, margin, picture);
-            }
+            lifted = PanelEdges.KeepOut(KeepInside(lifted, picture), panels, margin, picture);
             return new Vector2(lifted.x - label.x, lifted.y - label.y);
         }
 
