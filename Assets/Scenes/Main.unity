@@ -1338,6 +1338,7 @@ GameObject:
   - component: {fileID: 1201849235}
   - component: {fileID: 1201849237}
   - component: {fileID: 1201849238}
+  - component: {fileID: 1201849239}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -1411,6 +1412,21 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_RaycastPrefab: {fileID: 0}
+--- !u!114 &1201849239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201849234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a87b162d4ccb44dc0807f2e796ba8339, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.SurfaceOutlines
+  planeManager: {fileID: 1201849237}
+  cubePlacer: {fileID: 1986298850}
+  faintShare: 0.15
 --- !u!1 &1207966903
 GameObject:
   m_ObjectHideFlags: 0
