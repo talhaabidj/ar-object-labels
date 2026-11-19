@@ -88,5 +88,27 @@ namespace ArObjectLabels.Tests
         {
             CollectionAssert.IsEmpty(LabelChoice.Pick(new List<float>(), new List<float>(), 6, Share));
         }
+
+        [Test]
+        public void WhileMoving_ShownLabelsStayInTheirOrder_EvenWhenAnotherObjectIsNowBigger()
+        {
+            var sizes = new List<float> { 0.001f, 0.080f, 0.004f };
+            var scores = new List<float> { 0.9f, 0.9f, 0.9f };
+            var wasShown = new List<bool> { true, false, true };
+            var ranks = new List<int> { 1, 0, 0 };
+
+            CollectionAssert.AreEqual(new[] { 2, 0 }, LabelChoice.Keep(sizes, scores, wasShown, ranks, 2, Share));
+        }
+
+        [Test]
+        public void WhileMoving_FreePlacesGoToNewLabels_BiggestFirst()
+        {
+            var sizes = new List<float> { 0.001f, 0.080f, 0.004f, 0.030f };
+            var scores = new List<float> { 0.9f, 0.9f, 0.9f, 0.9f };
+            var wasShown = new List<bool> { true, false, false, false };
+            var ranks = new List<int> { 0, 0, 0, 0 };
+
+            CollectionAssert.AreEqual(new[] { 0, 1, 3 }, LabelChoice.Keep(sizes, scores, wasShown, ranks, 3, Share));
+        }
     }
 }

@@ -29,6 +29,41 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void WhileTheCameraMoves_LabelAtItsOwnPlace_StaysEvenWhenAMoveIsAskedFor()
+        {
+            var memory = new LabelMemory();
+
+            Assert.AreEqual(Vector2.zero, LabelSteady.Move(memory, true, up, Frame, Hold, keepWhileFree: true));
+        }
+
+        [Test]
+        public void WhileTheCameraMoves_MovedLabel_KeepsItsSide()
+        {
+            var memory = new LabelMemory { HeldMove = right };
+
+            Assert.AreEqual(right, LabelSteady.Move(memory, true, up, Frame, Hold, keepWhileFree: true));
+        }
+
+        [Test]
+        public void WhileTheCameraMoves_LabelWhosePlaceIsNoLongerFree_TakesTheNewPlace()
+        {
+            var memory = new LabelMemory { HeldMove = right };
+
+            Assert.AreEqual(up, LabelSteady.Move(memory, false, up, Frame, Hold, keepWhileFree: true));
+        }
+
+        [Test]
+        public void WhileTheCameraMoves_MovedLabel_DoesNotGoBackToItsOwnPlace()
+        {
+            var memory = new LabelMemory { HeldMove = up };
+
+            for (int frame = 0; frame < 8; frame++)
+            {
+                Assert.AreEqual(up, LabelSteady.Move(memory, true, Vector2.zero, Frame, Hold, keepWhileFree: true), "after frame " + frame);
+            }
+        }
+
+        [Test]
         public void LabelAtItsOwnPlace_WithNoReason_Stays()
         {
             var memory = new LabelMemory();

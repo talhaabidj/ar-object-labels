@@ -20,8 +20,12 @@ namespace ArObjectLabels.Core
         /// <summary>False until the label has been drawn once; a new label starts at its place without gliding there.</summary>
         public bool HasBeenDrawn;
 
+        /// <summary>Its place in the order the shown labels were laid out in, 0 first.</summary>
+        public int Rank;
+
         public void Forget()
         {
+            Rank = 0;
             WasShown = false;
             HeldMove = Vector2.zero;
             CalmSeconds = 0f;
@@ -50,11 +54,18 @@ namespace ArObjectLabels.Core
         /// places asks for now. A label at its own place moves as soon as there is a reason. A moved label
         /// keeps its place while that place is free; when no move is needed any more it still waits
         /// <paramref name="holdSeconds"/> before it goes back, so a reason that comes and goes does not make
-        /// it hop.
+        /// it hop. With <paramref name="keepWhileFree"/>, used while the camera moves, the label keeps the
+        /// place it holds for as long as that place is free, even its own place when another is now asked for.
         /// </summary>
-        public static Vector2 Move(LabelMemory memory, bool heldPlaceIsFree, Vector2 needed, float secondsSinceLast, float holdSeconds)
+        public static Vector2 Move(LabelMemory memory, bool heldPlaceIsFree, Vector2 needed, float secondsSinceLast,
+            float holdSeconds, bool keepWhileFree = false)
         {
             Vector2 held = memory.HeldMove;
+            if (keepWhileFree && heldPlaceIsFree)
+            {
+                memory.CalmSeconds = 0f;
+                return held;
+            }
             bool heldIsOwnPlace = held.sqrMagnitude < SameMove * SameMove;
             bool noMoveNeeded = needed.sqrMagnitude < SameMove * SameMove;
             if (heldIsOwnPlace || !heldPlaceIsFree)

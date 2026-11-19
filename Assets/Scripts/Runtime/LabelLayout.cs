@@ -8,7 +8,9 @@ namespace ArObjectLabels
     /// Places all labels of the scene together, once a frame: each at its own place first, then the labels of
     /// the objects that are biggest in the picture are chosen, and a label that would sit on another label or
     /// inside another object is moved aside. Labels are kept steady: a shown label is not easily replaced, a
-    /// moved label keeps its place for a while, and a label glides to a new place.
+    /// moved label keeps its place for a while, and a label glides to a new place. While the camera moves,
+    /// the shown labels keep their places, sides and order; a label is moved then only if it would leave the
+    /// picture or sit on another label. The whole layout is worked out again once the camera is still.
     /// </summary>
     public class LabelLayout : MonoBehaviour
     {
@@ -21,6 +23,10 @@ namespace ArObjectLabels
         readonly List<float> scores = new List<float>();
         readonly List<Rect> placedLabels = new List<Rect>();
         readonly List<Rect> otherObjects = new List<Rect>();
+        readonly List<Rect> noObjects = new List<Rect>();
+        readonly List<bool> wasShown = new List<bool>();
+        readonly List<int> ranks = new List<int>();
+        readonly CameraStill cameraStill = new CameraStill();
 
         public void Add(WorldLabel label)
         {
@@ -50,16 +56,22 @@ namespace ArObjectLabels
                 // How far the picture reaches from its middle, one metre in front of the camera.
                 Matrix4x4 lens = viewCamera.projectionMatrix;
                 var halfPicture = new Vector2(1f / lens.m00, 1f / lens.m11);
-                Arrange(viewCamera.transform.position, viewCamera.transform.rotation, halfPicture, Time.deltaTime);
+                Transform view = viewCamera.transform;
+                LabelSettings rules = settings.label;
+                cameraStill.Take(view.position, view.rotation, Time.deltaTime, rules.stillMoveSpeed, rules.stillTurnSpeed);
+                bool settled = cameraStill.SecondsStill >= rules.stillSeconds;
+                Arrange(view.position, view.rotation, halfPicture, Time.deltaTime, settled);
             }
         }
 
         /// <summary>
         /// Places every label for a camera at this place, looking this way. <paramref name="halfPicture"/>
         /// is half the picture's width and height, one metre in front of the camera;
-        /// <paramref name="secondsSinceLast"/> is the time since this was last done.
+        /// <paramref name="secondsSinceLast"/> is the time since this was last done. With
+        /// <paramref name="cameraSettled"/> false the camera is moving, and the shown labels keep their layout.
         /// </summary>
-        public void Arrange(Vector3 cameraPosition, Quaternion cameraRotation, Vector2 halfPicture, float secondsSinceLast)
+        public void Arrange(Vector3 cameraPosition, Quaternion cameraRotation, Vector2 halfPicture, float secondsSinceLast,
+            bool cameraSettled)
         {
             Quaternion toPicture = Quaternion.Inverse(cameraRotation);
             LabelSettings rules = settings.label;
@@ -70,6 +82,8 @@ namespace ArObjectLabels
             inView.Clear();
             sizes.Clear();
             scores.Clear();
+            wasShown.Clear();
+            ranks.Clear();
             foreach (WorldLabel label in labels)
             {
                 label.UpdatePose(cameraPosition, cameraRotation);
@@ -84,18 +98,25 @@ namespace ArObjectLabels
                 Rect inPicture = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
                 sizes.Add(LabelSteady.SizeForChoice(inPicture.width * inPicture.height, label.Memory.WasShown, rules.stayBonus));
                 scores.Add(label.Score);
+                wasShown.Add(label.Memory.WasShown);
+                ranks.Add(label.Memory.Rank);
             }
 
             // 2. At most a set number is shown: the biggest object in the picture first, then the higher score.
-            //    A label that was shown counts as bigger, so the choice does not flip between two alike.
-            List<int> chosen = LabelChoice.Pick(sizes, scores, rules.maxLabels, rules.sameSizeShare);
+            //    A label that was shown counts as bigger, so the choice does not flip between two alike. While
+            //    the camera moves, the shown labels stay in their order and new ones only fill free places.
+            List<int> chosen = cameraSettled
+                ? LabelChoice.Pick(sizes, scores, rules.maxLabels, rules.sameSizeShare)
+                : LabelChoice.Keep(sizes, scores, wasShown, ranks, rules.maxLabels, rules.sameSizeShare);
             for (int i = 0; i < inView.Count; i++)
             {
-                bool shown = chosen.Contains(i);
+                int rank = chosen.IndexOf(i);
+                bool shown = rank >= 0;
                 inView[i].SetShown(shown);
                 if (shown)
                 {
                     inView[i].Memory.WasShown = true;
+                    inView[i].Memory.Rank = rank;
                 }
                 else
                 {
@@ -130,19 +151,23 @@ namespace ArObjectLabels
                     }
                 }
                 Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture);
-                placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture, secondsSinceLast));
+                placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture,
+                    secondsSinceLast, cameraSettled));
             }
         }
 
         // Decides where the label stays this frame, draws it on its way there, and gives back the place it
-        // settles on, which the labels after it must keep clear of.
+        // settles on, which the labels after it must keep clear of. While the camera moves, only leaving the
+        // picture or sitting on an earlier label makes a label move; other objects passing behind it do not.
         Rect Settle(WorldLabel label, Rect own, Vector2 needed, float depth, Vector3 cameraPosition, Quaternion cameraRotation,
-            LabelSettings rules, Rect picture, float secondsSinceLast)
+            LabelSettings rules, Rect picture, float secondsSinceLast, bool cameraSettled)
         {
             LabelMemory memory = label.Memory;
             var held = new Rect(own.x + memory.HeldMove.x, own.y + memory.HeldMove.y, own.width, own.height);
-            bool heldPlaceIsFree = LabelArrange.CanStay(held, otherObjects, placedLabels, rules.labelMargin, picture);
-            Vector2 move = LabelSteady.Move(memory, heldPlaceIsFree, needed, secondsSinceLast, rules.holdSeconds);
+            List<Rect> objectsInTheWay = cameraSettled ? otherObjects : noObjects;
+            bool heldPlaceIsFree = LabelArrange.CanStay(held, objectsInTheWay, placedLabels, rules.labelMargin, picture);
+            Vector2 move = LabelSteady.Move(memory, heldPlaceIsFree, needed, secondsSinceLast, rules.holdSeconds,
+                keepWhileFree: !cameraSettled && memory.HasBeenDrawn);
             memory.HeldMove = move;
             memory.DrawnMove = memory.HasBeenDrawn ? LabelSteady.Glide(memory.DrawnMove, move, secondsSinceLast, rules.glideSeconds) : move;
             memory.HasBeenDrawn = true;

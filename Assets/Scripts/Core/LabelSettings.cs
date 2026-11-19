@@ -48,6 +48,18 @@ namespace ArObjectLabels.Core
         /// <summary>A moved label goes back to its own place only after no move has been needed for this many seconds.</summary>
         public float holdSeconds = 0.5f;
 
+        /// <summary>
+        /// While the camera moves, every label keeps its place, side and order. The labels are laid out again
+        /// once the camera has been still for this many seconds.
+        /// </summary>
+        public float stillSeconds = 0.5f;
+
+        /// <summary>The camera counts as still while it moves slower than this, in metres a second.</summary>
+        public float stillMoveSpeed = 0.05f;
+
+        /// <summary>The camera counts as still while it turns slower than this, in degrees a second.</summary>
+        public float stillTurnSpeed = 5f;
+
         /// <summary>A label takes about this many seconds to glide to a new place. 0 makes it jump.</summary>
         public float glideSeconds = 0.2f;
 
