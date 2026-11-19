@@ -21,7 +21,7 @@ namespace ArObjectLabels
         CameraFrame startFrame;
         bool hasStartFrame;
 
-        public string Name => Messages.FixedBoxSource;
+        public string Name => Messages.FixedBoxSourceFor(className);
 
         public bool NeedsConfirming => false;
 

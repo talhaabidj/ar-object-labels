@@ -36,6 +36,12 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ItsNameOnTheSwitch_SaysWhichObjectItsBoxIsFor()
+        {
+            Assert.AreEqual("Detection: fixed box (laptop only)", Messages.ForSource(source.Name));
+        }
+
+        [Test]
         public void BeforeTheStartFrameIsKept_ThereIsNoBox()
         {
             Assert.IsFalse(source.TryRead(found, out _));

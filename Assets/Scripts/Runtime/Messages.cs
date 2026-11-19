@@ -17,6 +17,12 @@ namespace ArObjectLabels
         public const string ModelSource = "model";
         public const string NoSource = "off";
 
+        /// <summary>The fixed box's name on the switch, saying which one object its box was typed for.</summary>
+        public static string FixedBoxSourceFor(string className)
+        {
+            return FixedBoxSource + " (" + className + " only)";
+        }
+
         /// <summary>The text on the source switch.</summary>
         public static string ForSource(string sourceName)
         {
