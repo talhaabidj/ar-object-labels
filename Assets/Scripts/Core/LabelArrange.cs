@@ -22,10 +22,11 @@ namespace ArObjectLabels.Core
         /// (<paramref name="objectFound"/>) or with its middle in the picture is placed this way; any other label
         /// stays at its place in the room and is not moved aside either.
         ///
-        /// A place from which the line to the object would be longer than <paramref name="maxLeader"/> is too far
-        /// away. When no place near enough is free, the label stays next to its object: at the first near place
-        /// that keeps clear of the labels placed before and the panels, even if another object is behind it, or
-        /// else at its own place.
+        /// A place from which the line to the object would be longer than <paramref name="maxLeader"/> is taken
+        /// only when nothing nearer will do. In order: a free place near enough; the place straight up, if near
+        /// enough; a near place clear of earlier labels and panels, even with another object behind it; any free
+        /// place; any place clear of earlier labels and panels; the place straight up. Whatever is taken lies
+        /// inside the picture.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
             IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null,
@@ -39,34 +40,59 @@ namespace ArObjectLabels.Core
                 return Vector2.zero;
             }
             var objectTop = new Vector2(label.center.x, label.yMin);
-            for (int choice = 0; choice < NearbyPlaces; choice++)
+            Rect place;
+            if (TryNearby(label, ownObject, otherObjects, placedLabels, margin, picture, panels, objectTop, maxLeader, out place))
             {
-                Rect place = PanelEdges.KeepOut(KeepInside(Nearby(choice, label, ownObject, margin), picture), panels, margin, picture);
-                if (IsFree(place, otherObjects, placedLabels, margin) && PanelEdges.IsClear(place, panels)
-                    && LeaderLength(place, objectTop) <= maxLeader)
-                {
-                    return new Vector2(place.x - label.x, place.y - label.y);
-                }
+                return MoveTo(label, place);
             }
 
             var lifted = new Rect(label.x, label.y + LabelOverlap.LiftToClear(label, placedLabels, otherObjects, margin), label.width, label.height);
             lifted = PanelEdges.KeepOut(KeepInside(lifted, picture), panels, margin, picture);
             if (LeaderLength(lifted, objectTop) <= maxLeader)
             {
-                return new Vector2(lifted.x - label.x, lifted.y - label.y);
+                return MoveTo(label, lifted);
             }
 
-            // Seen in the review: the desk chair's label was lifted clear of the desk and its line crossed the whole desk.
+            // Seen in the review: the desk chair's label was lifted clear of the desk and its line crossed the whole
+            // desk. It stays near, in front of the desk.
+            if (TryNearby(label, ownObject, NoRects, placedLabels, margin, picture, panels, objectTop, maxLeader, out place))
+            {
+                return MoveTo(label, place);
+            }
+
+            // Seen in Play on 20 Nov: a label whose own place is above the picture, or whose near places all held
+            // labels, stayed there, off the picture or on another label. A long line is hidden instead.
+            if (TryNearby(label, ownObject, otherObjects, placedLabels, margin, picture, panels, objectTop, float.PositiveInfinity, out place)
+                || TryNearby(label, ownObject, NoRects, placedLabels, margin, picture, panels, objectTop, float.PositiveInfinity, out place))
+            {
+                return MoveTo(label, place);
+            }
+            return MoveTo(label, lifted);
+        }
+
+        static readonly Rect[] NoRects = new Rect[0];
+
+        // The first nearby place, kept inside the picture and out of the panels, that touches none of these objects
+        // and labels and is no further from the object's top than the longest line.
+        static bool TryNearby(Rect label, Rect ownObject, IReadOnlyList<Rect> objectsInTheWay, IReadOnlyList<Rect> placedLabels,
+            float margin, Rect picture, IReadOnlyList<Rect> panels, Vector2 objectTop, float maxLeader, out Rect place)
+        {
             for (int choice = 0; choice < NearbyPlaces; choice++)
             {
-                Rect place = PanelEdges.KeepOut(KeepInside(Nearby(choice, label, ownObject, margin), picture), panels, margin, picture);
-                if (!TouchesAny(place, placedLabels, margin) && PanelEdges.IsClear(place, panels)
+                place = PanelEdges.KeepOut(KeepInside(Nearby(choice, label, ownObject, margin), picture), panels, margin, picture);
+                if (IsFree(place, objectsInTheWay, placedLabels, margin) && PanelEdges.IsClear(place, panels)
                     && LeaderLength(place, objectTop) <= maxLeader)
                 {
-                    return new Vector2(place.x - label.x, place.y - label.y);
+                    return true;
                 }
             }
-            return Vector2.zero;
+            place = label;
+            return false;
+        }
+
+        static Vector2 MoveTo(Rect label, Rect place)
+        {
+            return new Vector2(place.x - label.x, place.y - label.y);
         }
 
         /// <summary>How long the line from a label at this place to a point would be: zero when the point is on the label.</summary>

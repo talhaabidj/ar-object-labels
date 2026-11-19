@@ -302,6 +302,40 @@ namespace ArObjectLabels.Tests
             Assert.AreEqual(Vector2.zero, offset);
         }
 
+        static bool IsInside(Rect place, Rect area)
+        {
+            const float Rounding = 0.0001f;
+            return place.xMin >= area.xMin - Rounding && place.xMax <= area.xMax + Rounding
+                && place.yMin >= area.yMin - Rounding && place.yMax <= area.yMax + Rounding;
+        }
+
+        [Test]
+        public void FoundObjectsLabel_WhoseOwnPlaceIsFarAboveThePicture_IsPulledInside_EvenWithALongLine()
+        {
+            // Seen in true-S08: "Chair" and "Screen" stayed 112 and 73 px above the picture.
+            var nearTheTop = new Rect(-0.05f, 0.15f, 0.10f, 0.13f);
+            Rect farAbove = At(label, -0.06f, 0.45f);
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(farAbove, nearTheTop, none, none, Margin, picture,
+                null, true, TwoPlates));
+
+            Assert.IsTrue(IsInside(MovedFrom(farAbove, offset), picture));
+        }
+
+        [Test]
+        public void LabelWithNoPlaceNearEnough_IsNotLeftOnAnEarlierLabel()
+        {
+            // Seen in model-S06 and S07: "Chair" and "Keyboard" stayed on the "Laptop" label.
+            var earlier = new List<Rect> { At(label, -0.06f, 0.10f) };
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(label, cube, new List<Rect> { desk }, earlier, Margin, picture,
+                null, true, 0.001f));
+
+            Rect placed = MovedFrom(label, offset);
+            Assert.IsFalse(LabelArrange.Touches(placed, earlier[0], 0f), "off the earlier label");
+            Assert.IsTrue(IsInside(placed, picture), "inside the picture");
+        }
+
         [Test]
         public void LabelWithNoFreePlaceNearby_KeepsClearOfEarlierLabels_AndStaysNear()
         {
