@@ -1,0 +1,146 @@
+using System.Collections.Generic;
+using ArObjectLabels.Core;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace ArObjectLabels.Tests
+{
+    [Timeout(5000)]
+    public class LabelKeeperTests
+    {
+        const float Same = 0.5f;
+        const float Wait = 1f;
+        const float FadeTime = 0.3f;
+        const float Frame = 0.1f;
+        static readonly Bounds laptopBox = new Bounds(new Vector3(0f, 0.8f, 2f), new Vector3(0.3f, 0.2f, 0.24f));
+
+        static void Find(LabelKeeper keeper, params (string name, Bounds box)[] found)
+        {
+            var names = new List<string>();
+            var boxes = new List<Bounds>();
+            var turns = new List<Quaternion>();
+            var scores = new List<float>();
+            foreach ((string name, Bounds box) in found)
+            {
+                names.Add(name);
+                boxes.Add(box);
+                turns.Add(Quaternion.identity);
+                scores.Add(0.9f);
+            }
+            keeper.Take(names, boxes, turns, scores, Same);
+        }
+
+        static readonly System.Func<Vector3, bool> everythingInView = place => true;
+        static readonly System.Func<Vector3, bool> nothingInView = place => false;
+
+        [Test]
+        public void FoundObject_GetsAKeptLabel_AtItsPlace()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+
+            Assert.AreEqual(1, keeper.Kept.Count);
+            Assert.AreEqual(laptopBox.center, keeper.Kept[0].RoomBox.center);
+            Assert.AreEqual(1f, keeper.Kept[0].Fade);
+        }
+
+        [Test]
+        public void ObjectOutOfView_KeepsItsLabel_However_LongItIsAway()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+
+            for (int frame = 0; frame < 100; frame++)
+            {
+                Find(keeper);
+                keeper.Age(nothingInView, Frame, Wait, FadeTime);
+            }
+
+            Assert.AreEqual(1, keeper.Kept.Count);
+            Assert.AreEqual(1f, keeper.Kept[0].Fade);
+        }
+
+        [Test]
+        public void ObjectInViewButNotFound_StaysOneSecond_ThenFadesOut_ThenIsDropped()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+            KeptObject laptop = keeper.Kept[0];
+
+            for (int frame = 0; frame < 10; frame++)
+            {
+                Find(keeper);
+                keeper.Age(everythingInView, Frame, Wait, FadeTime);
+            }
+            Assert.AreEqual(1f, laptop.Fade, 0.0001f, "still fully drawn after one second");
+
+            Find(keeper);
+            keeper.Age(everythingInView, Frame, Wait, FadeTime);
+            Assert.AreEqual(2f / 3f, laptop.Fade, 0.001f, "a third of the way out");
+
+            Find(keeper);
+            keeper.Age(everythingInView, Frame, Wait, FadeTime);
+            Find(keeper);
+            keeper.Age(everythingInView, Frame, Wait, FadeTime);
+            CollectionAssert.IsEmpty(keeper.Kept);
+        }
+
+        [Test]
+        public void ObjectFoundAgainWhileFading_IsDrawnFullyAgain_AndKeepsItsMemory()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+            KeptObject laptop = keeper.Kept[0];
+            laptop.Memory.WasShown = true;
+            for (int frame = 0; frame < 11; frame++)
+            {
+                Find(keeper);
+                keeper.Age(everythingInView, Frame, Wait, FadeTime);
+            }
+
+            Find(keeper, ("laptop", laptopBox));
+            keeper.Age(everythingInView, Frame, Wait, FadeTime);
+
+            Assert.AreSame(laptop, keeper.Kept[0]);
+            Assert.AreEqual(1f, laptop.Fade);
+            Assert.AreEqual(0f, laptop.UnseenInView);
+            Assert.IsTrue(laptop.Memory.WasShown);
+        }
+
+        [Test]
+        public void ObjectFoundAFewCentimetresAway_IsTheSameObject_AndMovesThere()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+            var nudged = new Bounds(laptopBox.center + new Vector3(0.05f, 0f, 0f), laptopBox.size);
+
+            Find(keeper, ("laptop", nudged));
+
+            Assert.AreEqual(1, keeper.Kept.Count);
+            Assert.AreEqual(nudged.center, keeper.Kept[0].RoomBox.center);
+        }
+
+        [Test]
+        public void OtherObjectWithTheSameName_FarAway_GetsItsOwnLabel()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("chair", laptopBox));
+            var farChair = new Bounds(laptopBox.center + new Vector3(2f, 0f, 0f), laptopBox.size);
+
+            Find(keeper, ("chair", farChair));
+
+            Assert.AreEqual(2, keeper.Kept.Count);
+        }
+
+        [Test]
+        public void Forget_DropsEveryLabel()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+
+            keeper.Forget();
+
+            CollectionAssert.IsEmpty(keeper.Kept);
+        }
+    }
+}

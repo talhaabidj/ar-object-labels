@@ -120,8 +120,15 @@ namespace ArObjectLabels
                     label.Memory.Forget();
                     continue;
                 }
-                inView.Add(label);
                 Rect inPicture = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
+                // A label kept for an object out of the picture waits at its place and takes no place among the shown.
+                if (!LabelArrange.Touches(inPicture, picture, 0f))
+                {
+                    label.SetShown(false);
+                    label.Memory.Forget();
+                    continue;
+                }
+                inView.Add(label);
                 sizes.Add(LabelSteady.SizeForChoice(inPicture.width * inPicture.height, label.Memory.WasShown, rules.stayBonus));
                 scores.Add(label.Score);
                 wasShown.Add(label.Memory.WasShown);

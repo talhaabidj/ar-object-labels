@@ -60,6 +60,12 @@ namespace ArObjectLabels.Core
         /// <summary>The camera counts as still while it turns slower than this, in degrees a second.</summary>
         public float stillTurnSpeed = 5f;
 
+        /// <summary>A label whose object is in view but no longer found stays this many seconds before it fades.</summary>
+        public float lostWaitSeconds = 1f;
+
+        /// <summary>It then fades out over this many seconds.</summary>
+        public float lostFadeSeconds = 0.3f;
+
         /// <summary>A label takes about this many seconds to glide to a new place. 0 makes it jump.</summary>
         public float glideSeconds = 0.2f;
 

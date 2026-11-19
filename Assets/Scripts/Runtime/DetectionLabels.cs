@@ -6,9 +6,9 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// Shows one label for each object the chosen source finds, at the place the placer gives it. A found
-    /// object with no place in the room gets no label. With no source chosen, no label shows. An object
-    /// found again near where it was keeps its label's memory, so the label stays steady. What the model
-    /// finds gets its label only after several runs in a row.
+    /// object with no place in the room gets no label. With no source chosen, no label shows. A label stays at
+    /// its object's place in the room: out of view it waits there, and in view but no longer found it fades
+    /// out after a moment. What the model finds gets its label only after several runs in a row.
     /// </summary>
     public class DetectionLabels : MonoBehaviour
     {
@@ -18,25 +18,23 @@ namespace ArObjectLabels
         [SerializeField] WorldLabel labelPrefab;
         [SerializeField] TextAsset displayNamesFile;
         [SerializeField] AppSettings settings;
+        [SerializeField] Camera viewCamera;
 
         readonly List<Detection> detections = new List<Detection>();
         readonly List<WorldLabel> labels = new List<WorldLabel>();
-        readonly List<string> names = new List<string>();
-        readonly List<Vector3> places = new List<Vector3>();
-        readonly List<LabelMemory> memories = new List<LabelMemory>();
-        readonly List<string> earlierNames = new List<string>();
-        readonly List<Vector3> earlierPlaces = new List<Vector3>();
-        readonly List<LabelMemory> earlierMemories = new List<LabelMemory>();
-        readonly List<int> continues = new List<int>();
         readonly List<PlacedDetection> placedNow = new List<PlacedDetection>();
         readonly ConfirmOverRuns confirm = new ConfirmOverRuns();
+        readonly LabelKeeper keeper = new LabelKeeper();
         readonly List<string> runNames = new List<string>();
         readonly List<float> runScores = new List<float>();
         readonly List<Vector3> runPlaces = new List<Vector3>();
         readonly List<bool> mayShow = new List<bool>();
+        readonly List<Bounds> runBoxes = new List<Bounds>();
+        readonly List<Quaternion> runTurns = new List<Quaternion>();
         float lastReadingTime = float.NegativeInfinity;
         Dictionary<string, string> displayNames;
         IDetectionSource chosen;
+        System.Func<Vector3, bool> isInView;
 
         /// <summary>Chooses where the boxes come from. Null means nowhere.</summary>
         public void Use(IDetectionSource newSource)
@@ -44,6 +42,7 @@ namespace ArObjectLabels
             chosen = newSource;
             placedNow.Clear();
             confirm.Forget();
+            keeper.Forget();
             lastReadingTime = float.NegativeInfinity;
         }
 
@@ -51,6 +50,11 @@ namespace ArObjectLabels
         {
             chosen = source as IDetectionSource;
             displayNames = ClassNames.ParseDisplayNames(displayNamesFile != null ? displayNamesFile.text : "");
+            if (viewCamera == null)
+            {
+                viewCamera = Camera.main;
+            }
+            isInView = IsInView;
         }
 
         void OnDisable()
@@ -80,21 +84,20 @@ namespace ArObjectLabels
                 placedNow.Clear();
             }
 
-            names.Clear();
-            places.Clear();
-            for (int i = 0; i < placedNow.Count; i++)
+            KeepInTheRoom();
+
+            IReadOnlyList<KeptObject> kept = keeper.Kept;
+            for (int i = 0; i < kept.Count; i++)
             {
-                PlacedDetection placed = placedNow[i];
+                KeptObject one = kept[i];
                 WorldLabel label = LabelNumber(i);
-                string text = ClassNames.LabelFor(placed.Detection.ClassName, displayNames);
-                label.SetText(text);
-                label.PlaceAt(placed.RoomBox, placed.Turn);
-                label.Score = placed.Detection.Score;
-                names.Add(text);
-                places.Add(placed.RoomBox.center);
+                label.SetText(ClassNames.LabelFor(one.Name, displayNames));
+                label.PlaceAt(one.RoomBox, one.Turn);
+                label.Score = one.Score;
+                label.Fade = one.Fade;
+                label.Memory = one.Memory;
             }
-            HandOnMemories();
-            ShowOnly(placedNow.Count);
+            ShowOnly(kept.Count);
         }
 
         void PlaceAll(CameraFrame frame)
@@ -131,24 +134,33 @@ namespace ArObjectLabels
             }
         }
 
-        // Labels are handed out in the order objects are found, which changes from frame to frame. What a
-        // label remembers belongs to its object, so each object found again gets its memory back.
-        void HandOnMemories()
+        // Hands what is found now to the keeper, which keeps every label at its object's place in the room.
+        void KeepInTheRoom()
         {
-            TrackMatch.Match(earlierNames, earlierPlaces, names, places, settings.detection.sameObjectDistance, continues);
-            memories.Clear();
-            for (int i = 0; i < names.Count; i++)
+            runNames.Clear();
+            runBoxes.Clear();
+            runTurns.Clear();
+            runScores.Clear();
+            foreach (PlacedDetection placed in placedNow)
             {
-                memories.Add(continues[i] >= 0 ? earlierMemories[continues[i]] : new LabelMemory());
-                labels[i].Memory = memories[i];
+                runNames.Add(placed.Detection.ClassName);
+                runBoxes.Add(placed.RoomBox);
+                runTurns.Add(placed.Turn);
+                runScores.Add(placed.Detection.Score);
             }
+            keeper.Take(runNames, runBoxes, runTurns, runScores, settings.detection.sameObjectDistance);
+            LabelSettings rules = settings.label;
+            keeper.Age(isInView, Time.deltaTime, rules.lostWaitSeconds, rules.lostFadeSeconds);
+        }
 
-            earlierNames.Clear();
-            earlierNames.AddRange(names);
-            earlierPlaces.Clear();
-            earlierPlaces.AddRange(places);
-            earlierMemories.Clear();
-            earlierMemories.AddRange(memories);
+        bool IsInView(Vector3 place)
+        {
+            if (viewCamera == null)
+            {
+                return false;
+            }
+            Vector3 seen = viewCamera.WorldToViewportPoint(place);
+            return seen.z > 0f && seen.x >= 0f && seen.x <= 1f && seen.y >= 0f && seen.y <= 1f;
         }
 
         WorldLabel LabelNumber(int index)

@@ -215,6 +215,16 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ObjectWithItsMiddleOutsideThePicture_ItsLabelIsNotPulledIn()
+        {
+            // The object reaches 0.03 into the picture, but its middle is outside it.
+            Rect mostlyOut = At(cube, 0.50f, 0f);
+            Rect ownLabel = At(label, 0.49f, 0.12f);
+
+            Assert.AreEqual(Vector2.zero, LabelArrange.Offset(ownLabel, mostlyOut, none, none, Margin, picture));
+        }
+
+        [Test]
         public void ObjectOutsideThePicture_ItsLabelIsNotPulledIn()
         {
             Rect farToTheRight = At(cube, 0.80f, 0f);

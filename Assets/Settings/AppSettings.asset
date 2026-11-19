@@ -27,6 +27,8 @@ MonoBehaviour:
     stillSeconds: 0.5
     stillMoveSpeed: 0.05
     stillTurnSpeed: 5
+    lostWaitSeconds: 1
+    lostFadeSeconds: 0.3
     glideSeconds: 0.2
     leaderThickness: 0.004
   detection:

@@ -18,13 +18,13 @@ namespace ArObjectLabels.Core
         ///
         /// Every place is first pulled inside <paramref name="picture"/>, the part of the flat picture the
         /// viewer sees, so a label is never cut by the picture's edge, and out from under the app's
-        /// <paramref name="panels"/>, which count as more of that edge. A label whose object is not in the
-        /// picture at all is left where it is.
+        /// <paramref name="panels"/>, which count as more of that edge. A label whose object has its middle
+        /// outside the picture is not pulled in: it stays at its place in the room.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
             IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null)
         {
-            bool objectInPicture = Touches(ownObject, picture, 0f);
+            bool objectInPicture = picture.Contains(ownObject.center);
             for (int choice = 0; choice < NearbyPlaces; choice++)
             {
                 Rect place = Nearby(choice, label, ownObject, margin);

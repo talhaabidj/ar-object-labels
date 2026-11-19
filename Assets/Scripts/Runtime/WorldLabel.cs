@@ -53,8 +53,11 @@ namespace ArObjectLabels
         /// </summary>
         public LabelMemory Memory { get; set; } = new LabelMemory();
 
-        /// <summary>How clearly the label is drawn at its distance, from 0 to 1.</summary>
+        /// <summary>How clearly the label is drawn at its distance and fade, from 0 to 1.</summary>
         public float Opacity { get; private set; } = 1f;
+
+        /// <summary>1 normally, down to 0 while the label fades out because its object is no longer found.</summary>
+        public float Fade { get; set; } = 1f;
 
         public void SetText(string labelText)
         {
@@ -157,7 +160,7 @@ namespace ArObjectLabels
             centre = KeepOutOfWalls(centre, rotation, cameraPosition, rules.wallMargin);
             transform.SetPositionAndRotation(centre, rotation);
 
-            Opacity = LabelFade.Opacity(distance, rules.fadeStart, rules.fadeEnd);
+            Opacity = LabelFade.Opacity(distance, rules.fadeStart, rules.fadeEnd) * Fade;
             fader.alpha = Opacity;
             leader.gameObject.SetActive(false);
         }
