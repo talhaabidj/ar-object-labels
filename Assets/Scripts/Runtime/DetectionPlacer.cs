@@ -8,8 +8,7 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// Turns a found box into a place and a size in the room: a ray from the camera's stored pose through one
-    /// point of the box, to the found surface the object stands on. For a class that stands on the floor, a ray
-    /// that ends on another object's top uses the floor under that point.
+    /// point of the box, to the found surface the object stands on.
     /// </summary>
     public class DetectionPlacer : MonoBehaviour
     {
@@ -57,23 +56,13 @@ namespace ArObjectLabels
             // The usual depth of a class shapes the room box and corrects the height. A class with no usual
             // depth is taken to be as deep as it is wide, and its height stays as seen.
             float depth = width;
-            bool hasUsual = ObjectDepth.TryUsual(detection.ClassName, rules.usualDepths, out ClassDepth usual);
-            if (hasUsual)
+            if (ObjectDepth.TryUsual(detection.ClassName, rules.usualDepths, out ClassDepth usual))
             {
                 depth = usual.depth;
-            }
-            if (hasUsual && usual.standsOnFloor && used != BoxPointKind.Centre
-                && SurfaceChoice.TryFloorUnder(surfaces, chosen, rules.raisedSurface, out float floorHeight))
-            {
-                // The box ends on another object's top, which hides the object's foot: it stands on the floor
-                // under that edge, and reaches up to the box's top.
-                point.y = floorHeight;
-                height = BoxPoint.TopAbove(frame.RayThrough(new Vector2(detection.Centre.x, detection.Top)), point);
-                used = BoxPointKind.BottomCentre;
-            }
-            else if (hasUsual && used != BoxPointKind.Centre)
-            {
-                height = ObjectDepth.Height(height, depth, DegreesLookedDown(frame.RayThrough(detection.Centre)));
+                if (used != BoxPointKind.Centre)
+                {
+                    height = ObjectDepth.Height(height, depth, DegreesLookedDown(frame.RayThrough(detection.Centre)));
+                }
             }
 
             Vector3 away = point - frame.Position;

@@ -64,31 +64,5 @@ namespace ArObjectLabels.Core
         {
             return !chosen.Upright;
         }
-
-        /// <summary>
-        /// For an object that stands on the floor: true when the surface its ray ends on faces up and lies at
-        /// least <paramref name="raised"/> above another upward-facing surface the same ray meets. The chosen
-        /// surface is then another object's top, such as a table in front of a chair, and
-        /// <paramref name="floorHeight"/> is the height of the lowest surface below it.
-        /// </summary>
-        public static bool TryFloorUnder(IReadOnlyList<SurfaceHit> nearestFirst, int chosen, float raised, out float floorHeight)
-        {
-            floorHeight = 0f;
-            SurfaceHit top = nearestFirst[chosen];
-            if (!top.FacesUp)
-            {
-                return false;
-            }
-            bool found = false;
-            foreach (SurfaceHit hit in nearestFirst)
-            {
-                if (hit.FacesUp && hit.Point.y <= top.Point.y - raised && (!found || hit.Point.y < floorHeight))
-                {
-                    floorHeight = hit.Point.y;
-                    found = true;
-                }
-            }
-            return found;
-        }
     }
 }

@@ -51,21 +51,5 @@ namespace ArObjectLabels.Core
             }
             return frontFoot + away.normalized * (depth / 2f);
         }
-
-        /// <summary>
-        /// How high the box's top reaches above a foot on the floor: where the ray through the top of the box
-        /// passes over the foot, measured up from the foot. Zero when the ray never gets that far.
-        /// </summary>
-        public static float TopAbove(Ray topRay, Vector3 foot)
-        {
-            var across = new Vector2(foot.x - topRay.origin.x, foot.z - topRay.origin.z);
-            var step = new Vector2(topRay.direction.x, topRay.direction.z);
-            if (step.sqrMagnitude < 0.000001f)
-            {
-                return 0f;
-            }
-            float along = across.magnitude / step.magnitude;
-            return Mathf.Max(0f, topRay.origin.y + topRay.direction.y * along - foot.y);
-        }
     }
 }
