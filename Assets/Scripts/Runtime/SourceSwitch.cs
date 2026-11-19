@@ -6,7 +6,7 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// The on-screen button that chooses where detections come from. Each click goes on to the next source;
-    /// after the last one, detection is off again. The app starts with detection off.
+    /// after the last one, detection is off again. The app starts with the source set to start with, or off.
     /// </summary>
     public class SourceSwitch : MonoBehaviour
     {
@@ -15,6 +15,8 @@ namespace ArObjectLabels
         [SerializeField] DetectionLabels labels;
         [Tooltip("In the order the button steps through them. Each must be a detection source.")]
         [SerializeField] MonoBehaviour[] sources;
+        [Tooltip("The source chosen when the app starts. Leave empty to start with detection off.")]
+        [SerializeField] MonoBehaviour startWith;
 
         // The number of the chosen source; the number after the last one stands for "off".
         int chosen;
@@ -26,8 +28,15 @@ namespace ArObjectLabels
 
         void Start()
         {
-            chosen = sources.Length;
+            chosen = StartNumber(sources, startWith);
             Show();
+        }
+
+        /// <summary>The number of the source to start with; the number after the last one, for "off", when it is not in the list.</summary>
+        public static int StartNumber(MonoBehaviour[] sources, MonoBehaviour startWith)
+        {
+            int found = startWith != null ? System.Array.IndexOf(sources, startWith) : -1;
+            return found >= 0 ? found : sources.Length;
         }
 
         public void ChooseNext()

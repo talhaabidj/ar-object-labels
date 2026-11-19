@@ -2005,6 +2005,7 @@ MonoBehaviour:
   viewCamera: {fileID: 773699675}
   cubePrefab: {fileID: 702256621902842851, guid: b832d2140b8b842fcaa4fbf6120dab25, type: 3}
   wallHintSeconds: 3
+  noSurfaceHintSeconds: 2
   maxPressDistance: 20
   clickMoveShareOfHeight: 0.025
 --- !u!4 &1986298851
@@ -2055,6 +2056,7 @@ MonoBehaviour:
   - {fileID: 2026489861}
   - {fileID: 2026489863}
   - {fileID: 2026489864}
+  startWith: {fileID: 2026489864}
 --- !u!1 &2026489858
 GameObject:
   m_ObjectHideFlags: 0
