@@ -21,10 +21,15 @@ namespace ArObjectLabels.Core
         /// <paramref name="panels"/>, which count as more of that edge. Only the label of an object found now
         /// (<paramref name="objectFound"/>) or with its middle in the picture is placed this way; any other label
         /// stays at its place in the room and is not moved aside either.
+        ///
+        /// A place from which the line to the object would be longer than <paramref name="maxLeader"/> is too far
+        /// away. When no place near enough is free, the label stays next to its object: at the first near place
+        /// that keeps clear of the labels placed before and the panels, even if another object is behind it, or
+        /// else at its own place.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
             IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null,
-            bool objectFound = false)
+            bool objectFound = false, float maxLeader = float.PositiveInfinity)
         {
             bool objectInPicture = Touches(ownObject, picture, 0f) && (objectFound || picture.Contains(ownObject.center));
             // Seen in Play on 19 Nov: moved aside without being kept inside, such a label could end up wholly off
@@ -33,10 +38,12 @@ namespace ArObjectLabels.Core
             {
                 return Vector2.zero;
             }
+            var objectTop = new Vector2(label.center.x, label.yMin);
             for (int choice = 0; choice < NearbyPlaces; choice++)
             {
                 Rect place = PanelEdges.KeepOut(KeepInside(Nearby(choice, label, ownObject, margin), picture), panels, margin, picture);
-                if (IsFree(place, otherObjects, placedLabels, margin) && PanelEdges.IsClear(place, panels))
+                if (IsFree(place, otherObjects, placedLabels, margin) && PanelEdges.IsClear(place, panels)
+                    && LeaderLength(place, objectTop) <= maxLeader)
                 {
                     return new Vector2(place.x - label.x, place.y - label.y);
                 }
@@ -44,7 +51,30 @@ namespace ArObjectLabels.Core
 
             var lifted = new Rect(label.x, label.y + LabelOverlap.LiftToClear(label, placedLabels, otherObjects, margin), label.width, label.height);
             lifted = PanelEdges.KeepOut(KeepInside(lifted, picture), panels, margin, picture);
-            return new Vector2(lifted.x - label.x, lifted.y - label.y);
+            if (LeaderLength(lifted, objectTop) <= maxLeader)
+            {
+                return new Vector2(lifted.x - label.x, lifted.y - label.y);
+            }
+
+            // Seen in the review: the desk chair's label was lifted clear of the desk and its line crossed the whole desk.
+            for (int choice = 0; choice < NearbyPlaces; choice++)
+            {
+                Rect place = PanelEdges.KeepOut(KeepInside(Nearby(choice, label, ownObject, margin), picture), panels, margin, picture);
+                if (!TouchesAny(place, placedLabels, margin) && PanelEdges.IsClear(place, panels)
+                    && LeaderLength(place, objectTop) <= maxLeader)
+                {
+                    return new Vector2(place.x - label.x, place.y - label.y);
+                }
+            }
+            return Vector2.zero;
+        }
+
+        /// <summary>How long the line from a label at this place to a point would be: zero when the point is on the label.</summary>
+        public static float LeaderLength(Rect place, Vector2 point)
+        {
+            float dx = Mathf.Max(place.xMin - point.x, 0f, point.x - place.xMax);
+            float dy = Mathf.Max(place.yMin - point.y, 0f, point.y - place.yMax);
+            return Mathf.Sqrt(dx * dx + dy * dy);
         }
 
         /// <summary>

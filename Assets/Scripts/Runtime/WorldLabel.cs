@@ -179,7 +179,7 @@ namespace ArObjectLabels
 
         /// <summary>
         /// Moves the label from its own place by this much and draws a thin line from it to its object, so it is
-        /// still clear what it names.
+        /// still clear what it names. A line longer than the settings allow is not drawn.
         /// </summary>
         public void MoveAside(Vector3 offset, Vector3 cameraPosition)
         {
@@ -199,7 +199,7 @@ namespace ArObjectLabels
             var start = new Vector2(Mathf.Clamp(toObject.x, -half.x, half.x), Mathf.Clamp(toObject.y, -half.y, half.y));
             var end = new Vector2(toObject.x, toObject.y);
             Vector2 along = end - start;
-            if (along.magnitude < 0.0001f)
+            if (!LabelLeader.IsDrawn(along.magnitude, half.y * 2f, settings.label.maxLeaderPlates))
             {
                 leader.gameObject.SetActive(false);
                 return;

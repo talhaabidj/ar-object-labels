@@ -188,7 +188,7 @@ namespace ArObjectLabels
                     }
                 }
                 Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture, panels,
-                    label.IsFound);
+                    label.IsFound, MaxLeader(own, rules));
                 placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture,
                     secondsSinceLast, cameraSettled));
             }
@@ -216,6 +216,13 @@ namespace ArObjectLabels
                 label.MoveAside(cameraRotation * new Vector3(drawn.x * depth, drawn.y * depth, 0f), cameraPosition);
             }
             return new Rect(own.x + move.x, own.y + move.y, own.width, own.height);
+        }
+
+        // The layout measures the line from the label's own lower edge; the drawn line starts at the object's top,
+        // a gap lower, so the gap is taken off.
+        static float MaxLeader(Rect ownLabel, LabelSettings rules)
+        {
+            return Mathf.Max(0f, rules.maxLeaderPlates * ownLabel.height - rules.gap);
         }
 
         // A label as a rectangle in the viewer's flat picture, one metre in front of the camera.

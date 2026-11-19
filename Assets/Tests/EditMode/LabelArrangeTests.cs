@@ -280,6 +280,58 @@ namespace ArObjectLabels.Tests
             Assert.IsTrue(LabelArrange.TakesAPlace(table, label, true, picture, true, 0.4f));
         }
 
+        // Seen in the review: the desk chair's own place is on the desk, so its label was lifted clear of the
+        // whole desk and its line crossed it.
+        static readonly Rect desk = new Rect(-0.5f, -0.25f, 1.0f, 0.5f);
+        const float TwoPlates = 0.10f;
+
+        [Test]
+        public void LabelWithNoFreePlaceNearby_IsLiftedFar_WhenLinesMayBeAnyLength()
+        {
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(label, cube, new List<Rect> { desk }, none, Margin, picture));
+
+            Assert.Greater(offset.y, TwoPlates);
+        }
+
+        [Test]
+        public void LabelWithNoFreePlaceNearby_StaysAtItsOwnPlace_WhenTheLineWouldBeTooLong()
+        {
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(label, cube, new List<Rect> { desk }, none, Margin, picture,
+                null, true, TwoPlates));
+
+            Assert.AreEqual(Vector2.zero, offset);
+        }
+
+        [Test]
+        public void LabelWithNoFreePlaceNearby_KeepsClearOfEarlierLabels_AndStaysNear()
+        {
+            var earlier = new List<Rect> { At(label, -0.06f, 0.10f) };
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(label, cube, new List<Rect> { desk }, earlier, Margin, picture,
+                null, true, TwoPlates));
+
+            Assert.AreEqual(0f, offset.x, 0.0001f);
+            Assert.AreEqual(label.height + Margin, offset.y, 0.0001f, "one step up");
+        }
+
+        [Test]
+        public void LeaderLength_IsTheGapBetweenThePlaceAndThePoint()
+        {
+            var place = new Rect(0f, 0f, 0.2f, 0.1f);
+
+            Assert.AreEqual(0f, LabelArrange.LeaderLength(place, new Vector2(0.1f, 0.05f)), "on the label");
+            Assert.AreEqual(0.3f, LabelArrange.LeaderLength(place, new Vector2(0.1f, -0.3f)), 0.0001f, "below");
+            Assert.AreEqual(0.5f, LabelArrange.LeaderLength(place, new Vector2(-0.3f, 0.5f)), 0.0001f, "off a corner");
+        }
+
+        [Test]
+        public void LeaderLine_IsDrawn_OnlyUpToTwicePlateHeight()
+        {
+            Assert.IsTrue(LabelLeader.IsDrawn(0.09f, 0.05f, 2f));
+            Assert.IsFalse(LabelLeader.IsDrawn(0.11f, 0.05f, 2f), "too long");
+            Assert.IsFalse(LabelLeader.IsDrawn(0f, 0.05f, 2f), "no length");
+        }
+
         [Test]
         public void LabelNotPulledIn_IsNotMovedAside_EvenWhenAnotherLabelIsInItsPlace()
         {

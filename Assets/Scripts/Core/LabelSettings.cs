@@ -81,6 +81,12 @@ namespace ArObjectLabels.Core
         /// <summary>A label takes about this many seconds to glide to a new place. 0 makes it jump.</summary>
         public float glideSeconds = 0.2f;
 
+        /// <summary>
+        /// A label is moved aside no further than a line this many plate heights long can reach; a longer line
+        /// is not drawn.
+        /// </summary>
+        public float maxLeaderPlates = 2f;
+
         /// <summary>Thickness of the line from a moved label to its object, in metres at 1 m distance.</summary>
         public float leaderThickness = 0.004f;
     }
