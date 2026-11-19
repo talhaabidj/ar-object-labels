@@ -96,6 +96,7 @@ namespace ArObjectLabels
                 label.PlaceAt(one.RoomBox, one.Turn);
                 label.Score = one.Score;
                 label.Fade = one.Fade;
+                label.IsFound = one.FoundNow;
                 label.Memory = one.Memory;
             }
             ShowOnly(kept.Count);

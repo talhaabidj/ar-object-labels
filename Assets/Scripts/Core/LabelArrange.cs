@@ -18,13 +18,15 @@ namespace ArObjectLabels.Core
         ///
         /// Every place is first pulled inside <paramref name="picture"/>, the part of the flat picture the
         /// viewer sees, so a label is never cut by the picture's edge, and out from under the app's
-        /// <paramref name="panels"/>, which count as more of that edge. A label whose object has its middle
-        /// outside the picture is not pulled in: it stays at its place in the room.
+        /// <paramref name="panels"/>, which count as more of that edge. Only the label of an object found now
+        /// (<paramref name="objectFound"/>) or with its middle in the picture is pulled in; any other label
+        /// stays at its place in the room.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
-            IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null)
+            IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null,
+            bool objectFound = false)
         {
-            bool objectInPicture = picture.Contains(ownObject.center);
+            bool objectInPicture = Touches(ownObject, picture, 0f) && (objectFound || picture.Contains(ownObject.center));
             for (int choice = 0; choice < NearbyPlaces; choice++)
             {
                 Rect place = Nearby(choice, label, ownObject, margin);
@@ -44,6 +46,17 @@ namespace ArObjectLabels.Core
                 lifted = PanelEdges.KeepOut(KeepInside(lifted, picture), panels, margin, picture);
             }
             return new Vector2(lifted.x - label.x, lifted.y - label.y);
+        }
+
+        /// <summary>
+        /// True when a label may take one of the places among the labels shown: its object reaches into the
+        /// picture, and the object is found now, or has its middle in the picture, or the label at its own
+        /// place would be at least partly in the picture. A label that would only sit off the picture takes none.
+        /// </summary>
+        public static bool TakesAPlace(Rect ownObject, Rect ownLabel, bool objectFound, Rect picture)
+        {
+            return Touches(ownObject, picture, 0f)
+                && (objectFound || picture.Contains(ownObject.center) || Touches(ownLabel, picture, 0f));
         }
 
         /// <summary>

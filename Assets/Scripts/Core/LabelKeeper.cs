@@ -15,6 +15,9 @@ namespace ArObjectLabels.Core
         /// <summary>Seconds the object has been in view without being found.</summary>
         public float UnseenInView;
 
+        /// <summary>True when the object was found in the last frame taken.</summary>
+        public bool FoundNow;
+
         /// <summary>What its label remembers from frame to frame.</summary>
         public readonly LabelMemory Memory = new LabelMemory();
 
@@ -66,6 +69,10 @@ namespace ArObjectLabels.Core
             TrackMatch.Match(keptNames, keptPlaces, names, places, sameObjectDistance, continues);
 
             foundNow.Clear();
+            foreach (KeptObject one in kept)
+            {
+                one.FoundNow = false;
+            }
             for (int i = 0; i < names.Count; i++)
             {
                 KeptObject one = continues[i] >= 0 ? kept[continues[i]] : new KeptObject { Name = names[i] };
@@ -78,6 +85,7 @@ namespace ArObjectLabels.Core
                 one.Score = scores[i];
                 one.UnseenInView = 0f;
                 one.Fade = 1f;
+                one.FoundNow = true;
                 foundNow.Add(one);
             }
         }

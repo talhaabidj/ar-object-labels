@@ -122,7 +122,9 @@ namespace ArObjectLabels
                 }
                 Rect inPicture = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
                 // A label kept for an object out of the picture waits at its place and takes no place among the shown.
-                if (!LabelArrange.Touches(inPicture, picture, 0f))
+                float labelDepth = (toPicture * (label.transform.position - cameraPosition)).z;
+                Rect ownLabel = labelDepth > 0f ? LabelInPicture(label, cameraPosition, toPicture) : Rect.zero;
+                if (!LabelArrange.TakesAPlace(inPicture, ownLabel, label.IsFound, picture))
                 {
                     label.SetShown(false);
                     label.Memory.Forget();
@@ -183,7 +185,8 @@ namespace ArObjectLabels
                         otherObjects.Add(otherObject);
                     }
                 }
-                Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture, panels);
+                Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture, panels,
+                    label.IsFound);
                 placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture,
                     secondsSinceLast, cameraSettled));
             }

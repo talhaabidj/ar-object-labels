@@ -59,6 +59,12 @@ namespace ArObjectLabels
         /// <summary>1 normally, down to 0 while the label fades out because its object is no longer found.</summary>
         public float Fade { get; set; } = 1f;
 
+        /// <summary>
+        /// True while its source finds the object now. A label kept for an object that is not found now stays
+        /// at its place in the room and is not pulled inside the picture.
+        /// </summary>
+        public bool IsFound { get; set; } = true;
+
         public void SetText(string labelText)
         {
             if (labelText == shownText)

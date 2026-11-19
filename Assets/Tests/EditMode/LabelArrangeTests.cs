@@ -225,6 +225,31 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ObjectFoundNow_WithItsMiddleOutsideThePicture_ItsLabelIsPulledIn()
+        {
+            Rect mostlyOut = At(cube, 0.50f, 0f);
+            Rect ownLabel = At(label, 0.49f, 0.12f);
+
+            Vector2 offset = LabelArrange.Offset(ownLabel, mostlyOut, none, none, Margin, picture, null, objectFound: true);
+
+            Assert.LessOrEqual(MovedFrom(ownLabel, offset).xMax, picture.xMax + 0.0001f);
+        }
+
+        [Test]
+        public void LabelThatWouldOnlySitOffThePicture_TakesNoPlace()
+        {
+            // The object just reaches into the picture, its middle is outside, it is not found now, and its label is off the picture.
+            Rect mostlyOut = At(cube, 0.50f, 0f);
+            Rect offPicture = At(label, 0.60f, 0.12f);
+
+            Assert.IsFalse(LabelArrange.TakesAPlace(mostlyOut, offPicture, false, picture));
+            Assert.IsTrue(LabelArrange.TakesAPlace(mostlyOut, offPicture, true, picture), "found now");
+            Assert.IsTrue(LabelArrange.TakesAPlace(mostlyOut, At(label, 0.49f, 0.12f), false, picture), "label partly in the picture");
+            Assert.IsTrue(LabelArrange.TakesAPlace(cube, offPicture, false, picture), "object's middle in the picture");
+            Assert.IsFalse(LabelArrange.TakesAPlace(At(cube, 0.80f, 0f), label, true, picture), "object wholly outside");
+        }
+
+        [Test]
         public void ObjectOutsideThePicture_ItsLabelIsNotPulledIn()
         {
             Rect farToTheRight = At(cube, 0.80f, 0f);

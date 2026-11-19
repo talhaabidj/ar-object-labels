@@ -133,6 +133,17 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void FoundNow_IsTrueOnlyInAFrameThatFindsTheObject()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+            Assert.IsTrue(keeper.Kept[0].FoundNow);
+
+            Find(keeper);
+            Assert.IsFalse(keeper.Kept[0].FoundNow);
+        }
+
+        [Test]
         public void Forget_DropsEveryLabel()
         {
             var keeper = new LabelKeeper();
