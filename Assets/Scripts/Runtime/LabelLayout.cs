@@ -16,6 +16,8 @@ namespace ArObjectLabels
     {
         [SerializeField] AppSettings settings;
         [SerializeField] Camera viewCamera;
+        [Tooltip("The app's panels and buttons on the screen. Labels are kept out from under them.")]
+        [SerializeField] RectTransform[] keepClearOf;
 
         readonly List<WorldLabel> labels = new List<WorldLabel>();
         readonly List<WorldLabel> inView = new List<WorldLabel>();
@@ -26,6 +28,8 @@ namespace ArObjectLabels
         readonly List<Rect> noObjects = new List<Rect>();
         readonly List<bool> wasShown = new List<bool>();
         readonly List<int> ranks = new List<int>();
+        readonly List<Rect> panels = new List<Rect>();
+        readonly Vector3[] corners = new Vector3[4];
         readonly CameraStill cameraStill = new CameraStill();
 
         public void Add(WorldLabel label)
@@ -60,7 +64,29 @@ namespace ArObjectLabels
                 LabelSettings rules = settings.label;
                 cameraStill.Take(view.position, view.rotation, Time.deltaTime, rules.stillMoveSpeed, rules.stillTurnSpeed);
                 bool settled = cameraStill.SecondsStill >= rules.stillSeconds;
+                FindPanels(halfPicture);
                 Arrange(view.position, view.rotation, halfPicture, Time.deltaTime, settled);
+            }
+        }
+
+        // The panels shown now, as rectangles in the flat picture. A screen-space panel's corners are in pixels.
+        void FindPanels(Vector2 halfPicture)
+        {
+            panels.Clear();
+            if (keepClearOf == null)
+            {
+                return;
+            }
+            var screenSize = new Vector2(viewCamera.pixelWidth, viewCamera.pixelHeight);
+            foreach (RectTransform panel in keepClearOf)
+            {
+                if (panel == null || !panel.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+                panel.GetWorldCorners(corners);
+                Rect onScreen = Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+                panels.Add(PanelEdges.ToPicture(onScreen, screenSize, halfPicture));
             }
         }
 
@@ -150,7 +176,7 @@ namespace ArObjectLabels
                         otherObjects.Add(otherObject);
                     }
                 }
-                Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture);
+                Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture, panels);
                 placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture,
                     secondsSinceLast, cameraSettled));
             }
@@ -165,7 +191,7 @@ namespace ArObjectLabels
             LabelMemory memory = label.Memory;
             var held = new Rect(own.x + memory.HeldMove.x, own.y + memory.HeldMove.y, own.width, own.height);
             List<Rect> objectsInTheWay = cameraSettled ? otherObjects : noObjects;
-            bool heldPlaceIsFree = LabelArrange.CanStay(held, objectsInTheWay, placedLabels, rules.labelMargin, picture);
+            bool heldPlaceIsFree = LabelArrange.CanStay(held, objectsInTheWay, placedLabels, rules.labelMargin, picture, panels);
             Vector2 move = LabelSteady.Move(memory, heldPlaceIsFree, needed, secondsSinceLast, rules.holdSeconds,
                 keepWhileFree: !cameraSettled && memory.HasBeenDrawn);
             memory.HeldMove = move;

@@ -15,6 +15,13 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float SecondsStill { get; private set; } = float.PositiveInfinity;
 
+        /// <summary>True when the camera has gone more than <paramref name="metres"/> or turned more than <paramref name="degrees"/> from a pose.</summary>
+        public static bool HasLeft(Vector3 startPosition, Quaternion startRotation, Vector3 position, Quaternion rotation,
+            float metres, float degrees)
+        {
+            return Vector3.Distance(startPosition, position) > metres || Quaternion.Angle(startRotation, rotation) > degrees;
+        }
+
         /// <summary>
         /// Takes the camera's pose in this frame. Moving slower than <paramref name="maxMoveSpeed"/>, in metres
         /// a second, and turning slower than <paramref name="maxTurnSpeed"/>, in degrees a second, counts as still.

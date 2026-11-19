@@ -17,11 +17,12 @@ namespace ArObjectLabels.Core
         /// the label moves straight up until it is clear of everything.
         ///
         /// Every place is first pulled inside <paramref name="picture"/>, the part of the flat picture the
-        /// viewer sees, so a label is never cut by the picture's edge. A label whose object is not in the
+        /// viewer sees, so a label is never cut by the picture's edge, and out from under the app's
+        /// <paramref name="panels"/>, which count as more of that edge. A label whose object is not in the
         /// picture at all is left where it is.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
-            IReadOnlyList<Rect> placedLabels, float margin, Rect picture)
+            IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null)
         {
             bool objectInPicture = Touches(ownObject, picture, 0f);
             for (int choice = 0; choice < NearbyPlaces; choice++)
@@ -29,9 +30,9 @@ namespace ArObjectLabels.Core
                 Rect place = Nearby(choice, label, ownObject, margin);
                 if (objectInPicture)
                 {
-                    place = KeepInside(place, picture);
+                    place = PanelEdges.KeepOut(KeepInside(place, picture), panels, margin, picture);
                 }
-                if (IsFree(place, otherObjects, placedLabels, margin))
+                if (IsFree(place, otherObjects, placedLabels, margin) && PanelEdges.IsClear(place, panels))
                 {
                     return new Vector2(place.x - label.x, place.y - label.y);
                 }
@@ -40,7 +41,7 @@ namespace ArObjectLabels.Core
             var lifted = new Rect(label.x, label.y + LabelOverlap.LiftToClear(label, placedLabels, otherObjects, margin), label.width, label.height);
             if (objectInPicture)
             {
-                lifted = KeepInside(lifted, picture);
+                lifted = PanelEdges.KeepOut(KeepInside(lifted, picture), panels, margin, picture);
             }
             return new Vector2(lifted.x - label.x, lifted.y - label.y);
         }
@@ -59,16 +60,16 @@ namespace ArObjectLabels.Core
         }
 
         /// <summary>
-        /// True when a place the label already holds can be kept: it touches no other object and no label
-        /// placed before, and lies inside the picture.
+        /// True when a place the label already holds can be kept: it touches no other object, no label placed
+        /// before and none of the app's panels, and lies inside the picture.
         /// </summary>
         public static bool CanStay(Rect place, IReadOnlyList<Rect> otherObjects, IReadOnlyList<Rect> placedLabels,
-            float margin, Rect picture)
+            float margin, Rect picture, IReadOnlyList<Rect> panels = null)
         {
             // A place that was pulled to the picture's edge lies on it, give or take rounding.
             bool inside = place.xMin >= picture.xMin - Rounding && place.xMax <= picture.xMax + Rounding
                 && place.yMin >= picture.yMin - Rounding && place.yMax <= picture.yMax + Rounding;
-            return inside && IsFree(place, otherObjects, placedLabels, margin);
+            return inside && IsFree(place, otherObjects, placedLabels, margin) && PanelEdges.IsClear(place, panels);
         }
 
         const float Rounding = 0.0001f;
