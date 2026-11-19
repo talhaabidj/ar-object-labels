@@ -36,6 +36,8 @@ namespace ArObjectLabels
         Dictionary<string, string> displayNames;
         IDetectionSource chosen;
         System.Func<Vector3, bool> isInView;
+        System.Func<int, Vector3, bool> seenInsideFoundBox;
+        CameraFrame placedFrame;
 
         /// <summary>Chooses where the boxes come from. Null means nowhere.</summary>
         public void Use(IDetectionSource newSource)
@@ -56,6 +58,12 @@ namespace ArObjectLabels
                 viewCamera = Camera.main;
             }
             isInView = IsInView;
+            seenInsideFoundBox = SeenInsideFoundBox;
+        }
+
+        bool SeenInsideFoundBox(int found, Vector3 roomPoint)
+        {
+            return LabelKeeper.SeenInside(placedNow[found].Detection, placedFrame, roomPoint);
         }
 
         void OnDisable()
@@ -104,6 +112,7 @@ namespace ArObjectLabels
 
         void PlaceAll(CameraFrame frame)
         {
+            placedFrame = frame;
             placedNow.Clear();
             foreach (Detection detection in detections)
             {
@@ -154,7 +163,7 @@ namespace ArObjectLabels
                 runTurns.Add(placed.Turn);
                 runScores.Add(placed.Detection.Score);
             }
-            keeper.Take(runNames, runBoxes, runTurns, runScores, settings.detection.sameObjectDistance);
+            keeper.Take(runNames, runBoxes, runTurns, runScores, settings.detection.sameObjectDistance, seenInsideFoundBox);
             LabelSettings rules = settings.label;
             keeper.Age(isInView, Time.deltaTime, rules.lostWaitSeconds, rules.lostFadeSeconds);
         }

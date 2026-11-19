@@ -38,6 +38,7 @@ namespace ArObjectLabels.Core
         readonly List<Vector3> places = new List<Vector3>();
         readonly List<int> continues = new List<int>();
         readonly HashSet<KeptObject> foundNow = new HashSet<KeptObject>();
+        readonly HashSet<int> taken = new HashSet<int>();
 
         public IReadOnlyList<KeptObject> Kept => kept;
 
@@ -49,10 +50,14 @@ namespace ArObjectLabels.Core
 
         /// <summary>
         /// Takes what was found in this frame. An object found again near its kept place, under the same name,
-        /// is moved to where it is found now; an object not kept yet is added.
+        /// is moved to where it is found now. A found object with no kept object that near is still the same as
+        /// a kept object of its name that is not found now when the kept room point falls inside the found box
+        /// on the screen (<paramref name="seenInsideBox"/>: found number, room point), or when the two room boxes
+        /// overlap; that object is moved, so one object never gets a second label because its place moved.
+        /// Only an object that matches neither way is added.
         /// </summary>
         public void Take(IReadOnlyList<string> names, IReadOnlyList<Bounds> boxes, IReadOnlyList<Quaternion> turns,
-            IReadOnlyList<float> scores, float sameObjectDistance)
+            IReadOnlyList<float> scores, float sameObjectDistance, Func<int, Vector3, bool> seenInsideBox = null)
         {
             keptNames.Clear();
             keptPlaces.Clear();
@@ -67,6 +72,7 @@ namespace ArObjectLabels.Core
                 places.Add(box.center);
             }
             TrackMatch.Match(keptNames, keptPlaces, names, places, sameObjectDistance, continues);
+            MatchMovedObjects(names, boxes, turns, seenInsideBox);
 
             foundNow.Clear();
             foreach (KeptObject one in kept)
@@ -88,6 +94,78 @@ namespace ArObjectLabels.Core
                 one.FoundNow = true;
                 foundNow.Add(one);
             }
+        }
+
+        // The duplicate rule from Meta's object detection sample: a kept object of the same name that lies inside
+        // the new box is the same object, wherever its room point was put before.
+        void MatchMovedObjects(IReadOnlyList<string> names, IReadOnlyList<Bounds> boxes, IReadOnlyList<Quaternion> turns,
+            Func<int, Vector3, bool> seenInsideBox)
+        {
+            taken.Clear();
+            foreach (int k in continues)
+            {
+                if (k >= 0)
+                {
+                    taken.Add(k);
+                }
+            }
+            for (int i = 0; i < names.Count; i++)
+            {
+                if (continues[i] >= 0)
+                {
+                    continue;
+                }
+                int best = -1;
+                float bestDistance = float.PositiveInfinity;
+                for (int k = 0; k < kept.Count; k++)
+                {
+                    KeptObject one = kept[k];
+                    if (one.Name != names[i] || taken.Contains(k))
+                    {
+                        continue;
+                    }
+                    bool inside = seenInsideBox != null && seenInsideBox(i, one.RoomBox.center);
+                    bool overlap = TurnedBoxesOverlap(one.RoomBox, one.Turn, boxes[i], turns[i]);
+                    float distance = Vector3.Distance(one.RoomBox.center, boxes[i].center);
+                    if ((inside || overlap) && distance < bestDistance)
+                    {
+                        best = k;
+                        bestDistance = distance;
+                    }
+                }
+                if (best >= 0)
+                {
+                    continues[i] = best;
+                    taken.Add(best);
+                }
+            }
+        }
+
+        /// <summary>
+        /// True when two room boxes, each given in its own axes with the turn of those axes, overlap. Each is
+        /// widened to the upright box around its turned corners first, which is enough to tell one place from another.
+        /// </summary>
+        public static bool TurnedBoxesOverlap(Bounds a, Quaternion turnA, Bounds b, Quaternion turnB)
+        {
+            return Upright(a, turnA).Intersects(Upright(b, turnB));
+        }
+
+        static Bounds Upright(Bounds box, Quaternion turn)
+        {
+            var upright = new Bounds(box.center, Vector3.zero);
+            for (int corner = 0; corner < 8; corner++)
+            {
+                var sign = new Vector3((corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f);
+                upright.Encapsulate(box.center + turn * Vector3.Scale(box.extents, sign));
+            }
+            return upright;
+        }
+
+        /// <summary>True when a room point is seen inside a box in the picture of this camera frame.</summary>
+        public static bool SeenInside(Detection box, CameraFrame frame, Vector3 roomPoint)
+        {
+            return frame.TryPicturePoint(roomPoint, out Vector2 point)
+                && point.x >= box.Left && point.x <= box.Right && point.y >= box.Top && point.y <= box.Bottom;
         }
 
         /// <summary>
