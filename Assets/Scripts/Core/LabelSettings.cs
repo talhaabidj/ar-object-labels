@@ -66,6 +66,15 @@ namespace ArObjectLabels.Core
         /// <summary>It then fades out over this many seconds.</summary>
         public float lostFadeSeconds = 0.3f;
 
+        /// <summary>A label whose object has not been found for this many seconds fades out too, in view or not.</summary>
+        public float forgetSeconds = 10f;
+
+        /// <summary>A label whose object has not been found for more than this many seconds is drawn faded.</summary>
+        public float notFoundGraceSeconds = 0.3f;
+
+        /// <summary>How strongly that label is drawn. 1 is full strength.</summary>
+        public float notFoundOpacity = 0.5f;
+
         /// <summary>A label takes about this many seconds to glide to a new place. 0 makes it jump.</summary>
         public float glideSeconds = 0.2f;
 

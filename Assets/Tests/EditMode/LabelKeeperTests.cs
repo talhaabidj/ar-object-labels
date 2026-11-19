@@ -44,20 +44,91 @@ namespace ArObjectLabels.Tests
             Assert.AreEqual(1f, keeper.Kept[0].Fade);
         }
 
+        const float Forget = 10f;
+
+        static void AgeFor(LabelKeeper keeper, float seconds, System.Func<Vector3, bool> inView)
+        {
+            int frames = Mathf.RoundToInt(seconds / Frame);
+            for (int frame = 0; frame < frames; frame++)
+            {
+                Find(keeper);
+                keeper.Age(inView, Frame, Wait, FadeTime, Forget);
+            }
+        }
+
         [Test]
-        public void ObjectOutOfView_KeepsItsLabel_However_LongItIsAway()
+        public void ObjectOutOfView_KeepsItsLabel_ForTenSeconds()
         {
             var keeper = new LabelKeeper();
             Find(keeper, ("laptop", laptopBox));
 
-            for (int frame = 0; frame < 100; frame++)
-            {
-                Find(keeper);
-                keeper.Age(nothingInView, Frame, Wait, FadeTime);
-            }
+            AgeFor(keeper, 9.9f, nothingInView);
 
             Assert.AreEqual(1, keeper.Kept.Count);
             Assert.AreEqual(1f, keeper.Kept[0].Fade);
+        }
+
+        [Test]
+        public void ObjectOutOfView_NotFoundForTenSeconds_FadesOut_AndIsDropped()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("chair", laptopBox));
+
+            AgeFor(keeper, 10.1f, nothingInView);
+            Assert.AreEqual(1, keeper.Kept.Count, "fading, not gone yet");
+            Assert.Less(keeper.Kept[0].Fade, 1f);
+
+            AgeFor(keeper, 0.3f, nothingInView);
+            CollectionAssert.IsEmpty(keeper.Kept);
+        }
+
+        [Test]
+        public void ObjectFoundAgainWithinTenSeconds_StartsItsTimeAgain()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+            AgeFor(keeper, 8f, nothingInView);
+
+            Find(keeper, ("laptop", laptopBox));
+            AgeFor(keeper, 8f, nothingInView);
+
+            Assert.AreEqual(1, keeper.Kept.Count);
+            Assert.AreEqual(8f, keeper.Kept[0].Unseen, 0.01f);
+        }
+
+        [Test]
+        public void LabelOfAnObjectFoundNow_IsDrawnAtFullStrength()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+
+            Assert.AreEqual(1f, LabelKeeper.Strength(keeper.Kept[0], 0.3f, 0.5f));
+        }
+
+        [Test]
+        public void LabelOfAnObjectNotFoundForAMoment_IsDrawnFaded()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+
+            AgeFor(keeper, 0.2f, nothingInView);
+            Assert.AreEqual(1f, LabelKeeper.Strength(keeper.Kept[0], 0.3f, 0.5f), "one missed run does not fade it");
+
+            AgeFor(keeper, 0.2f, nothingInView);
+            Assert.AreEqual(0.5f, LabelKeeper.Strength(keeper.Kept[0], 0.3f, 0.5f));
+        }
+
+        [Test]
+        public void FadedLabel_ThatIsFadingOut_IsFainterStill()
+        {
+            var keeper = new LabelKeeper();
+            Find(keeper, ("laptop", laptopBox));
+
+            AgeFor(keeper, 1.1f, everythingInView);
+
+            KeptObject laptop = keeper.Kept[0];
+            Assert.AreEqual(laptop.Fade * 0.5f, LabelKeeper.Strength(laptop, 0.3f, 0.5f), 0.0001f);
+            Assert.Less(laptop.Fade, 1f);
         }
 
         [Test]

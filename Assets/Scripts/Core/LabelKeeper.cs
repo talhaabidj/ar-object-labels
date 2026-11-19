@@ -15,6 +15,9 @@ namespace ArObjectLabels.Core
         /// <summary>Seconds the object has been in view without being found.</summary>
         public float UnseenInView;
 
+        /// <summary>Seconds since the object was last found, in view or not.</summary>
+        public float Unseen;
+
         /// <summary>True when the object was found in the last frame taken.</summary>
         public bool FoundNow;
 
@@ -26,9 +29,10 @@ namespace ArObjectLabels.Core
     }
 
     /// <summary>
-    /// Keeps a label at its object's place in the room. A label whose object is out of view stays where it is,
-    /// so it is there again when the object comes back. A label whose object is in view but not found waits a
-    /// moment, then fades out and is dropped.
+    /// Keeps a label at its object's place in the room. A label whose object is out of view stays where it is
+    /// for a while, so it is there again when the object comes back. A label whose object is in view but not
+    /// found waits a moment, then fades out and is dropped. Any label whose object has not been found for long
+    /// is dropped too, in view or not.
     /// </summary>
     public class LabelKeeper
     {
@@ -90,6 +94,7 @@ namespace ArObjectLabels.Core
                 one.Turn = turns[i];
                 one.Score = scores[i];
                 one.UnseenInView = 0f;
+                one.Unseen = 0f;
                 one.Fade = 1f;
                 one.FoundNow = true;
                 foundNow.Add(one);
@@ -169,27 +174,43 @@ namespace ArObjectLabels.Core
         }
 
         /// <summary>
-        /// Counts the time each object not found in this frame has been in view. After
-        /// <paramref name="waitSeconds"/> its label fades out over <paramref name="fadeSeconds"/> and is then
-        /// dropped. <paramref name="isInView"/> tells whether a place in the room is in the camera's picture.
+        /// Counts the time each object not found in this frame has gone unfound, and how much of it in view.
+        /// After <paramref name="waitSeconds"/> in view, or <paramref name="forgetSeconds"/> in all, its label
+        /// fades out over <paramref name="fadeSeconds"/> and is then dropped. <paramref name="isInView"/> tells
+        /// whether a place in the room is in the camera's picture.
         /// </summary>
-        public void Age(Func<Vector3, bool> isInView, float secondsSinceLast, float waitSeconds, float fadeSeconds)
+        public void Age(Func<Vector3, bool> isInView, float secondsSinceLast, float waitSeconds, float fadeSeconds,
+            float forgetSeconds = float.PositiveInfinity)
         {
             for (int i = kept.Count - 1; i >= 0; i--)
             {
                 KeptObject one = kept[i];
-                if (foundNow.Contains(one) || !isInView(one.RoomBox.center))
+                if (foundNow.Contains(one))
                 {
                     continue;
                 }
-                one.UnseenInView += secondsSinceLast;
-                float fading = one.UnseenInView - waitSeconds;
+                one.Unseen += secondsSinceLast;
+                if (isInView(one.RoomBox.center))
+                {
+                    one.UnseenInView += secondsSinceLast;
+                }
+                float fading = Mathf.Max(one.UnseenInView - waitSeconds, one.Unseen - forgetSeconds);
                 one.Fade = fading <= 0f ? 1f : fadeSeconds > 0f ? 1f - Mathf.Clamp01(fading / fadeSeconds) : 0f;
                 if (one.Fade <= 0f)
                 {
                     kept.RemoveAt(i);
                 }
             }
+        }
+
+        /// <summary>
+        /// How strongly a kept object's label is drawn: as its fade says while the object is found, and only
+        /// <paramref name="notFoundShare"/> of that once it has gone unfound for more than
+        /// <paramref name="graceSeconds"/>, so a label for something not seen now does not look like a fresh one.
+        /// </summary>
+        public static float Strength(KeptObject one, float graceSeconds, float notFoundShare)
+        {
+            return one.Fade * (one.Unseen > graceSeconds ? Mathf.Clamp01(notFoundShare) : 1f);
         }
     }
 }
