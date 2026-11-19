@@ -35,10 +35,10 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void TheSettingsAsTheyCome_AreThreeRuns_045ToAppear_030ToStay()
+        public void TheSettingsAsTheyCome_AreThreeRuns_040ToAppear_030ToStay()
         {
             Assert.AreEqual(3, rules.runsToAppear);
-            Assert.AreEqual(0.45f, rules.minScore);
+            Assert.AreEqual(0.40f, rules.minScore);
             Assert.AreEqual(0.30f, rules.stayScore);
         }
 
@@ -77,7 +77,7 @@ namespace ArObjectLabels.Tests
             Run("laptop", 0.9f, onTheTable);
             Run("laptop", 0.9f, onTheTable);
 
-            Assert.IsFalse(Run("laptop", 0.40f, onTheTable));
+            Assert.IsFalse(Run("laptop", 0.35f, onTheTable));
             Assert.IsFalse(Run("laptop", 0.9f, onTheTable));
         }
 
@@ -86,7 +86,7 @@ namespace ArObjectLabels.Tests
         {
             for (int run = 0; run < 6; run++)
             {
-                Assert.IsFalse(Run("vase", 0.40f, onTheTable));
+                Assert.IsFalse(Run("vase", 0.35f, onTheTable));
             }
         }
 
@@ -97,7 +97,7 @@ namespace ArObjectLabels.Tests
             Run("laptop", 0.9f, onTheTable);
             Run("laptop", 0.9f, onTheTable);
 
-            Assert.IsTrue(Run("laptop", 0.40f, onTheTable));
+            Assert.IsTrue(Run("laptop", 0.35f, onTheTable));
             Assert.IsTrue(Run("laptop", 0.30f, onTheTable));
         }
 

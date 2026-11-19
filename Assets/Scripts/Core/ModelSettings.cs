@@ -10,7 +10,7 @@ namespace ArObjectLabels.Core
         public int inputSize = 640;
 
         /// <summary>The score an object needs, in each of several runs in a row, to get a label.</summary>
-        public float minScore = 0.45f;
+        public float minScore = 0.40f;
 
         /// <summary>An object that has a label keeps it while it is found with this score or more.</summary>
         public float stayScore = 0.30f;

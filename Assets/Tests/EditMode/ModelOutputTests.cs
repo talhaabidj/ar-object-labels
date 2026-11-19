@@ -57,15 +57,15 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void WithTheSettingsAsTheyCome_LabelsStartAtAScoreOf045()
+        public void WithTheSettingsAsTheyCome_LabelsStartAtAScoreOf040()
         {
             var found = new List<Detection>();
 
-            ModelOutput.AddBoxes(Table(new[] { 0.45f, 0.44f, 0f }, new[] { 0f, 0f, 0f }), Columns, classNames,
+            ModelOutput.AddBoxes(Table(new[] { 0.40f, 0.39f, 0f }, new[] { 0f, 0f, 0f }), Columns, classNames,
                 new ModelSettings().minScore, found);
 
             Assert.AreEqual(1, found.Count);
-            Assert.AreEqual(0.45f, found[0].Score);
+            Assert.AreEqual(0.40f, found[0].Score);
         }
 
         [Test]
