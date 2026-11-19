@@ -16,6 +16,12 @@ namespace ArObjectLabels.Core
         /// the set-back, which otherwise uses the box width, uses no more than this depth.
         /// </summary>
         public bool limitsSetBack;
+
+        /// <summary>
+        /// For a class that stands on the floor, such as a chair: when its box ends on another object's top,
+        /// the box's lower edge is hidden behind that object, so the floor under that point is used instead.
+        /// </summary>
+        public bool standsOnFloor;
     }
 
     /// <summary>

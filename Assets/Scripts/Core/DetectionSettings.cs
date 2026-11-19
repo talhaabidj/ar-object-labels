@@ -38,6 +38,12 @@ namespace ArObjectLabels.Core
         public float sameHeight = 0.1f;
 
         /// <summary>
+        /// An upward-facing surface at least this high, in metres, above another one on the same ray counts as
+        /// another object's top for a class that stands on the floor.
+        /// </summary>
+        public float raisedSurface = 0.25f;
+
+        /// <summary>
         /// Usual depths, front to back, from everyday sizes and not measured on the test room's objects.
         /// They give the room box its depth and correct the height seen from above. The set-back uses the
         /// box width, except for a class marked as limiting it: a plant's leaves make its box much wider
@@ -50,7 +56,7 @@ namespace ArObjectLabels.Core
             new ClassDepth { className = "keyboard", depth = 0.14f },
             new ClassDepth { className = "mouse", depth = 0.11f },
             new ClassDepth { className = "tv", depth = 0.20f },
-            new ClassDepth { className = "chair", depth = 0.50f },
+            new ClassDepth { className = "chair", depth = 0.50f, standsOnFloor = true },
             new ClassDepth { className = "clock", depth = 0.05f },
             new ClassDepth { className = "potted plant", depth = 0.30f, limitsSetBack = true }
         };

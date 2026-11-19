@@ -93,5 +93,62 @@ namespace ArObjectLabels.Tests
 
             Assert.AreEqual(2, SurfaceChoice.Pick(new List<SurfaceHit> { tableEdge, secondEdge, tableTop }, rules));
         }
+
+        // Model mode: the school chair's box ends at the work table's top, which hides its seat and legs. The
+        // ray goes on through the table to the floor behind it.
+        static readonly SurfaceHit workTableTop = new SurfaceHit(new Vector3(0f, 0.74f, 2.0f), 2.1f, true, false, 1.6f);
+        static readonly SurfaceHit floorBehind = new SurfaceHit(new Vector3(0f, 0f, 3.6f), 3.9f, true, false, 5.0f);
+
+        [Test]
+        public void BoxEndingOnARaisedTop_FindsTheFloorUnderIt()
+        {
+            var hits = new List<SurfaceHit> { workTableTop, floorBehind };
+
+            Assert.IsTrue(SurfaceChoice.TryFloorUnder(hits, 0, 0.25f, out float floorHeight));
+            Assert.AreEqual(0f, floorHeight);
+        }
+
+        [Test]
+        public void BoxEndingOnTheFloor_StaysOnTheFloor()
+        {
+            var hits = new List<SurfaceHit> { floorBehind };
+
+            Assert.IsFalse(SurfaceChoice.TryFloorUnder(hits, 0, 0.25f, out _));
+        }
+
+        [Test]
+        public void BoxEndingOnARaisedTop_WithNoLowerSurfaceFound_StaysWhereItIs()
+        {
+            var hits = new List<SurfaceHit> { workTableTop, backWall };
+
+            Assert.IsFalse(SurfaceChoice.TryFloorUnder(hits, 0, 0.25f, out _));
+        }
+
+        [Test]
+        public void SurfaceOnlyALittleLower_IsNotTakenForTheFloor()
+        {
+            // A step of 10 cm, such as a low shelf on a table, is not another object's top.
+            var shelf = new SurfaceHit(new Vector3(0f, 0.64f, 2.5f), 2.6f, true, false, 0.5f);
+            var hits = new List<SurfaceHit> { workTableTop, shelf };
+
+            Assert.IsFalse(SurfaceChoice.TryFloorUnder(hits, 0, 0.25f, out _));
+        }
+
+        [Test]
+        public void BoxEndingOnAnUprightSurface_IsNotMovedToTheFloor()
+        {
+            var hits = new List<SurfaceHit> { backWall, floorBehind };
+
+            Assert.IsFalse(SurfaceChoice.TryFloorUnder(hits, 0, 0.25f, out _));
+        }
+
+        [Test]
+        public void OnlyTheChair_StandsOnTheFloor_InTheDefaultSettings()
+        {
+            foreach (ClassDepth usual in rules.usualDepths)
+            {
+                Assert.AreEqual(usual.className == "chair", usual.standsOnFloor, usual.className);
+            }
+        }
     }
 }

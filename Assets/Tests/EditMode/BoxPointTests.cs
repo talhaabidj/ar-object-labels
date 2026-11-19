@@ -98,5 +98,24 @@ namespace ArObjectLabels.Tests
 
             Assert.AreEqual(frontFoot, BoxPoint.SetBack(frontFoot, new Vector3(3f, 2.5f, 4f), 0.5f));
         }
+
+        [Test]
+        public void TopAbove_IsWhereTheTopRayPassesOverTheFoot()
+        {
+            // Camera at 1.6 m, looking 2 m ahead to a point 0.6 m lower: the top ray is 1.0 m up over a foot on the floor.
+            var topRay = new Ray(new Vector3(0f, 1.6f, 0f), new Vector3(0f, -0.6f, 2f));
+
+            Assert.AreEqual(1.0f, BoxPoint.TopAbove(topRay, new Vector3(0f, 0f, 2f)), 0.0001f);
+            Assert.AreEqual(1.0f, BoxPoint.TopAbove(topRay, new Vector3(1.2f, 0f, 1.6f)), 0.0001f, "same distance, other side");
+        }
+
+        [Test]
+        public void TopAbove_IsNeverBelowTheFoot()
+        {
+            var steepRay = new Ray(new Vector3(0f, 1.6f, 0f), new Vector3(0f, -2f, 1f));
+
+            Assert.AreEqual(0f, BoxPoint.TopAbove(steepRay, new Vector3(0f, 0f, 2f)));
+            Assert.AreEqual(0f, BoxPoint.TopAbove(new Ray(Vector3.up, Vector3.down), new Vector3(0f, 0f, 2f)), "straight down");
+        }
     }
 }
