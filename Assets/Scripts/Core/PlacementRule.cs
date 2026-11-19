@@ -6,6 +6,7 @@ namespace ArObjectLabels.Core
         Ignore,
         PlaceCube,
         ShowWallHint,
+        ShowNoSurfaceHint,
         SelectCube,
         Deselect,
         PutDownCube
@@ -41,9 +42,10 @@ namespace ArObjectLabels.Core
 
         static PressOutcome OnSurface(bool hitSurface, bool surfaceFacesUp, PressOutcome onUpwardSurface)
         {
+            // In a fresh session much of the table and floor is not found yet. Such a click says so.
             if (!hitSurface)
             {
-                return PressOutcome.Ignore;
+                return PressOutcome.ShowNoSurfaceHint;
             }
 
             return surfaceFacesUp ? onUpwardSurface : PressOutcome.ShowWallHint;

@@ -18,6 +18,7 @@ namespace ArObjectLabels
         [SerializeField] Camera viewCamera;
         [SerializeField] SelectableCube cubePrefab;
         [SerializeField] float wallHintSeconds = 3f;
+        [SerializeField] float noSurfaceHintSeconds = 2f;
         [SerializeField] float maxPressDistance = 20f;
         [SerializeField] float clickMoveShareOfHeight = 0.025f;
 
@@ -26,6 +27,7 @@ namespace ArObjectLabels
         InputAction press;
         InputAction point;
         float wallHintUntil;
+        float noSurfaceHintUntil;
         bool dragging;
         Vector2 pressPoint;
         float farthestMove;
@@ -35,6 +37,7 @@ namespace ArObjectLabels
         public bool CubeSelected { get; private set; }
         public bool CubeCarried { get; private set; }
         public bool WallWasClicked => Time.time < wallHintUntil;
+        public bool EmptySpotWasClicked => Time.time < noSurfaceHintUntil;
 
         void Awake()
         {
@@ -95,6 +98,11 @@ namespace ArObjectLabels
                     break;
                 case PressOutcome.ShowWallHint:
                     wallHintUntil = Time.time + wallHintSeconds;
+                    noSurfaceHintUntil = 0f;
+                    break;
+                case PressOutcome.ShowNoSurfaceHint:
+                    noSurfaceHintUntil = Time.time + noSurfaceHintSeconds;
+                    wallHintUntil = 0f;
                     break;
                 case PressOutcome.SelectCube:
                     SetSelected(true);

@@ -48,6 +48,38 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ClickOnASpotWithNoSurface_SaysSo()
+        {
+            HintFacts facts = Running();
+            facts.AnySurfaceFound = true;
+            facts.EmptySpotWasClicked = true;
+
+            Assert.AreEqual(Hint.NoSurfaceThere, HintRule.Pick(facts));
+            Assert.AreEqual("No surface found there yet. Move around a little, then try again.", Messages.For(Hint.NoSurfaceThere));
+        }
+
+        [Test]
+        public void ClickOnASpotWithNoSurface_WhileCarrying_SaysSo()
+        {
+            HintFacts facts = Running();
+            facts.CubeExists = true;
+            facts.CubeCarried = true;
+            facts.EmptySpotWasClicked = true;
+
+            Assert.AreEqual(Hint.NoSurfaceThere, HintRule.Pick(facts));
+        }
+
+        [Test]
+        public void ClickOnASpotWithNoSurface_GivesWayToLostTracking()
+        {
+            HintFacts facts = Running();
+            facts.Tracking = false;
+            facts.EmptySpotWasClicked = true;
+
+            Assert.AreEqual(Hint.TrackingLost, HintRule.Pick(facts));
+        }
+
+        [Test]
         public void WallClick_WinsOverPlacingHints()
         {
             HintFacts facts = Running();

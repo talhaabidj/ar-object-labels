@@ -69,6 +69,7 @@ namespace ArObjectLabels
                 Tracking = ARSession.state == ARSessionState.SessionTracking,
                 SecondsSinceStart = Time.timeSinceLevelLoad,
                 WallWasClicked = cubePlacer.WallWasClicked,
+                EmptySpotWasClicked = cubePlacer.EmptySpotWasClicked,
                 AnySurfaceFound = planeManager.trackables.count > 0,
                 CubeExists = cubePlacer.CubeExists,
                 CubeSelected = cubePlacer.CubeSelected,

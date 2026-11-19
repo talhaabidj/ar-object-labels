@@ -27,13 +27,24 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void PressThatHitsNothing_IsIgnored()
+        public void PressThatHitsNoSurface_SaysNoSurfaceWasFound()
         {
+            // Seen in the review: in a fresh session 7 of 10 clicks found no surface and nothing said so.
             PressOutcome outcome = PlacementRule.Decide(
                 pointerOverUi: false, cubeExists: false, cubeIsCarried: false, pressIsOnCube: false,
                 hitSurface: false, surfaceFacesUp: false);
 
-            Assert.AreEqual(PressOutcome.Ignore, outcome);
+            Assert.AreEqual(PressOutcome.ShowNoSurfaceHint, outcome);
+        }
+
+        [Test]
+        public void PressBesideThePlacedCube_ThatHitsNoSurface_LetsGoOfTheCube()
+        {
+            PressOutcome outcome = PlacementRule.Decide(
+                pointerOverUi: false, cubeExists: true, cubeIsCarried: false, pressIsOnCube: false,
+                hitSurface: false, surfaceFacesUp: false);
+
+            Assert.AreEqual(PressOutcome.Deselect, outcome);
         }
 
         [Test]
@@ -88,13 +99,13 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void ClickThatHitsNothing_WhileCarrying_IsIgnored()
+        public void ClickThatHitsNothing_WhileCarrying_SaysNoSurfaceWasFound()
         {
             PressOutcome outcome = PlacementRule.Decide(
                 pointerOverUi: false, cubeExists: true, cubeIsCarried: true, pressIsOnCube: true, hitSurface: false,
                 surfaceFacesUp: false);
 
-            Assert.AreEqual(PressOutcome.Ignore, outcome);
+            Assert.AreEqual(PressOutcome.ShowNoSurfaceHint, outcome);
         }
     }
 }

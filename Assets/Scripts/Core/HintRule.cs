@@ -7,6 +7,7 @@ namespace ArObjectLabels.Core
         ArNotRunning,
         TrackingLost,
         UseFlatSurface,
+        NoSurfaceThere,
         FindSurface,
         PlaceCube,
         SelectCube,
@@ -21,6 +22,7 @@ namespace ArObjectLabels.Core
         public bool Tracking;
         public float SecondsSinceStart;
         public bool WallWasClicked;
+        public bool EmptySpotWasClicked;
         public bool AnySurfaceFound;
         public bool CubeExists;
         public bool CubeSelected;
@@ -38,6 +40,7 @@ namespace ArObjectLabels.Core
             if (!facts.SessionReady) return justStarted ? Hint.Starting : Hint.ArNotRunning;
             if (!facts.Tracking) return justStarted ? Hint.Starting : Hint.TrackingLost;
             if (facts.WallWasClicked) return Hint.UseFlatSurface;
+            if (facts.EmptySpotWasClicked) return Hint.NoSurfaceThere;
             if (!facts.CubeExists) return facts.AnySurfaceFound ? Hint.PlaceCube : Hint.FindSurface;
             if (facts.CubeCarried) return Hint.CarryCube;
             return facts.CubeSelected ? Hint.DragCube : Hint.SelectCube;

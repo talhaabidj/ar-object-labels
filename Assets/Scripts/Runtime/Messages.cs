@@ -42,6 +42,8 @@ namespace ArObjectLabels
                     return "Tracking lost. Move slowly and point at a surface with some detail.";
                 case Hint.UseFlatSurface:
                     return "Place it on a flat surface, such as the table or the floor.";
+                case Hint.NoSurfaceThere:
+                    return "No surface found there yet. Move around a little, then try again.";
                 case Hint.FindSurface:
                     return "Find the table or the floor: move with W A S D, look with the right mouse button.";
                 case Hint.PlaceCube:
