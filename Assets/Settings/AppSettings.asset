@@ -20,6 +20,7 @@ MonoBehaviour:
     gap: 0.02
     wallMargin: 0.01
     labelMargin: 0.01
+    minShareInPicture: 0.4
     maxLabels: 6
     sameSizeShare: 0.25
     stayBonus: 0.5

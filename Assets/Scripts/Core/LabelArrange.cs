@@ -51,12 +51,34 @@ namespace ArObjectLabels.Core
         /// True when a label may take one of the places among the labels shown: its object reaches into the
         /// picture, and the object is found now, or has its middle in the picture, or the label at its own
         /// place would be at least partly in the picture. A label that would only sit off the picture, or whose
-        /// own place is behind the camera (<paramref name="labelInFront"/> false), takes none.
+        /// own place is behind the camera (<paramref name="labelInFront"/> false), takes none. Nor does the label
+        /// of an object less than <paramref name="minShareInPicture"/> in the picture: pulled in from the edge,
+        /// such a label would jump to a new place in every frame while the camera moves.
         /// </summary>
-        public static bool TakesAPlace(Rect ownObject, Rect ownLabel, bool objectFound, Rect picture, bool labelInFront = true)
+        public static bool TakesAPlace(Rect ownObject, Rect ownLabel, bool objectFound, Rect picture, bool labelInFront = true,
+            float minShareInPicture = 0f)
         {
             return labelInFront && Touches(ownObject, picture, 0f)
+                && ShareInPicture(ownObject, picture) >= minShareInPicture
                 && (objectFound || picture.Contains(ownObject.center) || Touches(ownLabel, picture, 0f));
+        }
+
+        /// <summary>
+        /// How much of an object is in the picture, from 0 to 1, taken across and up apart. Along a side where
+        /// the object is bigger than the picture, it counts as wholly in when it fills the picture, so a big
+        /// object close to the camera is not left out.
+        /// </summary>
+        public static float ShareInPicture(Rect ownObject, Rect picture)
+        {
+            return ShareAlong(ownObject.xMin, ownObject.xMax, picture.xMin, picture.xMax)
+                * ShareAlong(ownObject.yMin, ownObject.yMax, picture.yMin, picture.yMax);
+        }
+
+        static float ShareAlong(float objectMin, float objectMax, float pictureMin, float pictureMax)
+        {
+            float overlap = Mathf.Max(0f, Mathf.Min(objectMax, pictureMax) - Mathf.Max(objectMin, pictureMin));
+            float whole = Mathf.Min(objectMax - objectMin, pictureMax - pictureMin);
+            return whole > 0f ? Mathf.Clamp01(overlap / whole) : 0f;
         }
 
         /// <summary>

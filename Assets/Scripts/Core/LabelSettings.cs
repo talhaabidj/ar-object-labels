@@ -30,6 +30,9 @@ namespace ArObjectLabels.Core
         /// <summary>Space kept between two labels, and between a label and another object, in metres at 1 m distance.</summary>
         public float labelMargin = 0.01f;
 
+        /// <summary>An object less than this share in the picture gets no label until more of it is in. 0.4 means 40 %.</summary>
+        public float minShareInPicture = 0.4f;
+
         /// <summary>How many labels are shown at once at most.</summary>
         public int maxLabels = 6;
 

@@ -121,10 +121,12 @@ namespace ArObjectLabels
                     continue;
                 }
                 Rect inPicture = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
-                // A label kept for an object out of the picture waits at its place and takes no place among the shown.
+                // A label kept for an object out of the picture, or mostly out of it, waits at its place and takes
+                // no place among the shown.
                 float labelDepth = (toPicture * (label.transform.position - cameraPosition)).z;
                 Rect ownLabel = labelDepth > 0f ? LabelInPicture(label, cameraPosition, toPicture) : Rect.zero;
-                if (!LabelArrange.TakesAPlace(inPicture, ownLabel, label.IsFound, picture, labelDepth > 0f))
+                if (!LabelArrange.TakesAPlace(inPicture, ownLabel, label.IsFound, picture, labelDepth > 0f,
+                    rules.minShareInPicture))
                 {
                     label.SetShown(false);
                     label.Memory.Forget();

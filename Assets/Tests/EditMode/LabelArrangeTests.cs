@@ -251,6 +251,36 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ObjectFoundButMostlyOutOfThePicture_TakesNoPlace()
+        {
+            // Seen in true-step 22-29: the school chair cut by the left edge got a new place in every frame.
+            Rect thirtyPercentIn = At(cube, 0.50f, 0f);
+            Rect halfIn = At(cube, 0.48f, 0f);
+
+            Assert.IsFalse(LabelArrange.TakesAPlace(thirtyPercentIn, label, true, picture, true, 0.4f));
+            Assert.IsTrue(LabelArrange.TakesAPlace(halfIn, label, true, picture, true, 0.4f));
+        }
+
+        [Test]
+        public void ShareInPicture_CountsHowMuchOfTheObjectIsIn()
+        {
+            Assert.AreEqual(1f, LabelArrange.ShareInPicture(cube, picture), 0.0001f, "wholly in");
+            Assert.AreEqual(0.3f, LabelArrange.ShareInPicture(At(cube, 0.50f, 0f), picture), 0.0001f, "cut on the right");
+            Assert.AreEqual(0.3f * 0.5f, LabelArrange.ShareInPicture(At(cube, 0.50f, 0.24f), picture), 0.0001f, "cut in a corner");
+            Assert.AreEqual(0f, LabelArrange.ShareInPicture(At(cube, 0.80f, 0f), picture), "wholly out");
+        }
+
+        [Test]
+        public void ObjectBiggerThanThePicture_ThatFillsIt_CountsAsWhollyIn()
+        {
+            // A table close to the camera reaches past both side edges of the picture.
+            var table = new Rect(-2f, -0.25f, 4f, 0.3f);
+
+            Assert.AreEqual(1f, LabelArrange.ShareInPicture(table, picture), 0.0001f);
+            Assert.IsTrue(LabelArrange.TakesAPlace(table, label, true, picture, true, 0.4f));
+        }
+
+        [Test]
         public void LabelNotPulledIn_IsNotMovedAside_EvenWhenAnotherLabelIsInItsPlace()
         {
             // Seen in S11, S18 and S20: the object is mostly out of the picture and not found, its own label place
