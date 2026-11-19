@@ -7,8 +7,8 @@ using UnityEngine.XR.ARSubsystems;
 namespace ArObjectLabels
 {
     /// <summary>
-    /// A label in the room. It stays a little above its object, always faces the camera, keeps its text readable
-    /// with distance, fades out far away and keeps out of walls. When several labels share a scene, the
+    /// A label in the room. It stays a little above its object, always faces the camera, keeps its text the
+    /// same height on the screen at every distance, fades out far away and keeps out of walls. When several labels share a scene, the
     /// <see cref="LabelLayout"/> also keeps them off each other.
     /// </summary>
     public class WorldLabel : MonoBehaviour
@@ -146,7 +146,9 @@ namespace ArObjectLabels
             }
             LabelSettings rules = settings.label;
             float distance = Vector3.Distance(cameraPosition, objectTop);
-            float scale = LabelSizing.Scale(distance, rules.nearLimit, rules.farLimit);
+            // Depth, not distance: a label at the side of the picture would otherwise be drawn larger.
+            float depth = LabelSizing.Depth(objectTop, cameraPosition, cameraRotation * Vector3.forward);
+            float scale = LabelSizing.Scale(depth, rules.nearLimit);
             scale = LabelSizing.CapToWidth(scale, plate.rect.width * plate.parent.localScale.x, rules.maxWidth);
             transform.localScale = Vector3.one * scale;
 

@@ -1,56 +1,55 @@
 using ArObjectLabels.Core;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace ArObjectLabels.Tests
 {
     [Timeout(5000)]
     public class LabelSizingTests
     {
-        const float Near = 0.5f;
-        const float Far = 3f;
-
-        [TestCase(0.5f)]
-        [TestCase(1f)]
-        [TestCase(2f)]
-        [TestCase(3f)]
-        public void BetweenTheLimits_ScaleFollowsDistance(float distance)
-        {
-            Assert.AreEqual(distance, LabelSizing.Scale(distance, Near, Far), 0.0001f);
-        }
+        const float Near = 0.1f;
 
         [TestCase(0.1f)]
-        [TestCase(0.49f)]
-        public void NearerThanTheNearLimit_StopsShrinking(float distance)
+        [TestCase(0.5f)]
+        [TestCase(1f)]
+        [TestCase(3f)]
+        [TestCase(4.5f)]
+        public void ScaleFollowsDepth_AtEveryDistance(float depth)
         {
-            Assert.AreEqual(Near, LabelSizing.Scale(distance, Near, Far), 0.0001f);
+            Assert.AreEqual(depth, LabelSizing.Scale(depth, Near), 0.0001f);
         }
 
-        [TestCase(3.01f)]
-        [TestCase(10f)]
-        public void FartherThanTheFarLimit_StopsGrowing(float distance)
+        [TestCase(0.05f)]
+        [TestCase(-1f)]
+        public void NearerThanTheNearLimit_StopsShrinking(float depth)
         {
-            Assert.AreEqual(Far, LabelSizing.Scale(distance, Near, Far), 0.0001f);
-        }
-
-        [Test]
-        public void BetweenTheLimits_TextLooksTheSameSize()
-        {
-            const float heightAtOneMetre = 0.0122f;
-            float atOne = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(1f, Near, Far), 1f);
-            float atThree = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(3f, Near, Far), 3f);
-
-            Assert.AreEqual(atOne, atThree, 0.001f);
-            Assert.AreEqual(0.7f, atOne, 0.01f);
+            Assert.AreEqual(Near, LabelSizing.Scale(depth, Near), 0.0001f);
         }
 
         [Test]
-        public void BeyondTheFarLimit_TextLooksSmaller()
+        public void TextLooksTheSameSize_From30CentimetresTo4AndAHalfMetres()
         {
             const float heightAtOneMetre = 0.0122f;
-            float atThree = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(3f, Near, Far), 3f);
-            float atSix = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(6f, Near, Far), 6f);
+            float atOne = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(1f, Near), 1f);
 
-            Assert.AreEqual(atThree / 2f, atSix, 0.001f);
+            foreach (float depth in new[] { 0.3f, 2.5f, 3.5f, 4.5f })
+            {
+                float there = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(depth, Near), depth);
+                Assert.AreEqual(atOne, there, 0.001f, "at " + depth + " m");
+            }
+        }
+
+        [Test]
+        public void Depth_IsMeasuredAlongTheWayTheCameraLooks_NotStraightToThePoint()
+        {
+            // 2 m ahead and 1 m to the side: 2.24 m away, but 2 m deep.
+            Assert.AreEqual(2f, LabelSizing.Depth(new Vector3(1f, 0f, 2f), Vector3.zero, Vector3.forward), 0.0001f);
+        }
+
+        [Test]
+        public void Depth_OfAPointBehindTheCamera_IsNegative()
+        {
+            Assert.Less(LabelSizing.Depth(new Vector3(0f, 0f, -1f), Vector3.zero, Vector3.forward), 0f);
         }
 
         [Test]

@@ -6,12 +6,19 @@ namespace ArObjectLabels.Core
     public static class LabelSizing
     {
         /// <summary>
-        /// The label is designed to be read from 1 m. Its scale follows the distance, so the text looks the same
-        /// size to the viewer, but only between the two limits: nearer it stops shrinking, farther it stops growing.
+        /// The label is designed to be read from 1 m. Its scale follows its depth in front of the camera, so the
+        /// text is the same height on the screen at every distance. Only nearer than
+        /// <paramref name="nearLimit"/> does it stop shrinking, so it never shrinks to nothing.
         /// </summary>
-        public static float Scale(float distance, float nearLimit, float farLimit)
+        public static float Scale(float depth, float nearLimit)
         {
-            return Mathf.Clamp(distance, nearLimit, farLimit);
+            return Mathf.Max(depth, nearLimit);
+        }
+
+        /// <summary>How far a point lies in front of the camera, along the way it looks. Negative behind it.</summary>
+        public static float Depth(Vector3 point, Vector3 cameraPosition, Vector3 cameraForward)
+        {
+            return Vector3.Dot(point - cameraPosition, cameraForward);
         }
 
         /// <summary>How tall something looks from a distance, as a viewing angle in degrees.</summary>

@@ -6,11 +6,11 @@ namespace ArObjectLabels.Core
     [Serializable]
     public class LabelSettings
     {
-        /// <summary>Below this distance, in metres, the label stops shrinking.</summary>
-        public float nearLimit = 0.5f;
-
-        /// <summary>Beyond this distance, in metres, the label stops growing.</summary>
-        public float farLimit = 2.5f;
+        /// <summary>
+        /// The label is the same height on the screen at every distance; only nearer than this, in metres in
+        /// front of the camera, does it stop shrinking.
+        /// </summary>
+        public float nearLimit = 0.1f;
 
         /// <summary>The label is never wider than this, in metres. 0 means no limit.</summary>
         public float maxWidth = 0f;
