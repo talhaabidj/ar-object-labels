@@ -247,6 +247,7 @@ namespace ArObjectLabels.Tests
             Assert.IsTrue(LabelArrange.TakesAPlace(mostlyOut, At(label, 0.49f, 0.12f), false, picture), "label partly in the picture");
             Assert.IsTrue(LabelArrange.TakesAPlace(cube, offPicture, false, picture), "object's middle in the picture");
             Assert.IsFalse(LabelArrange.TakesAPlace(At(cube, 0.80f, 0f), label, true, picture), "object wholly outside");
+            Assert.IsFalse(LabelArrange.TakesAPlace(cube, label, true, picture, labelInFront: false), "label's own place behind the camera");
         }
 
         [Test]

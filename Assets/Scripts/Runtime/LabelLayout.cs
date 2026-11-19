@@ -124,7 +124,7 @@ namespace ArObjectLabels
                 // A label kept for an object out of the picture waits at its place and takes no place among the shown.
                 float labelDepth = (toPicture * (label.transform.position - cameraPosition)).z;
                 Rect ownLabel = labelDepth > 0f ? LabelInPicture(label, cameraPosition, toPicture) : Rect.zero;
-                if (!LabelArrange.TakesAPlace(inPicture, ownLabel, label.IsFound, picture))
+                if (!LabelArrange.TakesAPlace(inPicture, ownLabel, label.IsFound, picture, labelDepth > 0f))
                 {
                     label.SetShown(false);
                     label.Memory.Forget();

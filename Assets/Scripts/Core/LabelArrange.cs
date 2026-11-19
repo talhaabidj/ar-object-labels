@@ -51,11 +51,12 @@ namespace ArObjectLabels.Core
         /// <summary>
         /// True when a label may take one of the places among the labels shown: its object reaches into the
         /// picture, and the object is found now, or has its middle in the picture, or the label at its own
-        /// place would be at least partly in the picture. A label that would only sit off the picture takes none.
+        /// place would be at least partly in the picture. A label that would only sit off the picture, or whose
+        /// own place is behind the camera (<paramref name="labelInFront"/> false), takes none.
         /// </summary>
-        public static bool TakesAPlace(Rect ownObject, Rect ownLabel, bool objectFound, Rect picture)
+        public static bool TakesAPlace(Rect ownObject, Rect ownLabel, bool objectFound, Rect picture, bool labelInFront = true)
         {
-            return Touches(ownObject, picture, 0f)
+            return labelInFront && Touches(ownObject, picture, 0f)
                 && (objectFound || picture.Contains(ownObject.center) || Touches(ownLabel, picture, 0f));
         }
 
