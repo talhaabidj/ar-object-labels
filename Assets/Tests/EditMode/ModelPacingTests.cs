@@ -52,6 +52,33 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void ReadbackNotFinished_Waits()
+        {
+            Assert.AreEqual(ReadbackStep.Wait, ModelPacing.NextStep(false, false, false));
+        }
+
+        [Test]
+        public void ReadbackFinished_IsUsed()
+        {
+            Assert.AreEqual(ReadbackStep.Use, ModelPacing.NextStep(true, false, false));
+        }
+
+        [Test]
+        public void ReadbackDisposedWhileTheAppWasPaused_IsDropped_NotRead()
+        {
+            // Unity reports a disposed readback as an error, whether or not it also says done.
+            Assert.AreEqual(ReadbackStep.Drop, ModelPacing.NextStep(true, true, false));
+            Assert.AreEqual(ReadbackStep.Drop, ModelPacing.NextStep(false, true, false));
+        }
+
+        [Test]
+        public void ReadbackOfAnOldResult_IsDroppedOnceFinished()
+        {
+            Assert.AreEqual(ReadbackStep.Wait, ModelPacing.NextStep(false, false, true));
+            Assert.AreEqual(ReadbackStep.Drop, ModelPacing.NextStep(true, false, true));
+        }
+
+        [Test]
         public void TheSettingsFile_SaysTenRunsASecond_FortyLayersAFrame()
         {
             ModelSettings file = SettingsFile.Load().model;

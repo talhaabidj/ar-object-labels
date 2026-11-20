@@ -4,6 +4,7 @@ using ArObjectLabels.Core;
 using Unity.Collections;
 using Unity.InferenceEngine;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
@@ -27,7 +28,9 @@ namespace ArObjectLabels
         List<string> classNames;
         Worker worker;
         Tensor<float> input;
-        Tensor<float> awaited;
+        AsyncGPUReadbackRequest readback;
+        bool waitingForReadback;
+        int resultLength;
         float[] table;
         IEnumerator layers;
         float lastRunStarted = float.NegativeInfinity;
@@ -73,15 +76,14 @@ namespace ArObjectLabels
         /// <summary>Gives the result of the last finished run. False until the first run has finished.</summary>
         public bool TryRead(List<Detection> into, out CameraFrame frame)
         {
-            // Back from another source, a result that arrived meanwhile can no longer be read: a readback from the
-            // graphics card is readable only in the frame it arrives in.
+            // Back from another source, the last result is out of date.
             if (ModelPacing.WasLeftAlone(lastAskedFrame, Time.frameCount))
             {
                 ForgetEarlierResult();
             }
             lastAskedFrame = Time.frameCount;
 
-            if (awaited != null)
+            if (waitingForReadback)
             {
                 PickUpResultIfReady();
             }
@@ -100,13 +102,11 @@ namespace ArObjectLabels
             return hasResult;
         }
 
-        // Forgets the last result, so nothing from before shows. A finished run's readback may be gone, so it is not
-        // read. A run still being started is carried on to its end and its result thrown away, because leaving a
-        // run halfway breaks every later run of the model.
+        // Forgets the last result, so nothing from before shows. A run still under way is carried on to its end and
+        // its result thrown away, because leaving a run halfway breaks every later run of the model.
         void ForgetEarlierResult()
         {
-            awaited = null;
-            resultIsOld = layers != null;
+            resultIsOld = waitingForReadback || layers != null;
             found.Clear();
             hasResult = false;
         }
@@ -161,35 +161,57 @@ namespace ArObjectLabels
                 if (!layers.MoveNext())
                 {
                     layers = null;
-                    awaited = worker.PeekOutput() as Tensor<float>;
-                    awaited.ReadbackRequest();
+                    AskForResult();
                     return;
                 }
             }
         }
 
-        void PickUpResultIfReady()
+        // The readback is asked for here, not through the tensor, because only the request itself tells a finished
+        // result from one Unity has already disposed of (see ModelPacing.NextStep).
+        void AskForResult()
         {
-            if (!awaited.IsReadbackRequestDone())
+            var output = worker.PeekOutput() as Tensor<float>;
+            resultLength = output.shape.length;
+            if (output.dataOnBackend is ComputeTensorData onGraphicsCard)
             {
-                return;
-            }
-            if (resultIsOld)
-            {
-                awaited = null;
-                resultIsOld = false;
+                readback = AsyncGPUReadback.Request(onGraphicsCard.buffer, resultLength * sizeof(float), 0);
+                waitingForReadback = true;
                 return;
             }
 
+            // On the CPU the result can be read at once; the array is freed by the backend at the end of the frame.
+            NativeArray<float> result = output.DownloadToNativeArray();
+            if (ModelPacing.NextStep(true, false, resultIsOld) == ReadbackStep.Use)
+            {
+                MakeBoxes(result);
+            }
+            resultIsOld = false;
+        }
+
+        void PickUpResultIfReady()
+        {
+            ReadbackStep step = ModelPacing.NextStep(readback.done, readback.hasError, resultIsOld);
+            if (step == ReadbackStep.Wait)
+            {
+                return;
+            }
+            waitingForReadback = false;
+            resultIsOld = false;
+            if (step == ReadbackStep.Use)
+            {
+                // The data belongs to the readback, so it is not disposed here.
+                MakeBoxes(readback.GetData<float>());
+            }
+        }
+
+        void MakeBoxes(NativeArray<float> result)
+        {
             ModelSettings rules = settings.model;
-            // The result is copied into one kept array, so a run makes no new 2.8 MB array. The native array is not
-            // disposed: on the graphics card it belongs to the readback, and on the CPU it is freed at the end of the
-            // frame.
-            NativeArray<float> result = awaited.DownloadToNativeArray();
-            int length = awaited.shape.length;
+            // The result is copied into one kept array, so a run makes no new 2.8 MB array.
+            int length = resultLength;
             table = ModelOutput.TableFor(table, length);
             NativeArray<float>.Copy(result, table, length);
-            awaited = null;
 
             found.Clear();
             // Boxes are kept down to the score for staying; which of them get a label is decided over several runs.
