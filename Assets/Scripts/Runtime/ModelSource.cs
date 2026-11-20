@@ -34,6 +34,8 @@ namespace ArObjectLabels
         CameraFrame runFrame;
         CameraFrame foundFrame;
         bool hasResult;
+        bool resultIsOld;
+        int lastAskedFrame = ModelPacing.NeverAsked;
 
         public string Name => Messages.ModelSource;
 
@@ -74,6 +76,14 @@ namespace ArObjectLabels
         /// <summary>Gives the result of the last finished run. False until the first run has finished.</summary>
         public bool TryRead(List<Detection> into, out CameraFrame frame)
         {
+            // Seen in Play on 20 Nov: back from another source, reading a result that had arrived meanwhile threw,
+            // because the graphics card's readback is gone after the frame it arrives in.
+            if (ModelPacing.WasLeftAlone(lastAskedFrame, Time.frameCount))
+            {
+                ForgetEarlierResult();
+            }
+            lastAskedFrame = Time.frameCount;
+
             if (awaited != null)
             {
                 PickUpResultIfReady();
@@ -91,6 +101,17 @@ namespace ArObjectLabels
             into.AddRange(found);
             frame = foundFrame;
             return hasResult;
+        }
+
+        // Forgets the last result, so nothing from before shows. A finished run's readback may be gone, so it is not
+        // read. A run still being started is carried on to its end and its result thrown away: seen in Play on
+        // 20 Nov, a run left halfway broke every later run of the model.
+        void ForgetEarlierResult()
+        {
+            awaited = null;
+            resultIsOld = layers != null;
+            found.Clear();
+            hasResult = false;
         }
 
         bool TryTakePicture()
@@ -149,6 +170,12 @@ namespace ArObjectLabels
         {
             if (!awaited.IsReadbackRequestDone())
             {
+                return;
+            }
+            if (resultIsOld)
+            {
+                awaited = null;
+                resultIsOld = false;
                 return;
             }
 

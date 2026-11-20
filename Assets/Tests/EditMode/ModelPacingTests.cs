@@ -27,6 +27,31 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
+        public void AskedInTheFrameBefore_WasNotLeftAlone()
+        {
+            Assert.IsFalse(ModelPacing.WasLeftAlone(100, 101));
+        }
+
+        [Test]
+        public void AskedTwiceInOneFrame_WasNotLeftAlone()
+        {
+            Assert.IsFalse(ModelPacing.WasLeftAlone(100, 100));
+        }
+
+        [Test]
+        public void OneFrameMissed_WasLeftAlone()
+        {
+            Assert.IsTrue(ModelPacing.WasLeftAlone(100, 102));
+        }
+
+        [Test]
+        public void NeverAskedBefore_CountsAsLeftAlone_EvenInTheFirstFrame()
+        {
+            Assert.IsTrue(ModelPacing.WasLeftAlone(ModelPacing.NeverAsked, 0));
+            Assert.IsTrue(ModelPacing.WasLeftAlone(ModelPacing.NeverAsked, 1));
+        }
+
+        [Test]
         public void WithTheSettingsAsTheyCome_TenRunsASecond_FortyLayersAFrame()
         {
             Assert.AreEqual(10f, new ModelSettings().runsPerSecond);
