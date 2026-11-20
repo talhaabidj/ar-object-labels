@@ -414,5 +414,32 @@ namespace ArObjectLabels.Tests
 
             Assert.IsTrue(LabelArrange.CanStay(atTheEdge, none, none, Margin, picture));
         }
+
+        [Test]
+        public void SeenFromAbove_LabelFarAboveItsObjectsTop_KeepsItsOwnPlaceWhenFree()
+        {
+            // Looking down, the label's own place sits well above the object's top in the picture.
+            var top = new Vector2(0f, -0.10f);
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(label, cube, none, none, Margin, picture,
+                null, true, TwoPlates, top));
+
+            Assert.AreEqual(Vector2.zero, offset);
+        }
+
+        [Test]
+        public void NearPlaces_AreJudgedByTheLineToTheObjectsRealTop()
+        {
+            // The own place is taken and its line is long. One step up would make the line longer still, so a
+            // place beside the object, nearer its top, is taken instead.
+            var top = new Vector2(0f, -0.10f);
+            var earlier = new List<Rect> { label };
+
+            Vector2 offset = TimeLimit.Run(() => LabelArrange.Offset(label, cube, none, earlier, Margin, picture,
+                null, true, TwoPlates, top));
+
+            Assert.Greater(offset.x, 0f, "beside the object, to the right");
+            Assert.Less(offset.y, 0f, "lower than the own place");
+        }
     }
 }

@@ -197,8 +197,9 @@ namespace ArObjectLabels
                         otherObjects.Add(otherObject);
                     }
                 }
+                Vector2 objectTop = InPicture(label.ObjectTop, cameraPosition, toPicture);
                 Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture, panels,
-                    label.IsFound, MaxLeader(own, rules));
+                    label.IsFound, rules.maxLeaderPlates * own.height, objectTop);
                 placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture,
                     secondsSinceLast, cameraSettled));
             }
@@ -228,11 +229,12 @@ namespace ArObjectLabels
             return new Rect(own.x + move.x, own.y + move.y, own.width, own.height);
         }
 
-        // The layout measures the line from the label's own lower edge; the drawn line starts at the object's top,
-        // a gap lower, so the gap is taken off.
-        static float MaxLeader(Rect ownLabel, LabelSettings rules)
+        // Where a point of the room shows in the flat picture, one metre in front of the camera. The caller has
+        // checked that the point is in front of the camera.
+        static Vector2 InPicture(Vector3 point, Vector3 cameraPosition, Quaternion toPicture)
         {
-            return Mathf.Max(0f, rules.maxLeaderPlates * ownLabel.height - rules.gap);
+            Vector3 seen = toPicture * (point - cameraPosition);
+            return new Vector2(seen.x / seen.z, seen.y / seen.z);
         }
 
         // A label as a rectangle in the viewer's flat picture, one metre in front of the camera.
