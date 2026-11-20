@@ -57,6 +57,13 @@ namespace ArObjectLabels
             point.Disable();
         }
 
+        // Actions made in code hold memory until they are disposed.
+        void OnDestroy()
+        {
+            press.Dispose();
+            point.Dispose();
+        }
+
         void Update()
         {
             Vector2 screenPoint = point.ReadValue<Vector2>();

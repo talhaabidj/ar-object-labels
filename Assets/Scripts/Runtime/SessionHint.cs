@@ -56,6 +56,12 @@ namespace ArObjectLabels
             controlsKey.Disable();
         }
 
+        // An action made in code holds memory until it is disposed.
+        void OnDestroy()
+        {
+            controlsKey.Dispose();
+        }
+
         void Start()
         {
             ShowControls();

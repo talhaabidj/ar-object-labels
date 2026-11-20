@@ -28,6 +28,12 @@ namespace ArObjectLabels
             resetKey.Disable();
         }
 
+        // An action made in code holds memory until it is disposed.
+        void OnDestroy()
+        {
+            resetKey.Dispose();
+        }
+
         void Update()
         {
             button.gameObject.SetActive(cubePlacer.CubeExists);
