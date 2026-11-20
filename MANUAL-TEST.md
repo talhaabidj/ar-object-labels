@@ -15,7 +15,8 @@ does not, with what you saw.
 - [ ] After a few seconds of walking, faint surface outlines appear on the floor and the work table.
 
 ## The cube (3 min)
-- [ ] Click a found surface on the floor: a cube appears there, and the hint changes.
+- [ ] Click a found surface on the floor: a cube appears there, with a "Cube" label above it, and the hint
+      changes.
 - [ ] While the cube is dragged, the surface outlines are drawn in full; after letting go they are faint again.
 - [ ] Drag the cube: it slides along the surface under the mouse.
 - [ ] Click the cube: it is picked up. Move the view with the right mouse button; the cube follows the mouse.
@@ -38,8 +39,9 @@ does not, with what you saw.
       you move.
 - [ ] Click Detection: "true box". Labels appear on the objects, including "Pen" on the pens when few bigger
       objects are in view.
-- [ ] In any mode, no label sits under the controls panel, the hint line or the buttons, and no label of an
-      object in the middle of the picture is cut by the picture's edge.
+- [ ] In any mode, no label of a found object sits under the controls panel, the hint line or the buttons,
+      and no label of an object in the middle of the picture is cut by the picture's edge. (A faded label of
+      an object not found now stays at its place in the room and may sit under a panel.)
 - [ ] Click Detection again: back to "model", with no labels left over from true box mode.
 
 ## Stop (under 1 min)
