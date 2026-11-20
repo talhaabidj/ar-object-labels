@@ -107,7 +107,16 @@ namespace ArObjectLabels
             Rect picture = Rect.MinMaxRect(-halfPicture.x + rules.labelMargin, -halfPicture.y + rules.labelMargin,
                 halfPicture.x - rules.labelMargin, halfPicture.y - rules.labelMargin);
 
-            // 1. Every label at its own place. Labels behind the camera or faded out are not shown.
+            FindLabelsInView(cameraPosition, cameraRotation, toPicture, picture, rules);
+            ChooseShownLabels(rules, cameraSettled);
+            PlaceShownLabels(cameraPosition, cameraRotation, toPicture, picture, rules, secondsSinceLast, cameraSettled);
+        }
+
+        // Step 1: every label at its own place. Labels behind the camera, faded out, or kept for an object out of
+        // the picture (or mostly out of it) wait at their place and take no place among the shown.
+        void FindLabelsInView(Vector3 cameraPosition, Quaternion cameraRotation, Quaternion toPicture, Rect picture,
+            LabelSettings rules)
+        {
             inView.Clear();
             sizes.Clear();
             scores.Clear();
@@ -120,20 +129,16 @@ namespace ArObjectLabels
                 float depth = (toPicture * (label.ObjectTop - cameraPosition)).z;
                 if (depth <= 0f || label.Opacity <= 0f)
                 {
-                    label.SetShown(false);
-                    label.Memory.Forget();
+                    Hide(label);
                     continue;
                 }
                 Rect inPicture = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
-                // A label kept for an object out of the picture, or mostly out of it, waits at its place and takes
-                // no place among the shown.
                 float labelDepth = (toPicture * (label.transform.position - cameraPosition)).z;
                 Rect ownLabel = labelDepth > 0f ? LabelInPicture(label, cameraPosition, toPicture) : Rect.zero;
                 if (!LabelArrange.TakesAPlace(inPicture, ownLabel, label.IsFound, picture, labelDepth > 0f,
                     rules.minShareInPicture))
                 {
-                    label.SetShown(false);
-                    label.Memory.Forget();
+                    Hide(label);
                     continue;
                 }
                 inView.Add(label);
@@ -143,10 +148,18 @@ namespace ArObjectLabels
                 wasShown.Add(label.Memory.WasShown);
                 ranks.Add(label.Memory.Rank);
             }
+        }
 
-            // 2. At most a set number is shown: the biggest object in the picture first, then the higher score.
-            //    A label that was shown counts as bigger, so the choice does not flip between two alike. While
-            //    the camera moves, the shown labels stay in their order and new ones only fill free places.
+        static void Hide(WorldLabel label)
+        {
+            label.SetShown(false);
+            label.Memory.Forget();
+        }
+
+        // Step 2: at most a set number is shown, the biggest object in the picture first, then the higher score.
+        // While the camera moves, the shown labels stay in their order and new ones only fill free places.
+        void ChooseShownLabels(LabelSettings rules, bool cameraSettled)
+        {
             if (cameraSettled)
             {
                 LabelChoice.Pick(sizes, scores, rules.maxLabels, rules.sameSizeShare, chosen);
@@ -158,21 +171,22 @@ namespace ArObjectLabels
             for (int i = 0; i < inView.Count; i++)
             {
                 int rank = chosen.IndexOf(i);
-                bool shown = rank >= 0;
-                inView[i].SetShown(shown);
-                if (shown)
+                if (rank < 0)
                 {
-                    inView[i].Memory.WasShown = true;
-                    inView[i].Memory.Rank = rank;
+                    Hide(inView[i]);
+                    continue;
                 }
-                else
-                {
-                    inView[i].Memory.Forget();
-                }
+                inView[i].SetShown(true);
+                inView[i].Memory.WasShown = true;
+                inView[i].Memory.Rank = rank;
             }
+        }
 
-            // 3. In that order, each label moves if another object or an earlier label is in its place, or if
-            //    the picture's edge would cut it.
+        // Step 3: in that order, each label moves if another object or an earlier label is in its place, or if the
+        // picture's edge would cut it.
+        void PlaceShownLabels(Vector3 cameraPosition, Quaternion cameraRotation, Quaternion toPicture, Rect picture,
+            LabelSettings rules, float secondsSinceLast, bool cameraSettled)
+        {
             placedLabels.Clear();
             foreach (int index in chosen)
             {
@@ -184,24 +198,26 @@ namespace ArObjectLabels
                 }
                 Rect own = LabelInPicture(label, cameraPosition, toPicture);
                 Rect ownObject = objectRects[index];
-                otherObjects.Clear();
-                for (int other = 0; other < inView.Count; other++)
-                {
-                    if (other == index)
-                    {
-                        continue;
-                    }
-                    Rect otherObject = objectRects[other];
-                    if (!LabelArrange.HoldsTheObject(otherObject, ownObject))
-                    {
-                        otherObjects.Add(otherObject);
-                    }
-                }
+                FindObjectsInTheWay(index, ownObject);
                 Vector2 objectTop = InPicture(label.ObjectTop, cameraPosition, toPicture);
                 Vector2 needed = LabelArrange.Offset(own, ownObject, otherObjects, placedLabels, rules.labelMargin, picture, panels,
                     label.IsFound, rules.maxLeaderPlates * own.height, objectTop);
                 placedLabels.Add(Settle(label, own, needed, depth, cameraPosition, cameraRotation, rules, picture,
                     secondsSinceLast, cameraSettled));
+            }
+        }
+
+        // The other objects a label should keep off: every other object in view except one that lies behind or under
+        // the label's own object, which cannot be avoided.
+        void FindObjectsInTheWay(int index, Rect ownObject)
+        {
+            otherObjects.Clear();
+            for (int other = 0; other < inView.Count; other++)
+            {
+                if (other != index && !LabelArrange.HoldsTheObject(objectRects[other], ownObject))
+                {
+                    otherObjects.Add(objectRects[other]);
+                }
             }
         }
 

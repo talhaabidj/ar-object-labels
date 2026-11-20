@@ -18,38 +18,52 @@ namespace ArObjectLabels
         readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
         readonly List<SurfaceHit> surfaces = new List<SurfaceHit>();
 
-        /// <summary>False when the ray meets no found surface within the distance set in the settings.</summary>
+        /// <summary>
+        /// False when the ray meets no found surface within the distance set in the settings. A box that touches
+        /// the picture's bottom edge, or an object on an upright surface, is not set back; the result says which
+        /// box point was used.
+        /// </summary>
         public bool TryPlace(Detection detection, CameraFrame frame, out PlacedDetection placed)
         {
-            return TryPlace(detection, frame, settings.detection.boxPoint, out placed);
+            DetectionSettings rules = settings.detection;
+            placed = default;
+            BoxPointKind used = BoxPoint.KindFor(detection, rules.boxPoint, frame.PictureHeight, rules.edgeMargin);
+            if (!TryFindSurface(frame.RayThrough(BoxPoint.Pick(detection, used)), rules, out Vector3 point, out SurfaceHit surface))
+            {
+                return false;
+            }
+            if (used == BoxPointKind.BottomCentreSetBack && !SurfaceChoice.AllowsSetBack(surface))
+            {
+                used = BoxPointKind.BottomCentre;
+            }
+            placed = Measure(detection, frame, point, used, rules);
+            return true;
         }
 
-        /// <summary>
-        /// The same, with the box point given instead of read from the settings. A box that touches the
-        /// picture's bottom edge is not set back; the result says which box point was used.
-        /// </summary>
-        bool TryPlace(Detection detection, CameraFrame frame, BoxPointKind boxPoint, out PlacedDetection placed)
+        // The point on the found surface the object stands on: the surface the choice rule picks among those the
+        // ray meets, no further than the furthest distance.
+        bool TryFindSurface(Ray ray, DetectionSettings rules, out Vector3 point, out SurfaceHit surface)
         {
-            DetectionSettings rules = settings.detection;
-            BoxPointKind used = BoxPoint.KindFor(detection, boxPoint, frame.PictureHeight, rules.edgeMargin);
-            Ray ray = frame.RayThrough(BoxPoint.Pick(detection, used));
-            placed = default;
+            point = default;
+            surface = default;
             if (!raycastManager.Raycast(ray, hits, TrackableType.PlaneWithinPolygon))
             {
                 return false;
             }
             int chosen = SurfaceChoice.Pick(AsSurfaces(hits), rules);
-            ARRaycastHit hit = hits[chosen];
-            if (hit.distance > rules.maxDistance)
+            if (hits[chosen].distance > rules.maxDistance)
             {
                 return false;
             }
-            if (used == BoxPointKind.BottomCentreSetBack && !SurfaceChoice.AllowsSetBack(surfaces[chosen]))
-            {
-                used = BoxPointKind.BottomCentre;
-            }
+            point = hits[chosen].pose.position;
+            surface = surfaces[chosen];
+            return true;
+        }
 
-            Vector3 point = hit.pose.position;
+        // The object's room box from its picture box and the point where it stands.
+        static PlacedDetection Measure(Detection detection, CameraFrame frame, Vector3 point, BoxPointKind used,
+            DetectionSettings rules)
+        {
             float ahead = Vector3.Dot(point - frame.Position, frame.Rotation * Vector3.forward);
             float width = frame.MetresFor(detection.Width, ahead);
             float height = frame.MetresFor(detection.Height, ahead);
@@ -72,8 +86,7 @@ namespace ArObjectLabels
                 // place than the usual depths did. A plant is the exception; its box is far wider than its pot.
                 point = BoxPoint.SetBack(point, frame.Position, ObjectDepth.ForSetBack(width, usual));
             }
-            placed = new PlacedDetection(detection, point, width, height, depth, away, used);
-            return true;
+            return new PlacedDetection(detection, point, width, height, depth, away, used);
         }
 
         // What the rule for choosing a surface needs to know about each surface the ray meets, nearest first.

@@ -10,27 +10,21 @@ namespace ArObjectLabels.Core
     public static class LabelArrange
     {
         /// <summary>
-        /// How far the label must move in the picture from its own place above its object. Zero when that place
-        /// is free. Otherwise the nearby places are tried in a fixed order and the first free one is taken: one
-        /// step up, beside the object on the right, on the left, up and to the right, up and to the left, two
-        /// steps up. A free place touches no other object and no label placed before. If none of them is free,
-        /// the label moves straight up until it is clear of everything.
+        /// How far the label must move in the picture from its own place above its object. Only the label of an
+        /// object found now (<paramref name="objectFound"/>) or with its middle in the picture is moved; any other
+        /// label stays at its place in the room.
         ///
-        /// Every place is first pulled inside <paramref name="picture"/>, the part of the flat picture the
-        /// viewer sees, so a label is never cut by the picture's edge, and out from under the app's
-        /// <paramref name="panels"/>, which count as more of that edge. Only the label of an object found now
-        /// (<paramref name="objectFound"/>) or with its middle in the picture is placed this way; any other label
-        /// stays at its place in the room and is not moved aside either.
+        /// A free place touches no other object and no label placed before. Every place is first pulled inside
+        /// <paramref name="picture"/> and out from under the app's <paramref name="panels"/>. The nearby places are
+        /// tried in a fixed order: the own place, one step up, beside the object on the right, on the left, up and
+        /// to the right, up and to the left, two steps up.
         ///
-        /// A place from which the line to the object would be longer than <paramref name="maxLeader"/> is taken
-        /// only when nothing nearer will do. In order: a free place near enough; the place straight up, if near
-        /// enough; a near place clear of earlier labels and panels, even with another object behind it; any free
-        /// place; any place clear of earlier labels and panels; the place straight up. Whatever is taken lies
-        /// inside the picture.
-        ///
-        /// The line is measured to <paramref name="objectTop"/>, where the object's top shows in the picture; left
-        /// out, it is the middle of the label's own lower edge. A place whose line is no longer than the line from
-        /// the label's own place also counts as near enough, so looking down does not push a label off its own place.
+        /// What is taken, in order: a free nearby place near enough; the place straight up until clear, if near
+        /// enough; a nearby place clear of earlier labels and panels, even with another object behind it; any free
+        /// nearby place; any nearby place clear of earlier labels and panels; the place straight up. Near enough
+        /// means the line to <paramref name="objectTop"/> (where the object's top shows in the picture; left out,
+        /// the middle of the label's own lower edge) is no longer than <paramref name="maxLeader"/>, or no longer
+        /// than the line from the label's own place, so looking down does not push a label off its own place.
         /// </summary>
         public static Vector2 Offset(Rect label, Rect ownObject, IReadOnlyList<Rect> otherObjects,
             IReadOnlyList<Rect> placedLabels, float margin, Rect picture, IReadOnlyList<Rect> panels = null,
