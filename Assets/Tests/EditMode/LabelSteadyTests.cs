@@ -143,13 +143,16 @@ namespace ArObjectLabels.Tests
         [Test]
         public void Forget_ClearsEverything()
         {
-            var memory = new LabelMemory { WasShown = true, HeldMove = up, CalmSeconds = 0.3f, DrawnMove = up, HasBeenDrawn = true };
+            var memory = new LabelMemory { WasShown = true, HeldMove = up, CalmSeconds = 0.3f, DrawnMove = up, HasBeenDrawn = true, Rank = 2 };
 
             memory.Forget();
 
             Assert.IsFalse(memory.WasShown);
             Assert.AreEqual(Vector2.zero, memory.HeldMove);
+            Assert.AreEqual(0f, memory.CalmSeconds);
+            Assert.AreEqual(Vector2.zero, memory.DrawnMove);
             Assert.IsFalse(memory.HasBeenDrawn);
+            Assert.AreEqual(0, memory.Rank);
         }
     }
 }

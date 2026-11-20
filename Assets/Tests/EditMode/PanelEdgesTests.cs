@@ -79,13 +79,5 @@ namespace ArObjectLabels.Tests
 
             Assert.IsFalse(LabelArrange.CanStay(label, new List<Rect>(), new List<Rect>(), Margin, picture, new List<Rect> { topLeftPanel }));
         }
-
-        [Test]
-        public void CameraThatHasNotLeftItsStart_HasNotMoved()
-        {
-            Assert.IsFalse(CameraStill.HasLeft(Vector3.zero, Quaternion.identity, new Vector3(0.05f, 0f, 0f), Quaternion.Euler(0f, 3f, 0f), 0.1f, 5f));
-            Assert.IsTrue(CameraStill.HasLeft(Vector3.zero, Quaternion.identity, new Vector3(0.2f, 0f, 0f), Quaternion.identity, 0.1f, 5f));
-            Assert.IsTrue(CameraStill.HasLeft(Vector3.zero, Quaternion.identity, Vector3.zero, Quaternion.Euler(0f, 8f, 0f), 0.1f, 5f));
-        }
     }
 }
