@@ -18,6 +18,15 @@ namespace ArObjectLabels.Core
         }
 
         /// <summary>
+        /// A table of this many numbers to read a result into: the one given, when it already has that size, so
+        /// that each run of the model does not make a new array of several megabytes.
+        /// </summary>
+        public static float[] TableFor(float[] reused, int length)
+        {
+            return reused != null && reused.Length == length ? reused : new float[length];
+        }
+
+        /// <summary>
         /// Adds a box for every column and class whose score is at least <paramref name="minScore"/>. The
         /// table comes row after row. The boxes are in the model's square picture.
         /// </summary>

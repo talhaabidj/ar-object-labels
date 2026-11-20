@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using ArObjectLabels.Core;
+using Unity.Collections;
 using Unity.InferenceEngine;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
@@ -27,6 +28,7 @@ namespace ArObjectLabels
         Worker worker;
         Tensor<float> input;
         Tensor<float> awaited;
+        float[] table;
         IEnumerator layers;
         float lastRunStarted = float.NegativeInfinity;
         ModelPicture square;
@@ -180,16 +182,18 @@ namespace ArObjectLabels
             }
 
             ModelSettings rules = settings.model;
-            float[] table;
-            using (Tensor<float> result = awaited.ReadbackAndClone())
-            {
-                table = result.DownloadToArray();
-            }
+            // Seen in Play on 20 Nov: a new array for each result made about 28 MB of garbage a second. The result
+            // is copied into one kept array instead. The native array is not disposed: on the graphics card it
+            // belongs to the readback, and on the CPU it is freed at the end of the frame.
+            NativeArray<float> result = awaited.DownloadToNativeArray();
+            int length = awaited.shape.length;
+            table = ModelOutput.TableFor(table, length);
+            NativeArray<float>.Copy(result, table, length);
             awaited = null;
 
             found.Clear();
             // Boxes are kept down to the score for staying; which of them get a label is decided over several runs.
-            ModelOutput.AddBoxes(table, table.Length / ModelOutput.Rows(classNames.Count), classNames, rules.stayScore, found);
+            ModelOutput.AddBoxes(table, length / ModelOutput.Rows(classNames.Count), classNames, rules.stayScore, found);
             BoxOverlap.KeepTheBest(found, rules.overlapLimit);
             for (int i = 0; i < found.Count; i++)
             {

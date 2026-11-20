@@ -90,5 +90,27 @@ namespace ArObjectLabels.Tests
 
             Assert.AreEqual(1, found.Count);
         }
+
+        [Test]
+        public void TableOfTheRightSize_IsUsedAgain()
+        {
+            var table = new float[84 * 8400];
+            Assert.AreSame(table, ModelOutput.TableFor(table, 84 * 8400));
+        }
+
+        [Test]
+        public void TableOfAnotherSize_IsReplacedByOneOfTheSizeAsked()
+        {
+            var table = new float[10];
+            float[] made = ModelOutput.TableFor(table, 12);
+            Assert.AreNotSame(table, made);
+            Assert.AreEqual(12, made.Length);
+        }
+
+        [Test]
+        public void NoTableYet_OneIsMade()
+        {
+            Assert.AreEqual(5, ModelOutput.TableFor(null, 5).Length);
+        }
     }
 }
