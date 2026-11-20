@@ -17,7 +17,7 @@ namespace ArObjectLabels
             // Read from the projection the camera really uses; AR sets it and may leave "field of view" stale.
             float verticalFieldOfView = 2f * Mathf.Atan(1f / camera.projectionMatrix.m11) * Mathf.Rad2Deg;
             return new CameraFrame(camera.transform.position, camera.transform.rotation, verticalFieldOfView,
-                pictureWidth, pictureHeight, Time.time);
+                pictureWidth, pictureHeight, Time.unscaledTime);
         }
     }
 }

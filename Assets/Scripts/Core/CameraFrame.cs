@@ -17,6 +17,7 @@ namespace ArObjectLabels.Core
         public readonly float VerticalFieldOfView;
         public readonly int PictureWidth;
         public readonly int PictureHeight;
+        /// <summary>When the picture was taken, in seconds that keep running while the game's time is paused.</summary>
         public readonly float Time;
         /// <summary>True when the camera picture's own lens is known; then it is used instead of the field of view.</summary>
         public readonly bool HasLens;

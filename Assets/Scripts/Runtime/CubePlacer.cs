@@ -19,7 +19,7 @@ namespace ArObjectLabels
         [SerializeField] SelectableCube cubePrefab;
         [SerializeField] AppSettings settings;
 
-        static readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
+        readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
         InputAction press;
         InputAction point;

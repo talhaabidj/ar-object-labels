@@ -58,5 +58,17 @@ namespace ArObjectLabels.Tests
 
             Assert.AreEqual(0f, seen.width * seen.height);
         }
+
+        [Test]
+        public void BoxReachingBehindTheCamera_FillsThePictureOnThatSide()
+        {
+            // A long table from half a metre behind the camera to 1.5 m ahead, below the camera.
+            var table = new Bounds(new Vector3(0f, -0.5f, 0.5f), new Vector3(1f, 0.2f, 2f));
+
+            Rect seen = BoxInPicture.Around(table, Quaternion.identity, Vector3.zero, Quaternion.identity);
+
+            Assert.Greater(seen.width, 10f, "far wider than its front edge alone");
+            Assert.Less(seen.yMin, -10f, "reaches far down the picture");
+        }
     }
 }
