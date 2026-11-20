@@ -143,6 +143,10 @@ A manual check you can do in about 10 minutes is in `MANUAL-TEST.md`.
   except from 0.5 m. True box mode shows the pen case.
 - Several objects of one kind close together each get their own label ("Pen" three times); they are not
   merged.
+- A double click places the cube and picks it up at once.
+- With a mouse, dragging outside the Game view can move the cube out of sight.
+- The cube and labels use no AR anchors. After a session reset or a tracking change on a phone they would
+  likely be left in the wrong place.
 
 ## Privacy
 
