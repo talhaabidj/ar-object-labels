@@ -14,7 +14,7 @@ namespace ArObjectLabels.Tests
         // Run under a time limit: this rule has a loop, and a loop that never ends would freeze the Editor.
         static float Lift(Rect rect, List<Rect> placedBefore)
         {
-            return TimeLimit.Run(() => LabelOverlap.LiftToClear(rect, placedBefore, Margin));
+            return TimeLimit.Run(() => LabelOverlap.LiftToClear(rect, placedBefore, new List<Rect>(), Margin));
         }
 
         [Test]

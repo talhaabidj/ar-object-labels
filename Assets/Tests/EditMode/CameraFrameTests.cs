@@ -60,7 +60,7 @@ namespace ArObjectLabels.Tests
                 CameraFrame frame = FrameAt(camera.transform.position, camera.transform.rotation);
 
                 Ray ours = frame.RayThrough(new Vector2(x, y));
-                Ray unitys = camera.ViewportPointToRay(ImageMapping.PictureToViewport(new Vector2(x, y), Width, Height));
+                Ray unitys = camera.ViewportPointToRay(PictureSpace.PictureToViewport(new Vector2(x, y), Width, Height));
 
                 Assert.Less(Vector3.Angle(ours.direction, unitys.direction), 0.01f);
             }

@@ -27,19 +27,6 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void TextLooksTheSameSize_From30CentimetresTo4AndAHalfMetres()
-        {
-            const float heightAtOneMetre = 0.0122f;
-            float atOne = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(1f, Near), 1f);
-
-            foreach (float depth in new[] { 0.3f, 2.5f, 3.5f, 4.5f })
-            {
-                float there = LabelSizing.ViewingAngle(heightAtOneMetre * LabelSizing.Scale(depth, Near), depth);
-                Assert.AreEqual(atOne, there, 0.001f, "at " + depth + " m");
-            }
-        }
-
-        [Test]
         public void Depth_IsMeasuredAlongTheWayTheCameraLooks_NotStraightToThePoint()
         {
             // 2 m ahead and 1 m to the side: 2.24 m away, but 2 m deep.

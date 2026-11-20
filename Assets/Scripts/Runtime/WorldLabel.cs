@@ -97,7 +97,7 @@ namespace ArObjectLabels
         }
 
         /// <summary>The label sits above this point, for an object known only as a place.</summary>
-        public void PlaceAt(Vector3 top, float radius)
+        void PlaceAt(Vector3 top, float radius)
         {
             followed = null;
             placedBox = null;
@@ -240,7 +240,7 @@ namespace ArObjectLabels
         }
 
         /// <summary>Moves the label out of one wall, given as a point on it and its direction into the room.</summary>
-        public Vector3 KeepOutOfWall(Vector3 centre, Quaternion rotation, Vector3 wallPoint, Vector3 wallNormal, float margin)
+        Vector3 KeepOutOfWall(Vector3 centre, Quaternion rotation, Vector3 wallPoint, Vector3 wallNormal, float margin)
         {
             return LabelPlacement.KeepOutOfWall(centre, rotation * Vector3.right, rotation * Vector3.up,
                 HalfSize.x, HalfSize.y, wallPoint, wallNormal, margin);

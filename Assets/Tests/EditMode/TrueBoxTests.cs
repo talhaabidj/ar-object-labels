@@ -105,7 +105,7 @@ namespace ArObjectLabels.Tests
                 foreach (Vector3 corner in corners)
                 {
                     Vector3 seen = camera.WorldToViewportPoint(corner);
-                    Vector2 point = ImageMapping.ViewportToPicture(seen, Width, Height);
+                    Vector2 point = PictureSpace.ViewportToPicture(seen, Width, Height);
                     left = Mathf.Min(left, point.x);
                     right = Mathf.Max(right, point.x);
                     top = Mathf.Min(top, point.y);

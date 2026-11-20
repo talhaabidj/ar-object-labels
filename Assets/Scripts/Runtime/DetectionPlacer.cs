@@ -28,7 +28,7 @@ namespace ArObjectLabels
         /// The same, with the box point given instead of read from the settings. A box that touches the
         /// picture's bottom edge is not set back; the result says which box point was used.
         /// </summary>
-        public bool TryPlace(Detection detection, CameraFrame frame, BoxPointKind boxPoint, out PlacedDetection placed)
+        bool TryPlace(Detection detection, CameraFrame frame, BoxPointKind boxPoint, out PlacedDetection placed)
         {
             DetectionSettings rules = settings.detection;
             BoxPointKind used = BoxPoint.KindFor(detection, boxPoint, frame.PictureHeight, rules.edgeMargin);

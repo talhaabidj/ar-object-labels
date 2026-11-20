@@ -35,8 +35,6 @@ namespace ArObjectLabels
         bool controlsOpen = true;
         string shownHint;
 
-        public Hint Current { get; private set; }
-
         void Awake()
         {
             controlsKey = new InputAction("Controls", InputActionType.Button, "<Keyboard>/h");
@@ -82,8 +80,7 @@ namespace ArObjectLabels
                 CubeCarried = cubePlacer.CubeCarried
             };
 
-            Current = HintRule.Pick(facts);
-            string hint = Messages.For(Current);
+            string hint = Messages.For(HintRule.Pick(facts));
             if (hint != shownHint)
             {
                 shownHint = hint;

@@ -9,18 +9,10 @@ namespace ArObjectLabels.Core
         // Two edges closer than this count as touching, so rounding can never ask for the same move twice.
         const float Tolerance = 0.00001f;
 
-        static readonly Rect[] nothing = new Rect[0];
-
         /// <summary>
-        /// How far a label must move up the viewer's picture to clear the labels placed before it. The rectangles
-        /// are in the picture's own flat coordinates, in metres. Zero when nothing is in the way.
+        /// How far a label must move up the viewer's picture to clear the rectangles of two lists. The rectangles
+        /// are in the picture's own flat coordinates. Zero when nothing is in the way.
         /// </summary>
-        public static float LiftToClear(Rect label, IReadOnlyList<Rect> placedBefore, float margin)
-        {
-            return LiftToClear(label, placedBefore, nothing, margin);
-        }
-
-        /// <summary>The same, clearing two lists of rectangles at once.</summary>
         public static float LiftToClear(Rect label, IReadOnlyList<Rect> first, IReadOnlyList<Rect> second, float margin)
         {
             float lift = 0f;

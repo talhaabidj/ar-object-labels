@@ -47,7 +47,8 @@ namespace ArObjectLabels.Tests
         [Test]
         public void NoDisplayName_IsLongerThanTheLimit()
         {
-            string[] tooLong = DisplayNames().Values.Where(v => v.Length > ClassNames.MaxLabelLength).ToArray();
+            const int maxLabelLength = 20;
+            string[] tooLong = DisplayNames().Values.Where(v => v.Length > maxLabelLength).ToArray();
 
             Assert.IsEmpty(tooLong);
         }
@@ -77,26 +78,8 @@ namespace ArObjectLabels.Tests
         [TestCase("scissors", "Scissors")]
         public void Label_IsTheNameAlone(string rawName, string expected)
         {
-            List<string> classes = Classes();
-
-            Assert.AreEqual(expected, ClassNames.LabelFor(classes.IndexOf(rawName), classes, DisplayNames()));
-        }
-
-        [Test]
-        public void ClassWithNoDisplayName_ShowsItsRawNameWithACapital()
-        {
-            var classes = new List<string> { "teddy bear" };
-
-            Assert.AreEqual("Teddy bear", ClassNames.LabelFor(0, classes, new Dictionary<string, string>()));
-        }
-
-        [TestCase(-1, "Object -1")]
-        [TestCase(17, "Object 17")]
-        public void NumberOutsideTheList_ShowsAsObjectN(int classNumber, string expected)
-        {
-            var classes = new List<string> { "cup" };
-
-            Assert.AreEqual(expected, ClassNames.LabelFor(classNumber, classes, new Dictionary<string, string>()));
+            Assert.IsTrue(Classes().Contains(rawName));
+            Assert.AreEqual(expected, ClassNames.LabelFor(rawName, DisplayNames()));
         }
 
         [Test]

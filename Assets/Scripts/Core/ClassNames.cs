@@ -5,8 +5,6 @@ namespace ArObjectLabels.Core
     /// <summary>Turns a model's class number into the short text a label shows.</summary>
     public static class ClassNames
     {
-        public const int MaxLabelLength = 20;
-
         /// <summary>One raw class name per line. The first name is class 0. Empty lines are skipped.</summary>
         public static List<string> ParseClassList(string text)
         {
@@ -40,21 +38,6 @@ namespace ArObjectLabels.Core
             }
 
             return displayNames;
-        }
-
-        /// <summary>
-        /// The label text for a class number. A class with no display name shows its raw name with a capital.
-        /// A number the class list does not have shows as "Object N".
-        /// </summary>
-        public static string LabelFor(
-            int classNumber, IReadOnlyList<string> classes, IReadOnlyDictionary<string, string> displayNames)
-        {
-            if (classNumber < 0 || classNumber >= classes.Count)
-            {
-                return "Object " + classNumber;
-            }
-
-            return LabelFor(classes[classNumber], displayNames);
         }
 
         /// <summary>The label text for a class name. A class with no display name shows its raw name with a capital.</summary>

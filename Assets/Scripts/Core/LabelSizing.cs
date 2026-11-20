@@ -21,12 +21,6 @@ namespace ArObjectLabels.Core
             return Vector3.Dot(point - cameraPosition, cameraForward);
         }
 
-        /// <summary>How tall something looks from a distance, as a viewing angle in degrees.</summary>
-        public static float ViewingAngle(float height, float distance)
-        {
-            return 2f * Mathf.Atan2(height / 2f, distance) * Mathf.Rad2Deg;
-        }
-
         /// <summary>
         /// The size factor held back so the label is never wider than <paramref name="maxWidth"/>, in metres.
         /// <paramref name="widthAtOne"/> is the label's width at a size factor of 1. No limit when maxWidth is 0.
