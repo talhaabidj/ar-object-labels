@@ -108,5 +108,63 @@ namespace ArObjectLabels.Tests
 
             Assert.AreEqual(2f * frame.MetresFor(100f, 1.5f), frame.MetresFor(100f, 3f), 0.0001f);
         }
+
+        // The focal length in pixels that gives the same picture as a 60 degree field of view.
+        static readonly float SameFocal = Height / 2f / Mathf.Tan(30f * Mathf.Deg2Rad);
+
+        [TestCase(0f, 0f)]
+        [TestCase(250f, 300f)]
+        [TestCase(993f, 473f)]
+        public void LensWithItsMiddleAtThePicturesMiddle_GivesTheSameRay_AsTheFieldOfView(float x, float y)
+        {
+            CameraFrame plain = FrameAt(Vector3.zero, Quaternion.Euler(10f, 20f, 0f));
+            CameraFrame withLens = plain.WithLens(new Vector2(SameFocal, SameFocal), new Vector2(Width / 2f, Height / 2f),
+                new Vector2Int(Width, Height));
+
+            Vector3 a = plain.RayThrough(new Vector2(x, y)).direction;
+            Vector3 b = withLens.RayThrough(new Vector2(x, y)).direction;
+            Assert.Less(Vector3.Angle(a, b), 0.01f);
+        }
+
+        [Test]
+        public void LensMiddleLeftOfThePicturesMiddle_SendsTheMiddleRayToTheRight()
+        {
+            CameraFrame withLens = FrameAt(Vector3.zero, Quaternion.identity).WithLens(new Vector2(SameFocal, SameFocal),
+                new Vector2(Width / 2f - 50f, Height / 2f), new Vector2Int(Width, Height));
+
+            Assert.Greater(withLens.RayThrough(new Vector2(Width / 2f, Height / 2f)).direction.x, 0f);
+        }
+
+        [Test]
+        public void LensGivenForAnotherPictureSize_IsScaledToThisPicture()
+        {
+            CameraFrame withLens = FrameAt(Vector3.zero, Quaternion.identity).WithLens(new Vector2(500f, 500f),
+                new Vector2(320f, 240f), new Vector2Int(640, 480));
+
+            Assert.AreEqual(500f * Width / 640f, withLens.FocalLength.x, 0.001f);
+            Assert.AreEqual(Height / 2f, withLens.PrincipalPoint.y, 0.001f);
+        }
+
+        [Test]
+        public void LensWithNoFocalLength_IsNotTaken()
+        {
+            CameraFrame withLens = FrameAt(Vector3.zero, Quaternion.identity).WithLens(Vector2.zero, Vector2.zero,
+                new Vector2Int(Width, Height));
+
+            Assert.IsFalse(withLens.HasLens);
+        }
+
+        [Test]
+        public void WithALens_ThePointARayGoesThrough_ComesBackToTheSamePixel()
+        {
+            CameraFrame withLens = FrameAt(new Vector3(1f, 1.5f, 0f), Quaternion.Euler(25f, -10f, 0f)).WithLens(
+                new Vector2(520f, 515f), new Vector2(480f, 250f), new Vector2Int(Width, Height));
+            var pixel = new Vector2(700f, 120f);
+            Ray ray = withLens.RayThrough(pixel);
+
+            Assert.IsTrue(withLens.TryPicturePoint(ray.GetPoint(2f), out Vector2 back));
+            Assert.AreEqual(pixel.x, back.x, 0.01f);
+            Assert.AreEqual(pixel.y, back.y, 0.01f);
+        }
     }
 }

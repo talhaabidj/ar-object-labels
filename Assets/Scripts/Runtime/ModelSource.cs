@@ -135,6 +135,11 @@ namespace ArObjectLabels
                 cameraPicture.Apply(false);
             }
             runFrame = CameraFrames.Of(viewCamera, cameraPicture.width, cameraPicture.height);
+            // The camera picture's own lens, where known, can differ from the screen camera's on a phone.
+            if (cameraManager.TryGetIntrinsics(out XRCameraIntrinsics lens))
+            {
+                runFrame = runFrame.WithLens(lens.focalLength, lens.principalPoint, lens.resolution);
+            }
             return true;
         }
 
