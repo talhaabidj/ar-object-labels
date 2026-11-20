@@ -86,6 +86,10 @@ These files were added by Unity, not written for this project. They are under th
   (`PC_*`, `Mobile_*`, `DefaultVolumeProfile.asset`, `SampleSceneProfile.asset`,
   `UniversalRenderPipelineGlobalSettings.asset`): from Unity's Universal 3D project template
   (`com.unity.template.urp-blank` 17.0.14).
+- Changes made in this project to these Unity files: AR Foundation's background renderer feature was added to
+  `PC_Renderer.asset` and `Mobile_Renderer.asset`; Unity upgraded the render pipeline settings to its own
+  newer format; the default sprite asset in `TMP Settings.asset` was set to none when the unused emoji sheet
+  was removed.
 - `Assets/XR/`: XR Plug-in Management and XR Simulation settings that Unity creates. The simulation controls
   file `Assets/Settings/SimulationControls.inputactions` was written for this project.
 
