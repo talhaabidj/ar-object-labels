@@ -12,8 +12,6 @@ namespace ArObjectLabels
     /// </summary>
     public class DetectionLabels : MonoBehaviour
     {
-        [Tooltip("The source used when the app starts. Leave empty to start with none.")]
-        [SerializeField] MonoBehaviour source;
         [SerializeField] DetectionPlacer placer;
         [SerializeField] WorldLabel labelPrefab;
         [SerializeField] TextAsset displayNamesFile;
@@ -51,7 +49,6 @@ namespace ArObjectLabels
 
         void Awake()
         {
-            chosen = source as IDetectionSource;
             displayNames = ClassNames.ParseDisplayNames(displayNamesFile != null ? displayNamesFile.text : "");
             if (viewCamera == null)
             {
