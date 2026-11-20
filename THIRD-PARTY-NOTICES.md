@@ -82,11 +82,6 @@ These files were added by Unity, not written for this project. They are under th
 
 - `Assets/TextMesh Pro/` apart from the font in section 2: shaders, `TMP Settings.asset`, the default style
   sheet and the line-breaking lists, imported from TextMesh Pro Essential Resources in `com.unity.ugui` 2.0.0.
-- `Assets/TextMesh Pro/Sprites/EmojiOne.png`, `EmojiOne.json` and
-  `Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset`: a sample emoji sheet in the same Essential
-  Resources. Unity's attribution file beside it (`EmojiOne Attribution.txt`) says the emojis are provided by
-  EmojiOne, https://www.emojione.com/, and asks the reader to review EmojiOne's licensing terms. It gives no
-  licence text. The app does not show these emojis.
 - `Assets/InputSystem_Actions.inputactions` and the render pipeline and volume settings in `Assets/Settings/`
   (`PC_*`, `Mobile_*`, `DefaultVolumeProfile.asset`, `SampleSceneProfile.asset`,
   `UniversalRenderPipelineGlobalSettings.asset`): from Unity's Universal 3D project template
