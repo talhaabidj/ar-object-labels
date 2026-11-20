@@ -1426,7 +1426,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.SurfaceOutlines
   planeManager: {fileID: 1201849237}
   cubePlacer: {fileID: 1986298850}
-  faintShare: 0.15
+  settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
 --- !u!1 &1207966903
 GameObject:
   m_ObjectHideFlags: 0
@@ -1986,8 +1986,7 @@ MonoBehaviour:
   viewCamera: {fileID: 773699675}
   panelPadding: {x: 16, y: 8}
   screenGap: 16
-  firstMoveMetres: 0.1
-  firstMoveDegrees: 5
+  settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
 --- !u!114 &1986298850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2004,10 +2003,7 @@ MonoBehaviour:
   planeManager: {fileID: 1201849237}
   viewCamera: {fileID: 773699675}
   cubePrefab: {fileID: 702256621902842851, guid: b832d2140b8b842fcaa4fbf6120dab25, type: 3}
-  wallHintSeconds: 3
-  noSurfaceHintSeconds: 2
-  maxPressDistance: 20
-  clickMoveShareOfHeight: 0.025
+  settings: {fileID: 11400000, guid: 794df01c8bb8b4e4d933e6edcbd6fc6a, type: 2}
 --- !u!4 &1986298851
 Transform:
   m_ObjectHideFlags: 0
@@ -2090,7 +2086,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbb771fab4a0944ee8891e208a9e3ff1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ArObjectLabels::ArObjectLabels.DetectionLabels
-  source: {fileID: 0}
   placer: {fileID: 2026489860}
   labelPrefab: {fileID: 403429357729837533, guid: 05b4b54bf040d4d2d874c992a2d3d603, type: 3}
   displayNamesFile: {fileID: 4900000, guid: 1c65bd0a29fe64833a71d43551fdb625, type: 3}

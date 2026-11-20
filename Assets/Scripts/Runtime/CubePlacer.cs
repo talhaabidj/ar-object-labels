@@ -17,10 +17,7 @@ namespace ArObjectLabels
         [SerializeField] ARPlaneManager planeManager;
         [SerializeField] Camera viewCamera;
         [SerializeField] SelectableCube cubePrefab;
-        [SerializeField] float wallHintSeconds = 3f;
-        [SerializeField] float noSurfaceHintSeconds = 2f;
-        [SerializeField] float maxPressDistance = 20f;
-        [SerializeField] float clickMoveShareOfHeight = 0.025f;
+        [SerializeField] AppSettings settings;
 
         static readonly List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
@@ -92,7 +89,7 @@ namespace ArObjectLabels
         /// <summary>Acts on one press at a screen point.</summary>
         public PressOutcome HandlePress(Vector2 screenPoint, bool pointerOverUi)
         {
-            bool onCube = CubeExists && Cube.IsUnder(viewCamera.ScreenPointToRay(screenPoint), maxPressDistance);
+            bool onCube = CubeExists && Cube.IsUnder(viewCamera.ScreenPointToRay(screenPoint), settings.interaction.maxPressDistance);
             bool hitSurface = TryHitSurface(screenPoint, out Vector3 hitPoint, out bool facesUp);
             PressOutcome outcome = PlacementRule.Decide(
                 pointerOverUi, CubeExists, CubeCarried, onCube, hitSurface, facesUp);
@@ -104,11 +101,11 @@ namespace ArObjectLabels
                     SetSelected(false);
                     break;
                 case PressOutcome.ShowWallHint:
-                    wallHintUntil = Time.time + wallHintSeconds;
+                    wallHintUntil = Time.time + settings.interaction.wallHintSeconds;
                     noSurfaceHintUntil = 0f;
                     break;
                 case PressOutcome.ShowNoSurfaceHint:
-                    noSurfaceHintUntil = Time.time + noSurfaceHintSeconds;
+                    noSurfaceHintUntil = Time.time + settings.interaction.noSurfaceHintSeconds;
                     wallHintUntil = 0f;
                     break;
                 case PressOutcome.SelectCube:
@@ -150,7 +147,7 @@ namespace ArObjectLabels
             dragging = false;
             if (pressBeganOnCube && CubeExists)
             {
-                CubeCarried = ClickRule.IsClick(farthestMove, viewCamera.pixelHeight, clickMoveShareOfHeight);
+                CubeCarried = ClickRule.IsClick(farthestMove, viewCamera.pixelHeight, settings.interaction.clickMoveShareOfHeight);
             }
         }
 

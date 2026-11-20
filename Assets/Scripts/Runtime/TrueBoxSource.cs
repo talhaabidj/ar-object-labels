@@ -11,7 +11,6 @@ namespace ArObjectLabels
     /// </summary>
     public class TrueBoxSource : MonoBehaviour, IDetectionSource
     {
-        const float SecondsBetweenSearches = 1f;
 
         [SerializeField] Camera viewCamera;
         [SerializeField] AppSettings settings;
@@ -80,7 +79,7 @@ namespace ArObjectLabels
             if (anyGone && Time.time >= nextSearch)
             {
                 DetectableObject.FindAll(objects);
-                nextSearch = Time.time + SecondsBetweenSearches;
+                nextSearch = Time.time + settings.detection.trueBoxSearchSeconds;
             }
         }
     }

@@ -23,9 +23,7 @@ namespace ArObjectLabels
         [SerializeField] Vector2 panelPadding = new Vector2(16f, 8f);
         [Tooltip("Gap between the hint bar and the screen's sides, in canvas units.")]
         [SerializeField] float screenGap = 16f;
-        [Tooltip("The controls fold away once the camera has gone this far, in metres, or turned this much, in degrees.")]
-        [SerializeField] float firstMoveMetres = 0.1f;
-        [SerializeField] float firstMoveDegrees = 5f;
+        [SerializeField] AppSettings settings;
 
         InputAction controlsKey;
         bool hasStartPose;
@@ -80,7 +78,7 @@ namespace ArObjectLabels
                 CubeCarried = cubePlacer.CubeCarried
             };
 
-            string hint = Messages.For(HintRule.Pick(facts));
+            string hint = Messages.For(HintRule.Pick(facts, settings.interaction.secondsBeforeNotRunning));
             if (hint != shownHint)
             {
                 shownHint = hint;
@@ -111,7 +109,8 @@ namespace ArObjectLabels
                 startRotation = view.rotation;
                 hasStartPose = true;
             }
-            else if (CameraStill.HasLeft(startPosition, startRotation, view.position, view.rotation, firstMoveMetres, firstMoveDegrees))
+            else if (CameraStill.HasLeft(startPosition, startRotation, view.position, view.rotation,
+                settings.interaction.firstMoveMetres, settings.interaction.firstMoveDegrees))
             {
                 cameraHasMoved = true;
                 controlsOpen = false;

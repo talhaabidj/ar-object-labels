@@ -42,6 +42,7 @@ MonoBehaviour:
     minVisibleShare: 0.5
     edgeMargin: 0.01
     sameObjectDistance: 0.5
+    trueBoxSearchSeconds: 1
     smallSurface: 1.5
     justBehind: 0.3
     sameHeight: 0.1
@@ -75,3 +76,12 @@ MonoBehaviour:
     overlapLimit: 0.45
     runsPerSecond: 10
     layersPerFrame: 40
+  interaction:
+    wallHintSeconds: 3
+    noSurfaceHintSeconds: 2
+    maxPressDistance: 20
+    clickMoveShareOfHeight: 0.025
+    faintOutlineShare: 0.15
+    firstMoveMetres: 0.1
+    firstMoveDegrees: 5
+    secondsBeforeNotRunning: 3

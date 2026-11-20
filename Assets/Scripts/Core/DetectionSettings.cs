@@ -28,6 +28,9 @@ namespace ArObjectLabels.Core
         /// </summary>
         public float sameObjectDistance = 0.5f;
 
+        /// <summary>How often the true-box source looks for marked objects in the room again, in seconds.</summary>
+        public float trueBoxSearchSeconds = 1f;
+
         /// <summary>An upright surface whose longer side is at most this, in metres, counts as small: an edge of furniture, not a wall.</summary>
         public float smallSurface = 1.5f;
 

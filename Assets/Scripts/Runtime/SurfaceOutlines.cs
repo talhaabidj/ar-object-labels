@@ -13,7 +13,7 @@ namespace ArObjectLabels
         [SerializeField] ARPlaneManager planeManager;
         [SerializeField] CubePlacer cubePlacer;
         [Tooltip("How strongly the surfaces are drawn while the cube is not being moved or carried. 1 is full strength.")]
-        [SerializeField, Range(0f, 1f)] float faintShare = 0.15f;
+        [SerializeField] AppSettings settings;
 
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 
@@ -38,7 +38,7 @@ namespace ArObjectLabels
         void LateUpdate()
         {
             bool cubeInHand = cubePlacer.CubeSelected || cubePlacer.CubeCarried;
-            float strength = OutlineRule.Strength(cubeInHand, faintShare);
+            float strength = OutlineRule.Strength(cubeInHand, settings.interaction.faintOutlineShare);
             if (strength == shownStrength)
             {
                 return;
@@ -52,7 +52,7 @@ namespace ArObjectLabels
 
         void OnPlanesChanged(ARTrackablesChangedEventArgs<ARPlane> changes)
         {
-            float strength = shownStrength < 0f ? OutlineRule.Strength(false, faintShare) : shownStrength;
+            float strength = shownStrength < 0f ? OutlineRule.Strength(false, settings.interaction.faintOutlineShare) : shownStrength;
             foreach (ARPlane plane in changes.added)
             {
                 TintPlane(plane, strength);

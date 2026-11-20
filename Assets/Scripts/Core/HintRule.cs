@@ -32,11 +32,14 @@ namespace ArObjectLabels.Core
     /// <summary>Picks the hint. The first rule that applies wins.</summary>
     public static class HintRule
     {
-        public const float SecondsBeforeNotRunning = 3f;
 
-        public static Hint Pick(HintFacts facts)
+        /// <summary>
+        /// For <paramref name="secondsBeforeNotRunning"/> after start, a session that is not running yet counts as
+        /// starting rather than broken.
+        /// </summary>
+        public static Hint Pick(HintFacts facts, float secondsBeforeNotRunning)
         {
-            bool justStarted = facts.SecondsSinceStart < SecondsBeforeNotRunning;
+            bool justStarted = facts.SecondsSinceStart < secondsBeforeNotRunning;
             if (!facts.SessionReady) return justStarted ? Hint.Starting : Hint.ArNotRunning;
             if (!facts.Tracking) return justStarted ? Hint.Starting : Hint.TrackingLost;
             if (facts.WallWasClicked) return Hint.UseFlatSurface;
