@@ -42,9 +42,9 @@ namespace ArObjectLabels
 
             frame = CameraFrames.Of(viewCamera);
             FindObjectsIfNeeded();
-            foreach (DetectableObject found in objects)
+            foreach (DetectableObject marked in objects)
             {
-                if (found != null && found.isActiveAndEnabled && TryBoxOf(found, frame, out Detection detection))
+                if (marked != null && marked.isActiveAndEnabled && TryBoxOf(marked, frame, out Detection detection))
                 {
                     into.Add(detection);
                 }
@@ -53,10 +53,10 @@ namespace ArObjectLabels
         }
 
         /// <summary>The picture box of one marked object, seen from the given frame. False when it is not in the picture.</summary>
-        public bool TryBoxOf(DetectableObject found, CameraFrame frame, out Detection detection)
+        public bool TryBoxOf(DetectableObject marked, CameraFrame frame, out Detection detection)
         {
             corners.Clear();
-            found.AddCorners(corners);
+            marked.AddCorners(corners);
             // The simulated room is a scene of its own. Its coordinates are those of the space the AR camera
             // moves in, and in this scene that space is the camera's parent.
             Transform roomSpace = viewCamera.transform.parent;
@@ -64,16 +64,16 @@ namespace ArObjectLabels
             {
                 corners[i] = roomSpace.TransformPoint(corners[i]);
             }
-            return TrueBox.TryMake(found.ClassName, frame, corners, settings.detection.minVisibleShare, out detection);
+            return TrueBox.TryMake(marked.ClassName, frame, corners, settings.detection.minVisibleShare, out detection);
         }
 
         // The room is loaded after this scene, and may be loaded again later.
         void FindObjectsIfNeeded()
         {
             bool anyGone = objects.Count == 0;
-            foreach (DetectableObject found in objects)
+            foreach (DetectableObject marked in objects)
             {
-                anyGone |= found == null;
+                anyGone |= marked == null;
             }
 
             if (anyGone && Time.time >= nextSearch)

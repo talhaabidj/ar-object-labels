@@ -6,6 +6,7 @@ namespace ArObjectLabels.Core
     public static class LabelFacing
     {
         const float TooSmall = 0.0001f;
+        const float NearlyParallel = 0.0001f;
 
         /// <summary>
         /// The label lies parallel to the viewer's screen: it faces the way the camera looks, not the camera's
@@ -19,7 +20,8 @@ namespace ArObjectLabels.Core
                 return Quaternion.identity;
             }
             Vector3 up = cameraUp;
-            if (Vector3.Cross(cameraForward, up).sqrMagnitude < TooSmall)
+            // Under about half a degree apart, the two directions count as one.
+            if (Vector3.Cross(cameraForward.normalized, up.normalized).sqrMagnitude < NearlyParallel)
             {
                 // The viewer's "up" lies along the line of sight; any upright direction will do.
                 up = Mathf.Abs(cameraForward.normalized.y) < 0.99f ? Vector3.up : Vector3.forward;

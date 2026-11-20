@@ -8,7 +8,8 @@ namespace ArObjectLabels
     /// Shows one label for each object the chosen source finds, at the place the placer gives it. A found
     /// object with no place in the room gets no label. With no source chosen, no label shows. A label stays at
     /// its object's place in the room: out of view it waits there for a while, and in view but no longer found it
-    /// fades out after a moment. A label whose object is not found now is drawn faded. What the model finds gets its label only after several runs in a row.
+    /// fades out after a moment. A label whose object is not found now is drawn faded. What the model finds gets
+    /// its label only after several runs in a row.
     /// </summary>
     public class DetectionLabels : MonoBehaviour
     {

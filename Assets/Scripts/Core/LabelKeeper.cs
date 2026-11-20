@@ -196,12 +196,26 @@ namespace ArObjectLabels.Core
                     one.UnseenInView += secondsSinceLast;
                 }
                 float fading = Mathf.Max(one.UnseenInView - waitSeconds, one.Unseen - forgetSeconds);
-                one.Fade = fading <= 0f ? 1f : fadeSeconds > 0f ? 1f - Mathf.Clamp01(fading / fadeSeconds) : 0f;
+                one.Fade = FadeAfter(fading, fadeSeconds);
                 if (one.Fade <= 0f)
                 {
                     kept.RemoveAt(i);
                 }
             }
+        }
+
+        // Full until the fading starts, then down to nothing over the fade time; at once with no fade time.
+        static float FadeAfter(float secondsFading, float fadeSeconds)
+        {
+            if (secondsFading <= 0f)
+            {
+                return 1f;
+            }
+            if (fadeSeconds <= 0f)
+            {
+                return 0f;
+            }
+            return 1f - Mathf.Clamp01(secondsFading / fadeSeconds);
         }
 
         /// <summary>

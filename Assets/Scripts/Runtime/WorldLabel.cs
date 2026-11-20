@@ -8,8 +8,8 @@ namespace ArObjectLabels
 {
     /// <summary>
     /// A label in the room. It stays a little above its object, always faces the camera, keeps its text the
-    /// same height on the screen at every distance, fades out far away and keeps out of walls. When several labels share a scene, the
-    /// <see cref="LabelLayout"/> also keeps them off each other.
+    /// same height on the screen at every distance, fades out far away and keeps out of walls. When several labels
+    /// share a scene, the <see cref="LabelLayout"/> also keeps them off each other.
     /// </summary>
     public class WorldLabel : MonoBehaviour
     {
@@ -36,10 +36,25 @@ namespace ArObjectLabels
         /// <summary>The top of the object this label names.</summary>
         public Vector3 ObjectTop => objectTop;
 
-        /// <summary>The space the label's object takes up, as a box in its own axes. <see cref="ObjectTurn"/> turns them into the room.</summary>
-        public Bounds ObjectBounds => followed != null
-            ? followed.bounds
-            : placedBox ?? new Bounds(objectTop + Vector3.down * objectRadius, Vector3.one * objectRadius * 2f);
+        /// <summary>
+        /// The space the label's object takes up, as a box in its own axes. <see cref="ObjectTurn"/> turns them into
+        /// the room.
+        /// </summary>
+        public Bounds ObjectBounds
+        {
+            get
+            {
+                if (followed != null)
+                {
+                    return followed.bounds;
+                }
+                if (placedBox.HasValue)
+                {
+                    return placedBox.Value;
+                }
+                return new Bounds(objectTop + Vector3.down * objectRadius, Vector3.one * objectRadius * 2f);
+            }
+        }
 
         /// <summary>The turn of the object's box. A followed object's box is not turned.</summary>
         public Quaternion ObjectTurn => followed == null && placedBox.HasValue ? placedTurn : Quaternion.identity;

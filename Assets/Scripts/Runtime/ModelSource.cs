@@ -73,8 +73,8 @@ namespace ArObjectLabels
         /// <summary>Gives the result of the last finished run. False until the first run has finished.</summary>
         public bool TryRead(List<Detection> into, out CameraFrame frame)
         {
-            // Seen in Play on 20 Nov: back from another source, reading a result that had arrived meanwhile threw,
-            // because the graphics card's readback is gone after the frame it arrives in.
+            // Back from another source, a result that arrived meanwhile can no longer be read: a readback from the
+            // graphics card is readable only in the frame it arrives in.
             if (ModelPacing.WasLeftAlone(lastAskedFrame, Time.frameCount))
             {
                 ForgetEarlierResult();
@@ -101,8 +101,8 @@ namespace ArObjectLabels
         }
 
         // Forgets the last result, so nothing from before shows. A finished run's readback may be gone, so it is not
-        // read. A run still being started is carried on to its end and its result thrown away: seen in Play on
-        // 20 Nov, a run left halfway broke every later run of the model.
+        // read. A run still being started is carried on to its end and its result thrown away, because leaving a
+        // run halfway breaks every later run of the model.
         void ForgetEarlierResult()
         {
             awaited = null;
@@ -182,9 +182,9 @@ namespace ArObjectLabels
             }
 
             ModelSettings rules = settings.model;
-            // Seen in Play on 20 Nov: a new array for each result made about 28 MB of garbage a second. The result
-            // is copied into one kept array instead. The native array is not disposed: on the graphics card it
-            // belongs to the readback, and on the CPU it is freed at the end of the frame.
+            // The result is copied into one kept array, so a run makes no new 2.8 MB array. The native array is not
+            // disposed: on the graphics card it belongs to the readback, and on the CPU it is freed at the end of the
+            // frame.
             NativeArray<float> result = awaited.DownloadToNativeArray();
             int length = awaited.shape.length;
             table = ModelOutput.TableFor(table, length);

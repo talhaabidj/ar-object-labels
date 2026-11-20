@@ -52,15 +52,14 @@ namespace ArObjectLabels.Core
                 return MoveTo(label, lifted);
             }
 
-            // Seen in the review: the desk chair's label was lifted clear of the desk and its line crossed the whole
-            // desk. It stays near, in front of the desk.
+            // A near place in front of another object is better than a long line across that object.
             if (TryNearby(label, ownObject, NoRects, placedLabels, margin, picture, panels, top, nearEnough, out place))
             {
                 return MoveTo(label, place);
             }
 
-            // Seen in Play on 20 Nov: a label whose own place is above the picture, or whose near places all held
-            // labels, stayed there, off the picture or on another label. A long line is hidden instead.
+            // Nothing near will do: any place inside the picture and off other labels, with a long line hidden, is
+            // better than leaving the label off the picture or on another label.
             if (TryNearby(label, ownObject, otherObjects, placedLabels, margin, picture, panels, top, float.PositiveInfinity, out place)
                 || TryNearby(label, ownObject, NoRects, placedLabels, margin, picture, panels, top, float.PositiveInfinity, out place))
             {
