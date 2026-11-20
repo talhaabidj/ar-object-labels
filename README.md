@@ -289,8 +289,11 @@ Unity 6000.3.28f1. The AR rig was added with AR Foundation's "XR Origin (Mobile 
   (https://github.com/Unity-Technologies/arfoundation-samples/tree/6.3).
 - Unity's YOLO page and `RunYOLO.cs`, showing a YOLO model in the Inference Engine
   (https://huggingface.co/unity/inference-engine-yolo). Not used in the app.
-- Meta's object detection sample: the idea that a found object whose box holds a kept label of its class is
-  the same object (used in `LabelKeeper.cs`).
+- Meta's Multi Object Detection sample, in Unity-PassthroughCameraApiSamples
+  (https://github.com/oculus-samples/Unity-PassthroughCameraApiSamples; overview at
+  https://developers.meta.com/horizon/documentation/unity/unity-sample-camera-object-detection): the idea in
+  its `DetectionManager.cs` that a found object whose box holds a kept marker of its class is the same object.
+  Used as an idea in `LabelKeeper.cs`.
 - Megvii-BaseDetection/YOLOX (https://github.com/Megvii-BaseDetection/YOLOX): source of the class list text.
 - MultimediaTechLab/YOLO (https://github.com/MultimediaTechLab/YOLO) and LibreYOLO
   (https://huggingface.co/LibreYOLO/LibreYOLO9t): source of the model.
