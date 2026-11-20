@@ -85,7 +85,7 @@ as the view changes, and only the layout step moves them aside a little in the p
 
 All numbers are from the Unity Editor on an Apple M1 Pro. An Editor number is not a device number.
 
-**Edit mode tests:** 387 tests, all pass (Test Framework, Edit mode). They cover the rules in
+**Edit mode tests:** 394 tests, all pass (Test Framework, Edit mode). They cover the rules in
 `Assets/Scripts/Core` (placing, the cube's press and drag rules, hints, label layout, label keeping, the
 model's output) and sit in `Assets/Tests/EditMode`.
 
@@ -121,6 +121,25 @@ cut at the side edges in pans.
 CPU. The run is spread over frames (40 layers a frame), and the Editor kept 269 frames a second on average
 while detecting, against 354 with detection off.
 
+**Choosing the detector (18 Nov 2026).** Seven small detector set-ups on 315 pictures of the test room (45
+pictures, each also made dark, overexposed, blurred, small and far, half-covered and grainy), with 1,404
+visible objects the models can name. Times are one run in Unity's Inference Engine 2.6.1 on the same Mac.
+
+| Model and picture size | Unity GPU ms | Unity CPU ms | Found, at most 25 false | Found, at most 50 false | File |
+|---|---|---|---|---|---|
+| YOLOX-Nano 416 | about 6 | 12 | 329 | 348 | 4 MB |
+| YOLOX-Tiny 416 | 14.6 | 27 | 358 | 424 | 20 MB |
+| YOLOv9-T 416 | 18.4 | about 31 | 366 | 419 | 8 MB |
+| YOLOX-Tiny 640 | 24.1 | 55 | 483 | 543 | 20 MB |
+| PicoDet-L 416 | about 26 | 46 | 480 | 518 | 23 MB |
+| **YOLOv9-T 640 (chosen)** | **26.8** | **about 40** | **505** | **533** | **8 MB** |
+| YOLOX-S 640 | 32.3 | 90 | 577 | 624 | 36 MB |
+
+A first test was redone to be fair: every score is now kept and the models are compared at the same number of
+false labels, YOLOX-Tiny and YOLOv9-T are each run at both picture sizes, and every model is timed in Unity.
+YOLOv9-T at 640 found more objects than the two models closest to it in speed, with a file less than half
+their size; only YOLOX-S found more, and it is larger and slower. It is also MIT-licensed.
+
 A manual check you can do in about 10 minutes is in `MANUAL-TEST.md`.
 
 ## Known limits
@@ -152,6 +171,80 @@ A manual check you can do in about 10 minutes is in `MANUAL-TEST.md`.
 
 The camera picture is used in memory for the detector and is never saved or sent. The app has no network
 code, and Unity's analytics, crash reporting, ads and performance reporting are off.
+
+## Attribution
+
+**Start point.** Unity's Universal 3D project template (`com.unity.template.urp-blank` 17.0.14), bundled with
+Unity 6000.3.28f1. The AR rig was added with AR Foundation's "XR Origin (Mobile AR)" and "AR Session" items.
+
+**Documentation followed**
+- Unity manual: XR Origin (the 6000.0 page,
+  https://docs.unity.com/en-us/engine/6000.0/manual/xr/configuring-project-for/scene-setup/origin), and for
+  6000.3 Create an XR project, World Space UI, Assemblies, ScriptableObject
+  (https://docs.unity3d.com/6000.3/Documentation/Manual/).
+- AR Foundation 6.3 manual, including XR Simulation
+  (https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@6.3/manual/).
+- Inference Engine (`com.unity.ai.inference`) 2.6 manual
+  (https://docs.unity3d.com/Packages/com.unity.ai.inference@2.6/manual/).
+- The Input System 1.20, Unity UI and TextMesh Pro, and Test Framework 1.6 manuals bundled with the Editor.
+
+**Tutorial videos used for learning**
+- "Tap to Place Objects in Unity's AR Foundation", samyam (https://www.youtube.com/watch?v=lYDfV-GaKQA)
+- "Setup a Unity 6 AR foundation project in 3 minutes", Alive Studios (https://www.youtube.com/watch?v=hbBqu_LgAis)
+- "How to Configure XR Simulation in Unity for Augmented Reality (2024)", Joed (https://www.youtube.com/watch?v=NCIPFP_dTyc)
+- "Unity 6: Place Objects in AR with Plane Detection", Alive Studios (https://www.youtube.com/watch?v=e6WB3GVcF3E)
+- "Unity Input System in Unity 6 (1/7): Input Action Editor", Unity (https://www.youtube.com/watch?v=TiTKAseu17A)
+- "Place UI Elements in your World!", Code Monkey (https://www.youtube.com/watch?v=Zwgj3mwOVlg)
+- "Billboarding in Unity", Firnox (https://www.youtube.com/watch?v=eiGvVgwtJ8k)
+- "How to convert the mouse position to world space in Unity", Game Dev Beginner (https://www.youtube.com/watch?v=5NTmxDSKj-Q)
+- "Unity 6 automated tests – Edit Mode and Play mode", Raz Men (https://www.youtube.com/watch?v=5G1pPvEf15k)
+- "Unity Profiler Walkthrough & Tutorial", Unity (https://www.youtube.com/watch?v=xjsqv8nj0cw)
+- "Unity Sentis and Meta Quest Camera Access", Valem Tutorials (https://www.youtube.com/watch?v=V14cYfLa8Rc)
+
+**Repositories read as reference**
+- Unity-Technologies/arfoundation-samples, branch 6.3: placing on planes, reading the camera picture
+  (https://github.com/Unity-Technologies/arfoundation-samples/tree/6.3).
+- Unity's YOLO page and `RunYOLO.cs`, showing a YOLO model in the Inference Engine
+  (https://huggingface.co/unity/inference-engine-yolo). Not used in the app.
+- Megvii-BaseDetection/YOLOX (https://github.com/Megvii-BaseDetection/YOLOX): source of the class list text.
+- MultimediaTechLab/YOLO (https://github.com/MultimediaTechLab/YOLO) and LibreYOLO
+  (https://huggingface.co/LibreYOLO/LibreYOLO9t): source of the model.
+- Peterande/D-FINE and ShihuaHuang95/DEIM: two larger detectors tried and not used.
+- github/gitignore: the Unity ignore file (https://github.com/github/gitignore, CC0).
+
+**Papers and design guides**
+- Davari, Bowman. Towards Context-Aware Adaptation in XR: A Design Space for XR Interfaces and an Adaptive
+  Placement Strategy. arXiv 2411.02607.
+- Davari, Stover, Giovannelli, Ilo, Bowman. Towards Intelligent AR (iAR). arXiv 2411.02684.
+- Davari, Lu, Bowman. Validating the Benefits of Glanceable and Context-Aware Augmented Reality for Everyday
+  Information Access Tasks. IEEE VR 2022.
+- Davari, Ajikumar, Moghaddam. Context-Aware Augmented Reality for Human-Robot Collaboration. ISMAR-Adjunct
+  2025.
+- Davari, Lu, Bowman. Occlusion Management Techniques for Everyday Glanceable AR Interfaces. IEEE VRW 2020.
+- Davari-Najafabadi. Intelligent Augmented Reality (iAR). PhD dissertation, Virginia Tech, 2024.
+- Bell, Feiner, Höllerer. View Management for Virtual and Augmented Reality. UIST 2001.
+- Azuma, Furmanski. Evaluating Label Placement for Augmented Reality View Management. ISMAR 2003.
+- Madsen et al. Temporal Coherence Strategies for Augmented Reality Labeling. TVCG 2016 (abstract).
+- Gabbard, Swan, Hix. Text legibility in outdoor AR. Presence 2006 (abstract).
+- Apple Human Interface Guidelines (augmented reality), Google ARCore design guidelines, Microsoft Mixed
+  Reality design guidance, Meta mixed reality design guidelines.
+
+**Pretrained model.** YOLOv9-T trained on COCO, from MultimediaTechLab/YOLO (release v1.0-alpha), as the ONNX
+file published by LibreYOLO, MIT licence. Details in `THIRD-PARTY-NOTICES.md`.
+
+**What was reused, and what was made in this project**
+- Reused as they are: Unity's template settings files; TextMesh Pro's essential resources (font, shaders,
+  settings); the Poly Haven models and textures; the YOLOv9-T file; the COCO class list text. The `.gitignore` is taken from
+  GitHub's `Unity.gitignore`. Unity's packages are not in the repository.
+- Modified: the two Sketchfab models (converted to FBX, joined, scaled to real size, fewer faces) and the
+  plant's leaf texture (its alpha joined into one file). Details in `THIRD-PARTY-NOTICES.md`.
+- Designed and implemented in this project: all code in `Assets/Scripts` and the tests in `Assets/Tests`
+  (the 2D-to-3D placement, the label rules, the cube controls, the four detection sources and the model
+  runner); the scene, prefabs and settings asset; the test room (layout, furniture built from Unity shapes,
+  materials, placement of the props); the simulator controls file; the display names; the monitor's screen
+  picture.
+- Integrated: AR Foundation 6.3.5 with XR Simulation, and the Inference Engine 2.6.1 running YOLOv9-T on the AR
+  camera picture.
 
 ## Licence
 
