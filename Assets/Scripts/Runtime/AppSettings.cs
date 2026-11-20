@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ArObjectLabels
 {
-    /// <summary>The app's tunable numbers, in one file.</summary>
+    /// <summary>The tunable numbers of the labels, the detection and the model, in one file.</summary>
     [CreateAssetMenu(menuName = "AR Object Labels/App Settings", fileName = "AppSettings")]
     public class AppSettings : ScriptableObject
     {

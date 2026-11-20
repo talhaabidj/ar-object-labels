@@ -155,8 +155,8 @@ namespace ArObjectLabels
         // Each step starts one layer of the model. When none is left, the result is asked for.
         void StartMoreLayers()
         {
-            int share = settings.model.layersPerFrame > 0 ? settings.model.layersPerFrame : int.MaxValue;
-            for (int i = 0; i < share; i++)
+            int layersThisFrame = settings.model.layersPerFrame > 0 ? settings.model.layersPerFrame : int.MaxValue;
+            for (int i = 0; i < layersThisFrame; i++)
             {
                 if (!layers.MoveNext())
                 {

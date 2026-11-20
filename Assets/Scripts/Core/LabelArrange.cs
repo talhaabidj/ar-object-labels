@@ -33,8 +33,8 @@ namespace ArObjectLabels.Core
             bool objectFound = false, float maxLeader = float.PositiveInfinity)
         {
             bool objectInPicture = Touches(ownObject, picture, 0f) && (objectFound || picture.Contains(ownObject.center));
-            // Seen in Play on 19 Nov: moved aside without being kept inside, such a label could end up wholly off
-            // the picture. It stays at its room point instead.
+            // The label of an object that is out of the picture, or not found and mostly out of it, is a kept label:
+            // it stays at its room point and is not moved aside.
             if (!objectInPicture)
             {
                 return Vector2.zero;

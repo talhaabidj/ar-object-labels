@@ -89,7 +89,7 @@ namespace ArObjectLabels
             }
         }
 
-        /// <summary>Acts on one press at a screen point. Public so a test can call it without a mouse.</summary>
+        /// <summary>Acts on one press at a screen point.</summary>
         public PressOutcome HandlePress(Vector2 screenPoint, bool pointerOverUi)
         {
             bool onCube = CubeExists && Cube.IsUnder(viewCamera.ScreenPointToRay(screenPoint), maxPressDistance);
@@ -129,7 +129,7 @@ namespace ArObjectLabels
             return outcome;
         }
 
-        /// <summary>Moves the selected cube while the press is held. Public so a test can call it without a mouse.</summary>
+        /// <summary>Moves the selected cube while the press is held.</summary>
         public void HandleDrag(Vector2 screenPoint)
         {
             if (!dragging || !CubeExists)
@@ -143,7 +143,6 @@ namespace ArObjectLabels
 
         /// <summary>
         /// Ends a press that began on the cube. If the pointer hardly moved, it was a click and the cube is picked up.
-        /// Public so a test can call it without a mouse.
         /// </summary>
         public void HandleRelease()
         {

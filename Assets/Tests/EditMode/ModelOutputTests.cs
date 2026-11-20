@@ -57,7 +57,7 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void WithTheSettingsAsTheyCome_LabelsStartAtAScoreOf040()
+        public void BoxAtExactlyTheScoreGiven_IsKept_AndOneJustBelowItIsNot()
         {
             var found = new List<Detection>();
 
