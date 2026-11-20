@@ -7,64 +7,71 @@ namespace ArObjectLabels.Core
     public static class LabelChoice
     {
         /// <summary>
-        /// The labels to show, at most <paramref name="max"/> of them: the object that is biggest in the picture
-        /// first, and among those about equally big, the higher score first. Returns their places in the
-        /// lists, in that order.
+        /// Fills <paramref name="into"/> with the labels to show, at most <paramref name="max"/> of them: the object
+        /// that is biggest in the picture first, and among those about equally big, the higher score first. Two
+        /// labels the rule cannot tell apart keep the order they came in, so the choice is the same every frame.
         /// </summary>
-        public static List<int> Pick(IReadOnlyList<float> sizes, IReadOnlyList<float> scores, int max, float sameSizeShare)
+        public static void Pick(IReadOnlyList<float> sizes, IReadOnlyList<float> scores, int max, float sameSizeShare,
+            List<int> into)
         {
-            var order = new List<int>();
+            into.Clear();
             for (int i = 0; i < sizes.Count; i++)
             {
-                order.Add(i);
+                int at = into.Count;
+                while (at > 0 && Compare(sizes[i], scores[i], sizes[into[at - 1]], scores[into[at - 1]], sameSizeShare) < 0)
+                {
+                    at--;
+                }
+                into.Insert(at, i);
             }
-            order.Sort((a, b) =>
-            {
-                int byRule = Compare(sizes[a], scores[a], sizes[b], scores[b], sameSizeShare);
-                // Two labels the rule cannot tell apart keep the order they came in, so the choice is the same every frame.
-                return byRule != 0 ? byRule : a.CompareTo(b);
-            });
-            if (order.Count > max)
-            {
-                order.RemoveRange(Mathf.Max(max, 0), order.Count - Mathf.Max(max, 0));
-            }
-            return order;
+            KeepFirst(into, max);
         }
 
         /// <summary>
         /// The choice while the camera moves: every label that was shown stays, in the order it was laid out
         /// in (<paramref name="ranks"/>), and only places left free up to <paramref name="max"/> go to new
-        /// labels, chosen as in <see cref="Pick"/>.
+        /// labels, chosen as in <see cref="Pick"/>. <paramref name="scratch"/> is a list to work in.
         /// </summary>
-        public static List<int> Keep(IReadOnlyList<float> sizes, IReadOnlyList<float> scores, IReadOnlyList<bool> wasShown,
-            IReadOnlyList<int> ranks, int max, float sameSizeShare)
+        public static void Keep(IReadOnlyList<float> sizes, IReadOnlyList<float> scores, IReadOnlyList<bool> wasShown,
+            IReadOnlyList<int> ranks, int max, float sameSizeShare, List<int> into, List<int> scratch)
         {
-            var kept = new List<int>();
+            into.Clear();
             for (int i = 0; i < sizes.Count; i++)
             {
-                if (wasShown[i])
+                if (!wasShown[i])
                 {
-                    kept.Add(i);
+                    continue;
                 }
+                int at = into.Count;
+                while (at > 0 && ranks[into[at - 1]] > ranks[i])
+                {
+                    at--;
+                }
+                into.Insert(at, i);
             }
-            kept.Sort((a, b) => ranks[a] != ranks[b] ? ranks[a].CompareTo(ranks[b]) : a.CompareTo(b));
-            if (kept.Count > max)
-            {
-                kept.RemoveRange(Mathf.Max(max, 0), kept.Count - Mathf.Max(max, 0));
-            }
+            KeepFirst(into, max);
 
-            foreach (int i in Pick(sizes, scores, sizes.Count, sameSizeShare))
+            Pick(sizes, scores, sizes.Count, sameSizeShare, scratch);
+            foreach (int i in scratch)
             {
-                if (kept.Count >= max)
+                if (into.Count >= max)
                 {
                     break;
                 }
                 if (!wasShown[i])
                 {
-                    kept.Add(i);
+                    into.Add(i);
                 }
             }
-            return kept;
+        }
+
+        static void KeepFirst(List<int> order, int max)
+        {
+            int keep = Mathf.Max(max, 0);
+            if (order.Count > keep)
+            {
+                order.RemoveRange(keep, order.Count - keep);
+            }
         }
 
         static int Compare(float sizeA, float scoreA, float sizeB, float scoreB, float sameSizeShare)

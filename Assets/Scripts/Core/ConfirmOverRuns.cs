@@ -19,6 +19,7 @@ namespace ArObjectLabels.Core
         readonly List<int> runs = new List<int>();
         readonly List<bool> hadClearRun = new List<bool>();
         readonly List<int> continues = new List<int>();
+        readonly TrackMatch matcher = new TrackMatch();
 
         /// <summary>Forgets everything seen so far.</summary>
         public void Forget()
@@ -41,7 +42,7 @@ namespace ArObjectLabels.Core
         public void TakeRun(IReadOnlyList<string> names, IReadOnlyList<float> scores, IReadOnlyList<Vector3> places,
             ModelSettings rules, float sameObjectDistance, List<bool> mayShow, IReadOnlyList<bool> clearOfEdge = null)
         {
-            TrackMatch.Match(earlierNames, earlierPlaces, names, places, sameObjectDistance, continues);
+            matcher.Match(earlierNames, earlierPlaces, names, places, sameObjectDistance, continues);
             mayShow.Clear();
             runs.Clear();
             hadClearRun.Clear();

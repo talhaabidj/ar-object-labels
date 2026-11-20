@@ -29,6 +29,9 @@ namespace ArObjectLabels
         readonly List<bool> wasShown = new List<bool>();
         readonly List<int> ranks = new List<int>();
         readonly List<Rect> panels = new List<Rect>();
+        readonly List<Rect> objectRects = new List<Rect>();
+        readonly List<int> chosen = new List<int>();
+        readonly List<int> choiceScratch = new List<int>();
         readonly Vector3[] corners = new Vector3[4];
         readonly CameraStill cameraStill = new CameraStill();
 
@@ -110,6 +113,7 @@ namespace ArObjectLabels
             scores.Clear();
             wasShown.Clear();
             ranks.Clear();
+            objectRects.Clear();
             foreach (WorldLabel label in labels)
             {
                 label.UpdatePose(cameraPosition, cameraRotation);
@@ -133,6 +137,7 @@ namespace ArObjectLabels
                     continue;
                 }
                 inView.Add(label);
+                objectRects.Add(inPicture);
                 sizes.Add(LabelSteady.SizeForChoice(inPicture.width * inPicture.height, label.Memory.WasShown, rules.stayBonus));
                 scores.Add(label.Score);
                 wasShown.Add(label.Memory.WasShown);
@@ -142,9 +147,14 @@ namespace ArObjectLabels
             // 2. At most a set number is shown: the biggest object in the picture first, then the higher score.
             //    A label that was shown counts as bigger, so the choice does not flip between two alike. While
             //    the camera moves, the shown labels stay in their order and new ones only fill free places.
-            List<int> chosen = cameraSettled
-                ? LabelChoice.Pick(sizes, scores, rules.maxLabels, rules.sameSizeShare)
-                : LabelChoice.Keep(sizes, scores, wasShown, ranks, rules.maxLabels, rules.sameSizeShare);
+            if (cameraSettled)
+            {
+                LabelChoice.Pick(sizes, scores, rules.maxLabels, rules.sameSizeShare, chosen);
+            }
+            else
+            {
+                LabelChoice.Keep(sizes, scores, wasShown, ranks, rules.maxLabels, rules.sameSizeShare, chosen, choiceScratch);
+            }
             for (int i = 0; i < inView.Count; i++)
             {
                 int rank = chosen.IndexOf(i);
@@ -173,15 +183,15 @@ namespace ArObjectLabels
                     continue;
                 }
                 Rect own = LabelInPicture(label, cameraPosition, toPicture);
-                Rect ownObject = BoxInPicture.Around(label.ObjectBounds, label.ObjectTurn, cameraPosition, cameraRotation);
+                Rect ownObject = objectRects[index];
                 otherObjects.Clear();
-                foreach (WorldLabel other in inView)
+                for (int other = 0; other < inView.Count; other++)
                 {
-                    if (other == label)
+                    if (other == index)
                     {
                         continue;
                     }
-                    Rect otherObject = BoxInPicture.Around(other.ObjectBounds, other.ObjectTurn, cameraPosition, cameraRotation);
+                    Rect otherObject = objectRects[other];
                     if (!LabelArrange.HoldsTheObject(otherObject, ownObject))
                     {
                         otherObjects.Add(otherObject);

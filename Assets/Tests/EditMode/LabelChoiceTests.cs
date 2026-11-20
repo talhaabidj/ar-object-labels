@@ -7,6 +7,20 @@ namespace ArObjectLabels.Tests
     [Timeout(5000)]
     public class LabelChoiceTests
     {
+        static List<int> Pick(List<float> sizes, List<float> scores, int max, float share)
+        {
+            var into = new List<int>();
+            LabelChoice.Pick(sizes, scores, max, share, into);
+            return into;
+        }
+
+        static List<int> Keep(List<float> sizes, List<float> scores, List<bool> wasShown, List<int> ranks, int max, float share)
+        {
+            var into = new List<int>();
+            LabelChoice.Keep(sizes, scores, wasShown, ranks, max, share, into, new List<int>());
+            return into;
+        }
+
         // Sizes on one step differ by less than a quarter.
         const float Share = 0.25f;
 
@@ -16,7 +30,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.002f, 0.050f, 0.010f };
             var scores = new List<float> { 0.9f, 0.9f, 0.9f };
 
-            CollectionAssert.AreEqual(new[] { 1, 2, 0 }, LabelChoice.Pick(sizes, scores, 6, Share));
+            CollectionAssert.AreEqual(new[] { 1, 2, 0 }, Pick(sizes, scores, 6, Share));
         }
 
         [Test]
@@ -25,7 +39,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.001f, 0.080f, 0.004f, 0.030f };
             var scores = new List<float> { 0.99f, 0.5f, 0.5f, 0.5f };
 
-            CollectionAssert.AreEqual(new[] { 1, 3 }, LabelChoice.Pick(sizes, scores, 2, Share));
+            CollectionAssert.AreEqual(new[] { 1, 3 }, Pick(sizes, scores, 2, Share));
         }
 
         [Test]
@@ -35,7 +49,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.0108f, 0.0100f, 0.0104f };
             var scores = new List<float> { 0.55f, 0.90f, 0.70f };
 
-            CollectionAssert.AreEqual(new[] { 1, 2 }, LabelChoice.Pick(sizes, scores, 2, Share));
+            CollectionAssert.AreEqual(new[] { 1, 2 }, Pick(sizes, scores, 2, Share));
         }
 
         [Test]
@@ -44,7 +58,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.010f, 0.020f };
             var scores = new List<float> { 0.95f, 0.40f };
 
-            CollectionAssert.AreEqual(new[] { 1 }, LabelChoice.Pick(sizes, scores, 1, Share));
+            CollectionAssert.AreEqual(new[] { 1 }, Pick(sizes, scores, 1, Share));
         }
 
         [Test]
@@ -53,7 +67,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.0100f, 0.0108f };
             var scores = new List<float> { 0.8f, 0.8f };
 
-            CollectionAssert.AreEqual(new[] { 1 }, LabelChoice.Pick(sizes, scores, 1, Share));
+            CollectionAssert.AreEqual(new[] { 1 }, Pick(sizes, scores, 1, Share));
         }
 
         [Test]
@@ -62,7 +76,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.01f, 0.01f, 0.01f };
             var scores = new List<float> { 1f, 1f, 1f };
 
-            CollectionAssert.AreEqual(new[] { 0, 1 }, LabelChoice.Pick(sizes, scores, 2, Share));
+            CollectionAssert.AreEqual(new[] { 0, 1 }, Pick(sizes, scores, 2, Share));
         }
 
         [Test]
@@ -71,7 +85,7 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0f, 0.0001f };
             var scores = new List<float> { 1f, 0.3f };
 
-            CollectionAssert.AreEqual(new[] { 1, 0 }, LabelChoice.Pick(sizes, scores, 6, Share));
+            CollectionAssert.AreEqual(new[] { 1, 0 }, Pick(sizes, scores, 6, Share));
         }
 
         [Test]
@@ -80,13 +94,13 @@ namespace ArObjectLabels.Tests
             var sizes = new List<float> { 0.01f, 0.02f };
             var scores = new List<float> { 0.9f, 0.9f };
 
-            CollectionAssert.IsEmpty(LabelChoice.Pick(sizes, scores, 0, Share));
+            CollectionAssert.IsEmpty(Pick(sizes, scores, 0, Share));
         }
 
         [Test]
         public void NoLabels_NothingShown()
         {
-            CollectionAssert.IsEmpty(LabelChoice.Pick(new List<float>(), new List<float>(), 6, Share));
+            CollectionAssert.IsEmpty(Pick(new List<float>(), new List<float>(), 6, Share));
         }
 
         [Test]
@@ -97,7 +111,7 @@ namespace ArObjectLabels.Tests
             var wasShown = new List<bool> { true, false, true };
             var ranks = new List<int> { 1, 0, 0 };
 
-            CollectionAssert.AreEqual(new[] { 2, 0 }, LabelChoice.Keep(sizes, scores, wasShown, ranks, 2, Share));
+            CollectionAssert.AreEqual(new[] { 2, 0 }, Keep(sizes, scores, wasShown, ranks, 2, Share));
         }
 
         [Test]
@@ -108,7 +122,18 @@ namespace ArObjectLabels.Tests
             var wasShown = new List<bool> { true, false, false, false };
             var ranks = new List<int> { 0, 0, 0, 0 };
 
-            CollectionAssert.AreEqual(new[] { 0, 1, 3 }, LabelChoice.Keep(sizes, scores, wasShown, ranks, 3, Share));
+            CollectionAssert.AreEqual(new[] { 0, 1, 3 }, Keep(sizes, scores, wasShown, ranks, 3, Share));
+        }
+
+        [Test]
+        public void WhileMoving_MoreShownLabelsThanPlaces_KeepsTheFirstInTheirOrder()
+        {
+            var sizes = new List<float> { 0.010f, 0.020f, 0.030f };
+            var scores = new List<float> { 0.9f, 0.9f, 0.9f };
+            var wasShown = new List<bool> { true, true, true };
+            var ranks = new List<int> { 2, 0, 1 };
+
+            CollectionAssert.AreEqual(new[] { 1, 2 }, Keep(sizes, scores, wasShown, ranks, 2, Share));
         }
     }
 }

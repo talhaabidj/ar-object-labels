@@ -15,7 +15,7 @@ namespace ArObjectLabels.Tests
         static List<int> Match(List<string> names, List<Vector3> places)
         {
             var into = new List<int>();
-            TrackMatch.Match(earlierNames, earlierPlaces, names, places, SameObject, into);
+            new TrackMatch().Match(earlierNames, earlierPlaces, names, places, SameObject, into);
             return into;
         }
 

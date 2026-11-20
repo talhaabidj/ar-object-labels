@@ -41,6 +41,7 @@ namespace ArObjectLabels.Core
         readonly List<Vector3> keptPlaces = new List<Vector3>();
         readonly List<Vector3> places = new List<Vector3>();
         readonly List<int> continues = new List<int>();
+        readonly TrackMatch matcher = new TrackMatch();
         readonly HashSet<KeptObject> foundNow = new HashSet<KeptObject>();
         readonly HashSet<int> taken = new HashSet<int>();
 
@@ -75,7 +76,7 @@ namespace ArObjectLabels.Core
             {
                 places.Add(box.center);
             }
-            TrackMatch.Match(keptNames, keptPlaces, names, places, sameObjectDistance, continues);
+            matcher.Match(keptNames, keptPlaces, names, places, sameObjectDistance, continues);
             MatchMovedObjects(names, boxes, turns, seenInsideBox);
 
             foundNow.Clear();
