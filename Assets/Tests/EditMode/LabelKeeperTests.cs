@@ -313,5 +313,18 @@ namespace ArObjectLabels.Tests
 
             CollectionAssert.IsEmpty(keeper.Kept);
         }
+
+        [Test]
+        public void TurnedBoxes_AreComparedWithTheirTurn()
+        {
+            // Two long thin boxes: one along x, the other along x but turned a quarter round, so it lies along z
+            // and crosses the first.
+            var alongX = new Bounds(Vector3.zero, new Vector3(2f, 0.2f, 0.2f));
+            var other = new Bounds(new Vector3(0f, 0f, 0.8f), new Vector3(2f, 0.2f, 0.2f));
+            Quaternion quarter = Quaternion.Euler(0f, 90f, 0f);
+
+            Assert.IsTrue(LabelKeeper.TurnedBoxesOverlap(alongX, Quaternion.identity, other, quarter), "turned: they cross");
+            Assert.IsFalse(LabelKeeper.TurnedBoxesOverlap(alongX, Quaternion.identity, other, Quaternion.identity), "not turned: apart");
+        }
     }
 }

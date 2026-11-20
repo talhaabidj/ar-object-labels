@@ -35,11 +35,13 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void TheSettingsAsTheyCome_AreThreeRuns_040ToAppear_030ToStay()
+        public void TheSettingsFile_SaysThreeRuns_040ToAppear_030ToStay()
         {
-            Assert.AreEqual(3, rules.runsToAppear);
-            Assert.AreEqual(0.40f, rules.minScore);
-            Assert.AreEqual(0.30f, rules.stayScore);
+            ModelSettings file = SettingsFile.Load().model;
+
+            Assert.AreEqual(3, file.runsToAppear);
+            Assert.AreEqual(0.40f, file.minScore);
+            Assert.AreEqual(0.30f, file.stayScore);
         }
 
         [Test]

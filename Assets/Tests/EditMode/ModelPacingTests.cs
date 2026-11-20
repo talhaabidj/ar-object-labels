@@ -52,10 +52,12 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void WithTheSettingsAsTheyCome_TenRunsASecond_FortyLayersAFrame()
+        public void TheSettingsFile_SaysTenRunsASecond_FortyLayersAFrame()
         {
-            Assert.AreEqual(10f, new ModelSettings().runsPerSecond);
-            Assert.AreEqual(40, new ModelSettings().layersPerFrame);
+            ModelSettings file = SettingsFile.Load().model;
+
+            Assert.AreEqual(10f, file.runsPerSecond);
+            Assert.AreEqual(40, file.layersPerFrame);
         }
     }
 }

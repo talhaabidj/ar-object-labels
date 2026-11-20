@@ -28,9 +28,9 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void DefaultTable_HoldsTheClassesThatAreNotRound_AndThePlant()
+        public void SettingsFileTable_HoldsTheClassesThatAreNotRound_AndThePlant()
         {
-            List<ClassDepth> usual = new DetectionSettings().usualDepths;
+            List<ClassDepth> usual = SettingsFile.Load().detection.usualDepths;
 
             foreach (string className in new[] { "laptop", "keyboard", "mouse", "tv", "chair", "clock", "potted plant" })
             {
@@ -40,9 +40,9 @@ namespace ArObjectLabels.Tests
         }
 
         [Test]
-        public void DefaultTable_LeavesRoundClassesToTheirBoxWidth()
+        public void SettingsFileTable_LeavesRoundClassesToTheirBoxWidth()
         {
-            List<ClassDepth> usual = new DetectionSettings().usualDepths;
+            List<ClassDepth> usual = SettingsFile.Load().detection.usualDepths;
 
             foreach (string className in new[] { "vase", "cup", "bottle", "pen" })
             {
