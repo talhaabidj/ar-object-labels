@@ -131,7 +131,7 @@ wrongly for names such as scissors or skis, and less text in the room is easier 
 
 All numbers are from the Unity Editor on an Apple M1 Pro. An Editor number is not a device number.
 
-**Edit mode tests:** 394 tests, all pass, also on a fresh clone opened in batch mode. They sit in
+**Edit mode tests:** 382 tests, all pass, also on a fresh clone opened in batch mode. They sit in
 `Assets/Tests/EditMode` and cover the rules in `Assets/Scripts/Core` (placing, the cube's press and drag
 rules, hints, label layout, label keeping, the model's output) and a few parts in `Assets/Scripts/Runtime`
 (the source switch, the fixed box, the model's input picture, the surface outlines).
@@ -176,7 +176,9 @@ Play, 25 s in model mode and 20 s off:
 | The same with detection off, per second | 3.8 MB | 3.9 MB |
 
 A scripted walk through the room afterwards showed labels in model mode while moving, the expected labels in
-all four settings, and no errors.
+all four settings, and no errors. After the last code changes (label lines measured to the object's real top,
+the camera picture's own lens), a second walk showed labels in 92 of 96 samples while moving, 24 of 26 moved
+labels with their line, 3.5 MB a second in model mode, and no errors in 11 returns to model mode.
 
 **Detector speed:** one YOLOv9-T run at 640 x 640 takes 26.8 ms on the graphics card and about 40 ms on the
 CPU. A run is spread over frames, 40 of the model's layers a frame. In the Editor at about 270 frames a
@@ -214,8 +216,8 @@ A manual check you can do in about 10 minutes is in `MANUAL-TEST.md`.
   orientation on a phone are not tested. No device build exists.
 - A model run is spread over frames, so its speed follows the frame rate: at 60 frames a second, 40 layers a
   frame would give about 4 runs a second, not 10.
-- The model's rays use the lens of the screen camera, which matches the camera picture in the Editor. On a
-  phone whose camera picture has another shape this is not checked.
+- The model's rays use the camera picture's own lens when AR Foundation gives it, and the screen camera's
+  otherwise. On a phone this is not tested.
 - The cube and labels use no AR anchors. After a session reset or a tracking change on a phone they would
   likely be left in the wrong place.
 
@@ -283,6 +285,8 @@ Unity 6000.3.28f1. The AR rig was added with AR Foundation's "XR Origin (Mobile 
 - "Unity 6 automated tests – Edit Mode and Play mode", Raz Men (https://www.youtube.com/watch?v=5G1pPvEf15k)
 - "Unity Profiler Walkthrough & Tutorial", Unity (https://www.youtube.com/watch?v=xjsqv8nj0cw)
 - "Unity Sentis and Meta Quest Camera Access", Valem Tutorials (https://www.youtube.com/watch?v=V14cYfLa8Rc)
+- "Screen/World Point in Unity | 2022", { j }code (https://www.youtube.com/watch?v=CRbd2A8u4Uo)
+- "Lerp smoothing is broken", Freya Holmér (https://www.youtube.com/watch?v=LSNQuFEDOyQ)
 
 **Repositories and samples read as reference**
 - Unity-Technologies/arfoundation-samples, branch 6.3: placing on planes, reading the camera picture
