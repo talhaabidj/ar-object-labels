@@ -5,7 +5,7 @@ does not, with what you saw.
 
 ## Start (1 min)
 - [ ] The Console shows no red errors. One information line about `InputActionReference(Unlock)` is expected.
-- [ ] The controls list is at the top left; the hint line is at the bottom.
+- [ ] The controls list is at the top left, and the hint line is at the bottom.
 - [ ] The Detection button reads "Detection: model".
 
 ## Moving and looking (1 min)
@@ -17,9 +17,9 @@ does not, with what you saw.
 ## The cube (3 min)
 - [ ] Click a found surface on the floor: a cube appears there, with a "Cube" label above it, and the hint
       changes.
-- [ ] While the cube is dragged, the surface outlines are drawn in full; after letting go they are faint again.
+- [ ] While the cube is dragged, the surface outlines are drawn in full. After letting go they are faint again.
 - [ ] Drag the cube: it slides along the surface under the mouse.
-- [ ] Click the cube: it is picked up. Move the view with the right mouse button; the cube follows the mouse.
+- [ ] Click the cube: it is picked up. Move the view with the right mouse button, and the cube follows the mouse.
 - [ ] Click the table or the floor: the cube is put down there.
 - [ ] Click a wall: the cube is not placed, and the hint asks for a flat surface.
 - [ ] Click a spot with no found surface yet (for example, before walking): the hint says no surface was found
@@ -30,7 +30,7 @@ does not, with what you saw.
 ## Labels (4 min)
 - [ ] Model: walk towards the work table. "Laptop" appears above the laptop within about a second, then
       "Chair", "Potted plant" and others as they come into view. At most six labels at once.
-- [ ] Walk around the table: each label stays above its object and keeps facing you; the text stays the
+- [ ] Walk around the table: each label stays above its object and keeps facing you, and the text stays the
       same size on screen as you walk closer and further.
 - [ ] Turn quickly away and back: labels of objects out of view come back at the same place, faded until
       found again.
