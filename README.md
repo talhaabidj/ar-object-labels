@@ -1,23 +1,50 @@
+<div align="center">
+
 # AR Object Labels
 
-A small Unity AR app that runs in the Editor with XR Simulation. You place a cube on a found surface and
-move it, and objects in a simulated lab room get a short name label ("Laptop", "Chair", "Pen") that stays
-at the object in the room as you walk and look around. The labels come from one of three detection sources,
-one of them a small pretrained detector run inside Unity.
+**First update on the Unity AR/XR intake project · Talha Abid · November 2026**
 
-Everything here runs in the Unity Editor on a laptop. No headset, phone or paid software is needed. It was
-built and tested on macOS (Apple M1 Pro) only; it has not been tried on Windows.
+</div>
 
-## Open and run
+<div align="center"><img src="docs/images/walk.gif" alt="A slow turn from the plant corner to the desks in model mode, with labels on the potted plant, vase, laptop, chair, screen and keyboard" width="560"></div>
 
-1. Install Unity **6000.3.28f1** with Unity Hub.
-2. In Unity Hub, choose **Add project from disk** and pick this folder.
-3. Open `Assets/Scenes/Main.unity`.
-4. Press Play. XR Simulation is already turned on for the desktop platform (Edit > Project Settings > XR
-   Plug-in Management), and the test room (`Assets/Environments/LabRoom.prefab`) is already chosen as the
-   simulation room.
+All three milestones run in the Unity Editor with XR Simulation, including the stretch goal: a small
+pretrained detector inside Unity's Inference Engine.
 
-The package versions are pinned in `Packages/manifest.json`. The main ones:
+| Milestone | Status | Where to see it |
+|---|---|---|
+| A. AR rig and XR Simulation | Done | `Assets/Scenes/Main.unity` and [How it works](#how-it-works) |
+| B. A cube on a found surface, moved, with a world-space label | Done | [Run it](#run-it) |
+| C. From a 2D box to a label in the room | Done: a hard-coded box, true boxes, then YOLOv9-T in the Inference Engine | [How it works](#how-it-works) and [Choosing the detector](#choosing-the-detector) |
+
+<div align="center">
+<a href="https://youtu.be/KTcQVAig_nw"><img src="docs/images/video-thumb.jpg" alt="A frame from the recording: model mode labels the laptop, keyboard, chair, potted plant and vase in the test room" width="720"></a>
+
+<sub>▶ <a href="https://youtu.be/KTcQVAig_nw">Watch the 2:25 walkthrough on YouTube</a>: Unity Hub to the tests.</sub>
+</div>
+
+---
+
+## Run it
+
+1. Install Unity **6000.3.28f1**, choose **Add project from disk** in Unity Hub and pick this folder.
+2. Open `Assets/Scenes/Main.unity` and press **Play**. XR Simulation and my test room are already chosen.
+3. Look around for a few seconds so the simulator finds surfaces, then click the floor or a table.
+
+| Action | How |
+|---|---|
+| Move · look | W A S D to move, Q and E for down and up, Shift for faster. Hold the right mouse button to look |
+| Place · move · remove the cube | click a found surface, drag it, or click to carry it and click to put it down, R key to remove the cube |
+| Change where labels come from | the **Detection** button: model, off, fixed box, true box |
+| Show or hide the controls | H key to show or hide the controls |
+
+<div align="center">
+<img src="docs/images/cube.jpg" alt="An orange cube on the wooden floor of the lab room with a dark label reading Cube above it, in model mode" width="720"><br>
+<sub>The cube on a found surface, with its own label.</sub>
+</div>
+
+<details>
+<summary>Package versions, tests and the one expected Console line</summary>
 
 | Package | Version |
 |---|---|
@@ -25,337 +52,301 @@ The package versions are pinned in `Packages/manifest.json`. The main ones:
 | XR Plug-in Management | 4.6.1 |
 | Inference Engine (`com.unity.ai.inference`) | 2.6.1 |
 | Input System | 1.20.1 |
-| Unity UI, with TextMesh Pro (`com.unity.ugui`) | 2.0.0 |
+| Unity UI with TextMesh Pro (`com.unity.ugui`) | 2.0.0 |
 | Universal Render Pipeline | 17.3.0 |
 | Test Framework | 1.6.0 |
 
-One information line in the Console at Play start is expected:
-`InputActionReference(Unlock) not provided. Navigation Actions will be active by default.`
+The versions are pinned in `Packages/manifest.json`, apart from XR Plug-in Management, which comes with
+AR Foundation and is pinned in `Packages/packages-lock.json`. Tests: Window › General › Test Runner › Edit Mode ›
+Run All. A ten-minute check by hand is in [MANUAL-TEST.md](MANUAL-TEST.md). This Console line at Play
+start is expected: `InputActionReference(Unlock) not provided. Navigation Actions will be active by default.`
 
-To run the tests: Window > General > Test Runner, choose Edit Mode, then Run All.
+</details>
 
-## Controls
+---
 
-| Action | How |
+## How it works
+
+<div align="center">
+
+```mermaid
+flowchart TD
+    picture["Camera picture and camera pose"] --> sources(["One of three sources"])
+    sources -->|"hard-coded box"| boxes["2D boxes with a name and a score"]
+    sources -->|"true boxes"| boxes
+    sources -->|"YOLOv9-T"| boxes
+    boxes --> ray["Ray through the box's bottom edge to a found surface"]
+    ray --> room["Box in the room, moved back to the object's middle"]
+    room --> label["World-space label: kept, faded, laid out"]
+```
+
+</div>
+
+1. **2D boxes** with the camera's pose come from one of three sources: a box I hard-coded, true boxes from
+   where the room's objects really are, or YOLOv9-T on AR Foundation's camera picture.
+2. **Into the room.** A ray from that pose through the middle of the box's bottom edge meets the surface the
+   object stands on. The point moves back by half the box's width, to the object's middle.
+3. **The label** sits above that box in the room, faces the camera and keeps one text size on screen. It
+   waits when its object is missed for a moment, then fades. At most six show, laid out off each other.
+
+<div align="center">
+<img src="docs/images/model-boxes.jpg" alt="The plant corner with orange 2D boxes: Laptop 0.83, Chair 0.93, Potted plant 0.79, Vase 0.86, and Clock 0.69 at the top edge" width="880"><br>
+<sub>The model's 2D boxes on the camera picture, with their scores.</sub>
+<br><br>
+<img src="docs/images/model-labels.jpg" alt="The same view in the app with dark labels Laptop, Potted plant and Vase above their objects" width="880"><br>
+<sub>The same view in the app. The chair's and the clock's boxes touch the picture's edge, so they start no label.</sub>
+</div>
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/true-boxes-desks.jpg" alt="Blue true boxes on the desk side: Screen, Chair, Keyboard, Mouse, Bottle, Laptop, Cup and three Pens"></td>
+<td width="50%"><img src="docs/images/true-boxes-plant.jpg" alt="Blue true boxes in the plant corner: Laptop, Chair, Cup, three Pens, Clock, a wide Potted plant box and Vase"></td>
+</tr>
+<tr>
+<td align="center"><sub>True boxes, made from where each marked object really is.</sub></td>
+<td align="center"><sub>True boxes in the plant corner. The plant's box is much wider than the model's.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/images/fixed-box.jpg" alt="The starting view with one pink box drawn around the laptop on the far table"></td>
+<td><img src="docs/images/fixed-label.jpg" alt="The starting view in the app with one label, Laptop, above the laptop"></td>
+</tr>
+<tr>
+<td align="center"><sub>The one hard-coded box, for the laptop in the starting view.</sub></td>
+<td align="center"><sub>Its label in the app.</sub></td>
+</tr>
+</table>
+
+<div align="center">
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/chart-placement-dark.svg">
+<img src="docs/images/chart-placement-light.svg" alt="Bar chart of mean placement error over 35 views: box centre 31.4 cm, bottom edge 21.6 cm, bottom edge moved back 11.7 cm (used)" width="880">
+</picture><br>
+<sub>Why the bottom edge: measured with true boxes, so the detector plays no part.</sub>
+</div>
+
+The rig is AR Foundation's own: **XR Origin** (plane and raycast managers) › Camera Offset › **Main Camera**
+(AR Camera Manager, AR Camera Background, Tracked Pose Driver), plus **AR Session**. Every rule and setting:
+[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md).
+
+---
+
+## My decisions and why
+
+| What I chose | Why |
 |---|---|
-| Move | W A S D; Q and E for down and up; hold Shift to go faster |
-| Look | hold the right mouse button and move the mouse |
-| Place the cube | click a found surface on the table or the floor |
-| Move the cube | drag it, or click it to pick it up, move the view, and click a surface to put it down |
-| Remove the cube | R, or the Reset button |
-| Change the detection source | click the Detection button |
-| Show or hide the controls | H |
+| Plain 3D template, AR Foundation added by hand | So I set every AR setting myself and can explain each one. |
+| My own room | Sample rooms may not go in a public repo, and detectors found almost nothing in their untextured pictures. |
+| Three sources, one path | True boxes measure the 2D-to-3D step without detector mistakes. |
+| Ray through the box's bottom edge, moved back | Over 35 views: 31.4 cm off for the box centre, 11.7 cm this way. |
+| Camera pose kept with each picture | A model result arrives frames later, after the camera moved. |
+| Light text on a dark plate, one size on screen | Text on a solid plate was read fastest in Gabbard et al. (2006). When text grew with distance, it ranged from 18 to 77 px. |
+| The name alone, "Laptop" | "I am a ..." breaks for scissors or skis, and less text reads easier. |
+| At most six labels, biggest first | Nearest-first gave all six to pens and chairs, none to the laptop. |
+| Labels hold still while the camera moves | Otherwise they swapped places every 0.2 s. |
+| A label after 3 runs at 0.40 | With one run, a test walk showed 3 wrong labels. With three runs it showed 1. |
+| Click to carry the cube, as well as drag | Dragging blocked looking around: both need a mouse button. |
 
-The simulator only finds surfaces while the camera moves, so walk and look around for a few seconds first.
-Found surfaces are drawn faint, and in full while the cube is moved or carried. A hint line at the bottom
-says what to do next. The cube has its own world-space label, "Cube", which follows it wherever it is moved.
+**Not done, by choice.** I did not train a model yet. I would like to fine-tune one later, because no model I found
+detects every everyday object. I left out the XR Interaction Toolkit because I wanted to write and explain the cube
+code myself. I did not use AR anchors, because tracking never drops in the simulator, so I could not see what they
+change.
 
-## The scene and the AR rig
+---
 
-`Assets/Scenes/Main.unity` holds the AR rig made with AR Foundation's menu items:
+## What I learned
 
-| Object | Components | What they do |
-|---|---|---|
-| XR Origin | XR Origin, AR Plane Manager, AR Raycast Manager | The centre of the tracked space; finds surfaces; casts rays against them |
-| XR Origin / Camera Offset / Main Camera | Camera, AR Camera Manager, AR Camera Background, Tracked Pose Driver | The tracked camera: the Tracked Pose Driver moves it with the device's pose, the AR Camera Manager gives the camera picture, the background draws it |
-| AR Session | AR Session, AR Input Manager | Runs the AR session |
+This was my first Unity project.
+- The simulator finds surfaces only while the camera moves. When I moved the camera too fast, it never found
+  the desk top.
+- Play stands still when Unity is not the front app, which stopped my test runs more than once.
+- A tiny rounding error froze the Editor in a loop. Since then, tests of looping rules have a time limit.
+- The camera picture came in mirrored, so every model box was on the wrong side until a saved test picture
+  showed it.
+- Measuring changed my mind. The viewing angle mattered less than I expected, and a chair rule that passed its
+  tests did nothing in Play.
+- A single Play run can give different numbers from the next. In one run the table top was found 6 mm higher,
+  and the cup's error went from 1.3 to 6.5 cm with no change to the code.
+- The model's speed depends on the frame rate: 10 runs a second here would be about 4 at 60 frames a second.
+- A result read back from the graphics card can be read only in the frame it arrives. Missing that gave an
+  error when I switched back to the model.
 
-The Main Camera is part of the rig, so it moves wherever the tracked device moves. In the Editor, XR
-Simulation plays the device: it moves the camera with the keys and mouse and finds the surfaces of the test
-room.
+Where I am stuck: in model mode the school chair's label lands at the table's edge.
 
-## The detection sources
+---
 
-There are three sources and an "off" setting. The Detection button goes through them in this order, and the
-app starts with the model:
+## What worked, what did not, and what I dropped
 
-| Setting | What it gives |
+| Worked | Did not, or not yet |
 |---|---|
-| model | A YOLOv9-T detector (COCO's 80 classes) runs on the camera picture inside Unity, up to 10 times a second. A label shows once an object is found in 3 runs in a row with a score of at least 0.40, and stays while the score is at least 0.30. |
-| off | No labels. |
-| fixed box (laptop only) | One 2D box typed by hand for the laptop in the starting view. This is the brief's first step, a hard-coded box. |
-| true box | Boxes made from the simulator's own knowledge of where each marked object is, drawn as 2D boxes of the picture. This stands in for a perfect detector and is the only source that labels the pens. |
+| Rig, XR Simulation and my own room | No pen in model mode: COCO has no pen class |
+| The cube: place, drag, carry, remove, with its own label | Short wrong names still flash up while the camera moves |
+| Labels stay at their objects while I walk, one text size | The model calls screens "Keyboard" |
+| One 2D-to-3D path for all three sources. With true boxes, after two later fixes, 7.1 cm from the object's middle on average (median 3.7, 18 Nov) | No label until a surface is found, and labels crowd at the pen cup |
+| The model runs about 10 times a second inside Unity without stalling the picture | |
 
-The button order follows the brief's steps (typed box, then a simulated detection, then the detector), with
-the app starting on the detector so the first view shows real detections.
+**Tried and dropped:** YOLOX-Tiny (my first model), two larger detectors, the box-centre ray, text that grows
+with distance, a label width limit, "I am a ...", nearest-first labels, a chair floor rule, and my first fix
+for the switching error, which broke the model until I repaired it.
 
-All three sources give the same thing to the rest of the app: 2D boxes in a camera picture, each with a class
-name, a score and the camera pose when the picture was taken. So the 2D-to-3D step and the labels are the same
-for all three.
+---
 
-## From a 2D box to a label in the room
+## Problems I hit
 
-1. A ray is cast from the camera pose of that picture through the middle of the box's lower edge
-   (`DetectionPlacer.cs`). The brief suggests the box centre, but the centre is about half the object's
-   height above the surface, so a ray through it lands behind the object: for a 25 cm bottle seen from 30°
-   above, about 22 cm behind (worked out, not measured). The lower edge aims at where the object stands.
-2. The ray meets the found surface the object stands on. If it meets a small upright surface first, such as
-   a table's edge, the table top just behind it is used (`SurfaceChoice.cs`).
-3. The ray meets the object's front foot, so the point is moved back, away from the camera, by half the box's
-   width (for a potted plant at most 0.30 m, as its leaves are much wider than its pot). A box cut by the
-   picture's bottom edge, or an object on a wall, is not moved back (`BoxPoint.cs`, `DetectionPlacer.cs`).
-4. The width and height come from the box size at that distance. A box has no depth, so for seven classes
-   (laptop, keyboard, mouse, tv shown as "Screen", chair, clock, potted plant) a usual depth from the
-   settings gives the room box its depth and corrects its height; for any other class the depth is the box
-   width (`ObjectDepth.cs`).
-5. The result is a box in the room. The label is a world-space object placed just above that box's top,
-   turned to face the camera, with text the same height on screen at every distance (`WorldLabel.cs`).
-6. Each label is kept at its room point (`LabelKeeper.cs`). A label whose object is not found now is drawn at
-   half strength after 0.3 s. If its object is in view but not found, the label waits 1 s and fades out over
-   0.3 s. A label not found anywhere for 10 s is dropped.
-7. Once a frame the labels are laid out together (`LabelLayout.cs`, `LabelArrange.cs`): at most 6 are shown,
-   biggest object first; a label that would sit on another label or object, under a panel, or off the
-   picture is moved to a free place nearby. A line joins a label to its object when the two are apart, and
-   is hidden when it would be longer than two label heights. While the camera moves, the labels keep their
-   places; they are laid out again once the camera has been still for 0.5 s.
+These are the problems that cost me the most time: 9 fixed, 4 partly fixed, 5 still open. The open
+ones are the chair label in model mode, the pen with the model, crowded pen labels, the pencils and the eraser,
+and the cube landing on the chair's seat.
 
-Labels are world-space objects, not a 2D overlay drawn on the screen: they stay at their object in the room
-as the view changes, and only the layout step moves them aside a little in the picture.
+<details>
+<summary>All 18, with what I did</summary>
 
-Labels show the name alone ("Pen", "Cup") rather than the brief's example "I am a pen": the longer form reads
-wrongly for names such as scissors or skis, and less text in the room is easier to read.
+| # | What happened | What I did | Now |
+|---|---|---|---|
+| 1 | At the start no surfaces showed, so nothing could be placed and no label could appear | Found that the simulator scans only while the camera moves. A hint now says to look around | Partly |
+| 2 | I could not look around while dragging the cube, and the keys moved the camera only with the right button held | Added click to pick up and carry, and my own key settings | Fixed |
+| 3 | The room looked wrong: the lights burned the walls white and the metal cup came out black | Turned the lights down and fixed the cup's reflection settings | Fixed |
+| 4 | A ray through the box centre put the laptop's label on the back wall, 30.8 cm off | Cast the ray through the box's bottom edge and moved the point back by half the box width: 11.7 cm off on average over 35 views | Fixed |
+| 5 | A box has no depth, so the keyboard's label sat on the monitor behind it | Gave seven classes a usual depth | Partly |
+| 6 | In model mode the school chair's label lands at the table's edge | Tried a rule to stand chairs on the floor. It did nothing in Play, so I reverted it | Open |
+| 7 | The camera picture came in mirrored, so every model box was on the wrong side | Turned off the flip setting I had taken from Unity's sample | Fixed |
+| 8 | The model cannot see a pen, the brief's own example: COCO has no pen class, and it missed the cup | Tried a bigger detector that found pens. It froze the picture at every run and its training data is for academic use only. Pens show in true box mode | Open |
+| 9 | The model gave wrong names: "Keyboard" on screens, and short flashes of "Remote", "Refrigerator" and "Couch" | A label now needs 3 runs in a row at a score of 0.40, and a box cut by the picture's edge starts no label | Partly |
+| 10 | The model's own names read badly, such as "tv" for the monitor | Wrote my own display names: "Screen", "Potted plant" | Fixed |
+| 11 | My first detector comparison was unfair: one score cut-off for every model, and different picture sizes | Redid it with every score kept and the same number of wrong labels for each model | Fixed |
+| 12 | Running the model hurt the app: a long frame at every run, an error after switching back or losing focus, and 30 MB of garbage a second | Spread each run over frames, read a result only while Unity still holds it, and reused one array | Fixed |
+| 13 | When labels moved to the best place every frame, they jumped and swapped places | First smoothed their moves (a short hold, a glide, a bonus for labels already shown), which cut jumps from 40 to 13. Then the layout held still while the camera moves and settles once it stops | Partly |
+| 14 | All six labels went to pens and chairs and none to the laptop | Labels go to the biggest objects in the picture first | Fixed |
+| 15 | Several pens get one label each and crowd over the cup | Not solved: merging them into one "Pens (3)" label is not built | Open |
+| 16 | The pencils and the eraser never get a label | The model has no class for them, and in true box mode I marked only the three pens and the cup | Open |
+| 17 | Old labels stayed in the air forever, labels hid under the panels, and text size changed with distance | Labels now fade and go after 10 s unseen, panels count as edges, and text keeps one size on screen | Fixed |
+| 18 | A click on the table behind the school chair puts the cube on the chair's seat | None yet | Open |
 
-## Technical notes
+</details>
 
-- **Picture source.** The model's picture comes from AR Foundation's camera (`AR Camera Manager`), not a
-  `WebCamTexture`. A WebCamTexture gives picture frames only; it does not know where the camera is or how it
-  is turned, so a label could not be tied to a place in the room.
-- **Camera.main.** `Camera.main` is used only as the tracked Unity camera inside the XR Origin, for its pose
-  and lens. It is not a source of camera pictures.
-- **World space, not 2D.** A label drawn over the video in 2D would have to be moved by hand every frame and
-  knows nothing of depth. Here every label is an object in the scene's coordinates.
-- **Simulation is not a device.** XR Simulation tests tracked movement, surfaces and scene behaviour. Real
-  camera access, the model's speed on a phone and device performance are not tested (see the limits).
+---
 
-## Test results
+## Choosing the detector
 
-All numbers are from the Unity Editor on an Apple M1 Pro. An Editor number is not a device number.
+I ran every model on the same 315 pictures of my room (45 views, also made dark, bright, blurred, far,
+half-covered and grainy, with 1,404 objects). I compared how many objects each found with no more than 25 wrong
+labels, so no model gains from a lucky score cut-off. Then I looked at speed in Unity, file size and licence.
 
-**Edit mode tests:** 382 tests, all pass, also on a fresh clone opened in batch mode. They sit in
-`Assets/Tests/EditMode` and cover the rules in `Assets/Scripts/Core` (placing, the cube's press and drag
-rules, hints, label layout, label keeping, the model's output) and a few parts in `Assets/Scripts/Runtime`
-(the source switch, the fixed box, the model's input picture, the surface outlines).
+| Model, picture size | Found | GPU ms | File | Verdict |
+|---|---:|---:|---:|---|
+| **YOLOv9-T 640** | **505** | **26.8** | **8 MB** | **Picked:** more finds than the two nearest in speed, under half their file, MIT |
+| YOLOX-S 640 | 577 | 32.3 | 36 MB | Most finds, but 4.5 times the file, twice the CPU time |
+| YOLOX-Tiny 640 | 483 | 24.1 | 20 MB | Slightly fewer finds, 2.5 times the file |
+| PicoDet-L 416 | 480 | ~26 | 23 MB | Slightly fewer finds, nearly 3 times the file |
+| YOLOv9-T / YOLOX-Tiny 416 | 366 / 358 | 18.4 / 14.6 | 8 / 20 MB | Faster, but the small picture lost a quarter of the finds |
+| YOLOX-Nano 416 | 329 | ~6 | 4 MB | Fastest, but fewest finds |
 
-**Play check, 20 Nov 2026.** One scripted set of views (stills, walks, pans and side steps in all four
-settings), Game view 993 x 543, taken before the last label fixes (922 pictures, commit `d54d90b`) and after
-them (925 pictures, commit `ed193c5`), and counted by the same script:
+Also not picked: **D-FINE-S** found pens and the cup but froze the picture 130 ms a run and gave 20 wrong labels
+in 18 pictures. **DEIM-D-FINE-N** was slow and found nothing new. **Ultralytics** models are AGPL, which would
+cover my whole repo. Details: [docs/MODEL-CHOICE.md](docs/MODEL-CHOICE.md).
 
-| Measure | before | after |
-|---|---|---|
-| Labels cut by the picture's edge | 82 | 43 |
-| Found objects' labels wholly off the picture | 4 | 0 |
-| Labels overlapping another label | 3 | 9 |
-| Label jumps over 40 px in motion sets | 172 | 142 |
-| Labels shown for objects not found at that moment | 272 | 203 |
-| Same name twice, one not found | 9 | 22 |
-| Labels at least a quarter under a panel | 3 | 2 |
+---
 
-"Labels shown for objects not found at that moment" are the kept labels drawn at half strength, shown on
-purpose so a label waits at its object when the detector misses it for a moment. The rise in "same name
-twice" was checked in the pictures: they are two real objects with one name (two chairs, several pens), one of
-them faded, not old labels. The rise in overlaps is listed under the limits.
+## Questions for you
 
-**Three screen sizes,** the same views (stills and pans in all four settings, panels not counted):
+1. Labels appear with a short delay, and when I let them adapt all the time they kept jumping. How should
+   label adaptation work: when should a label move, and when should it stay put?
+2. No detector I found covers every everyday object. How would you tackle that?
+3. When several objects of one kind sit close together, like the three pens on my table, should each get its
+   own label, or should they share one label such as "Pens (3)"?
 
-| Size | Pictures | Labels | Cut by the edge | Overlaps | Wholly off | Smallest letter height |
-|---|---|---|---|---|---|---|
-| 993 x 543 | 144 | 288 | 11 | 4 | 0 | 12.3 px |
-| 1280 x 720 | 144 | 270 | 11 | 2 | 0 | 16.4 px |
-| 800 x 1200 portrait | 143 | 172 | 16 | 4 | 0 | 27.3 px |
+---
 
-In portrait the panels and the hint fit and labels stay readable; fewer objects fit across, so more labels are
-cut at the side edges in pans.
+## My setup
 
-**After the model fixes (20 Nov 2026).** Two problems found in a later check were fixed and measured in
-Play, 25 s in model mode and 20 s off:
+A MacBook Pro with an M1 Pro chip, no headset, no separate graphics card. All tools I used are free. On my first
+day Unity could not reach its online package registry from my connection, so I installed AR Foundation and the
+inference package from the copies that ship with the Editor. It reaches the registry now (checked 21 Nov).
 
-| Measure | before | after |
-|---|---|---|
-| Errors in 11 returns to model mode with the Detection button | 2 | 0 |
-| Memory made and thrown away in model mode, per second | 29.8 MB | 3.5 MB |
-| The same with detection off, per second | 3.8 MB | 3.9 MB |
+---
 
-A scripted walk through the room afterwards showed labels in model mode while moving, the expected labels in
-all four settings, and no errors. After the last code changes (label lines measured to the object's real top,
-the camera picture's own lens), a second walk showed labels in 92 of 96 samples while moving, 24 of 26 moved
-labels with their line, 3.5 MB a second in model mode, and no errors in 11 returns to model mode.
-
-**Detector speed:** one YOLOv9-T run at 640 x 640 takes 26.8 ms on the graphics card and about 40 ms on the
-CPU. A run is spread over frames, 40 of the model's layers a frame. In the Editor at about 270 frames a
-second this reached 9.9 runs a second, against 354 frames a second with detection off.
-
-**Choosing the detector (18 Nov 2026).** Seven small detector set-ups on 315 pictures of the test room (45
-pictures, each also made dark, overexposed, blurred, small and far, half-covered and grainy), with 1,404
-visible objects the models can name. Times are one run in Unity's Inference Engine 2.6.1 on the same Mac.
-"Found, at most 25 false" is how many of the 1,404 objects a model finds when its score cut-off is set so it
-makes no more than 25 false labels.
-
-| Model and picture size | Unity GPU ms | Unity CPU ms | Found, at most 25 false | Found, at most 50 false | File |
-|---|---|---|---|---|---|
-| YOLOX-Nano 416 | about 6 | 12 | 329 | 348 | 4 MB |
-| YOLOX-Tiny 416 | 14.6 | 27 | 358 | 424 | 20 MB |
-| YOLOv9-T 416 | 18.4 | about 31 | 366 | 419 | 8 MB |
-| YOLOX-Tiny 640 | 24.1 | 55 | 483 | 543 | 20 MB |
-| PicoDet-L 416 | about 26 | 46 | 480 | 518 | 23 MB |
-| **YOLOv9-T 640 (chosen)** | **26.8** | **about 40** | **505** | **533** | **8 MB** |
-| YOLOX-S 640 | 32.3 | 90 | 577 | 624 | 36 MB |
-
-A first test was redone to be fair: every score is now kept and the models are compared at the same number of
-false labels, YOLOX-Tiny and YOLOv9-T are each run at both picture sizes, and every model is timed in Unity.
-Against the two models nearest it in speed, YOLOv9-T at 640 found the most objects at 25 false labels (505,
-against 483 and 480) and about as many at 50 (533, against 543 and 518), with a file less than half their size.
-Only YOLOX-S found more, and it is larger and slower. It is also MIT-licensed.
-
-A manual check you can do in about 10 minutes is in `MANUAL-TEST.md`.
-
-## Known limits
-
-**Device and simulation**
-- Everything runs in XR Simulation in the Editor. It does not replace tests on a phone: camera access, real
-  camera pictures, the model's speed on a phone, tracking loss, screen notches and the camera picture's
-  orientation on a phone are not tested. No device build exists.
-- A model run is spread over frames, so its speed follows the frame rate: at 60 frames a second, 40 layers a
-  frame would give about 4 runs a second, not 10.
-- The model's rays use the camera picture's own lens when AR Foundation gives it, and the screen camera's
-  otherwise. On a phone this is not tested.
-- The cube and labels use no AR anchors. After a session reset or a tracking change on a phone they would
-  likely be left in the wrong place.
-
-**Placing labels**
-- No label appears until a surface under its object has been found, so a camera that has not moved yet shows
-  few or no labels.
-- An object's depth is not measured. It comes from a usual depth per class or the box width, so a room box
-  can be too deep or too high.
-- In true box mode a "Chair" label can sit by the laptop, about 0.7 m from the camera, while the school chair
-  is about 1.1 m away. The cause is not found.
-- In true box mode, seen from straight above, the "Laptop" label can sit on the floor.
-- In model mode the school chair's label sits at the work table's edge, not on the chair.
-- When no near place is free, a label can sit away from its object with its line hidden. A found object's
-  label stays inside the picture.
-- "Keyboard" can overlap "Screen" at the desk, and labels crowd over the pen cup.
-- Several objects of one kind close together each get their own label ("Pen" three times); they are not
-  merged.
+## Limits
 
 **The model**
-- The model calls the laptop's and the monitor's screens "Keyboard".
-- It sometimes gives a wrong name for a moment while the camera moves; "Refrigerator" was seen once in a walk
-  through the room (the object was not identified).
-- It labels no cup and no pen in the test room: COCO has no pen class, and the model missed the cup except
-  from 0.5 m. True box mode shows the pen case.
+- It knows COCO's 80 classes only, so there is no pen, pencil or eraser. It missed the metal cup except from 0.5 m.
+- It calls the laptop's and the monitor's screens "Keyboard", and it gives short wrong names while the camera
+  moves ("Remote", "Refrigerator", "Couch", "Mouse" on the pencil cup).
+- It doesn't find the desk chair from straight behind. A box cut by the picture's edge often gets the wrong class
+  ("Bicycle" for a cut-off clock), so cut boxes start no label.
+- It was trained on photos and runs on a rendered room. In my first test, detectors found textured objects about
+  as often as in photos, but untextured ones much less.
 
-**The cube**
-- A click on the table behind the school chair puts the cube on the chair's seat. A click on the table where
-  no table surface has been found yet can put the cube on the floor under the table.
-- A double click places the cube and picks it up at once.
-- With a mouse, dragging outside the Game view can move the cube out of sight, and a click outside the Game
-  view still acts.
+**Labels over time**
+- A label appears after 3 runs, about 0.4 s. A wrong name can still slip through for a moment.
+- A label whose object is in view but lost waits 1 s, then fades. Out of view it stays up to 10 s.
+- Smoothing label moves cut jumps from 40 to 13 on my walks, but they're not gone. Since the layout also holds
+  while the camera moves, held labels can lag or be cut by the edge until the camera stops for 0.5 s.
+- At most six labels show. They can still overlap or crowd at the pen cup, and when no near place is free a label
+  sits away from its object with its line hidden.
 
-## Privacy
+**Placing and the simulator**
+- Only XR Simulation in the Editor on macOS: real camera pictures, phone speed and tracking loss are untested.
+- Depth is not measured: a usual depth for seven classes, otherwise the box width.
+- No AR anchors, so a session reset on a phone would leave labels in the wrong place.
+- In true box mode the pencils and the eraser have no box, because only the three pens and the cup are marked.
 
-The camera picture is used in memory for the detector and is never saved or sent. The app has no network
-code, and Unity's analytics, crash reporting, ads and performance reporting are off.
+**What I could not do yet**
+- Label a pen with the model. The only detector I found that saw pens (D-FINE-S) froze the picture at every run,
+  and its training data is for academic use only.
+- Fix the chair label in model mode: it lands at the table's edge.
+- Group several objects of one kind into one label: three pens lying close together get three separate "Pen"
+  labels, not one "Pens (3)" (question 3).
 
-## Attribution
+Every limit and every measured number: [docs/TEST-RESULTS.md](docs/TEST-RESULTS.md).
 
-**Start point.** Unity's Universal 3D project template (`com.unity.template.urp-blank` 17.0.14), bundled with
-Unity 6000.3.28f1. The AR rig was added with AR Foundation's "XR Origin (Mobile AR)" and "AR Session" items.
+---
 
-**Documentation followed**
-- Unity manual: XR Origin (the 6000.0 page,
-  https://docs.unity.com/en-us/engine/6000.0/manual/xr/configuring-project-for/scene-setup/origin), and for
-  6000.3 Create an XR project, World Space UI, Assemblies, ScriptableObject
-  (https://docs.unity3d.com/6000.3/Documentation/Manual/).
-- AR Foundation 6.3 manual, including XR Simulation
-  (https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@6.3/manual/).
-- Inference Engine (`com.unity.ai.inference`) 2.6 manual
-  (https://docs.unity3d.com/Packages/com.unity.ai.inference@2.6/manual/).
-- The Input System 1.20, Unity UI and TextMesh Pro, and Test Framework 1.6 manuals bundled with the Editor.
-- Unity blog, "Get started developing for Quest 3 with Unity", read for the overall workflow only
-  (https://unity.com/blog/engine-platform/get-started-developing-for-quest-3-with-unity).
+## Credits
 
-**Tutorial videos used for learning**
-- "Tap to Place Objects in Unity's AR Foundation", samyam (https://www.youtube.com/watch?v=lYDfV-GaKQA)
-- "Setup a Unity 6 AR foundation project in 3 minutes", Alive Studios (https://www.youtube.com/watch?v=hbBqu_LgAis)
-- "How to Configure XR Simulation in Unity for Augmented Reality (2024)", Joed (https://www.youtube.com/watch?v=NCIPFP_dTyc)
-- "Unity 6: Place Objects in AR with Plane Detection", Alive Studios (https://www.youtube.com/watch?v=e6WB3GVcF3E)
-- "Unity Input System in Unity 6 (1/7): Input Action Editor", Unity (https://www.youtube.com/watch?v=TiTKAseu17A)
-- "Place UI Elements in your World!", Code Monkey (https://www.youtube.com/watch?v=Zwgj3mwOVlg)
-- "Billboarding in Unity", Firnox (https://www.youtube.com/watch?v=eiGvVgwtJ8k)
-- "How to convert the mouse position to world space in Unity", Game Dev Beginner (https://www.youtube.com/watch?v=5NTmxDSKj-Q)
-- "Unity 6 automated tests – Edit Mode and Play mode", Raz Men (https://www.youtube.com/watch?v=5G1pPvEf15k)
-- "Unity Profiler Walkthrough & Tutorial", Unity (https://www.youtube.com/watch?v=xjsqv8nj0cw)
-- "Unity Sentis and Meta Quest Camera Access", Valem Tutorials (https://www.youtube.com/watch?v=V14cYfLa8Rc)
-- "Screen/World Point in Unity | 2022", { j }code (https://www.youtube.com/watch?v=CRbd2A8u4Uo)
-- "Lerp smoothing is broken", Freya Holmér (https://www.youtube.com/watch?v=LSNQuFEDOyQ)
+An AI assistant helped with the code and helped run the automated tests, checks and benchmarks.
 
-**Repositories and samples read as reference**
-- Unity-Technologies/arfoundation-samples, branch 6.3: placing on planes, reading the camera picture
-  (https://github.com/Unity-Technologies/arfoundation-samples/tree/6.3).
-- Unity's YOLO page and `RunYOLO.cs`, showing a YOLO model in the Inference Engine
-  (https://huggingface.co/unity/inference-engine-yolo). Not used in the app.
-- Meta's Multi Object Detection sample, in Unity-PassthroughCameraApiSamples
-  (https://github.com/oculus-samples/Unity-PassthroughCameraApiSamples; overview at
-  https://developers.meta.com/horizon/documentation/unity/unity-sample-camera-object-detection): the idea in
-  its `DetectionManager.cs` that a found object whose box holds a kept marker of its class is the same object.
-  Used as an idea in `LabelKeeper.cs`.
-- Megvii-BaseDetection/YOLOX (https://github.com/Megvii-BaseDetection/YOLOX): source of the class list text.
-- MultimediaTechLab/YOLO (https://github.com/MultimediaTechLab/YOLO) and LibreYOLO
-  (https://huggingface.co/LibreYOLO/LibreYOLO9t): source of the model.
-- D-FINE (https://github.com/Peterande/D-FINE) and DEIM (https://github.com/ShihuaHuang95/DEIM): two larger
-  detectors tried and not used.
-- github/gitignore: the Unity ignore file (https://github.com/github/gitignore, CC0).
+**Learning:** the [Unity Essentials pathway](https://learn.unity.com/pathway/unity-essentials) on Unity Learn (certification course in progress),
+and these tutorials:
 
-**Papers and design guides**
-- Davari, Bowman. Towards Context-Aware Adaptation in XR: A Design Space for XR Interfaces and an Adaptive
-  Placement Strategy. https://arxiv.org/abs/2411.02607
-- Davari, Stover, Giovannelli, Ilo, Bowman. Towards Intelligent AR (iAR). https://arxiv.org/abs/2411.02684
-- Davari, Lu, Bowman. Validating the Benefits of Glanceable and Context-Aware Augmented Reality for Everyday
-  Information Access Tasks. IEEE VR 2022. https://doi.org/10.1109/VR51125.2022.00063
-- Davari, Ajikumar, Moghaddam. Context-Aware Augmented Reality for Human-Robot Collaboration. ISMAR-Adjunct
-  2025. https://doi.org/10.1109/ISMAR-Adjunct68609.2025.00087
-- Davari, Lu, Bowman. Occlusion Management Techniques for Everyday Glanceable AR Interfaces. IEEE VRW 2020.
-  https://doi.org/10.1109/VRW50115.2020.00072
-- Davari-Najafabadi. Intelligent Augmented Reality (iAR). PhD dissertation, Virginia Tech, 2024.
-  https://hdl.handle.net/10919/121123
-- Bell, Feiner, Höllerer. View Management for Virtual and Augmented Reality. UIST 2001.
-  https://sites.cs.ucsb.edu/~holl/pubs/bell-2001-uist.pdf
-- Azuma, Furmanski. Evaluating Label Placement for Augmented Reality View Management. ISMAR 2003.
-  https://doi.org/10.1109/ISMAR.2003.1240689
-- Madsen et al. Temporal Coherence Strategies for Augmented Reality Labeling. TVCG 2016 (abstract).
-  https://doi.org/10.1109/TVCG.2016.2518318
-- Gabbard, Swan, Hix. Text legibility in outdoor AR. Presence 2006 (abstract). https://hdl.handle.net/10919/25504
-- Apple Human Interface Guidelines, augmented reality:
-  https://developer.apple.com/design/human-interface-guidelines/augmented-reality
-- Google ARCore design guidelines: https://developers.google.com/ar/design
-- Microsoft Mixed Reality design guidance: https://learn.microsoft.com/en-us/windows/mixed-reality/design/typography
-- Meta mixed reality design guidelines: https://developers.meta.com/horizon/design/mr-design-guideline/
+<details>
+<summary>13 tutorial videos</summary>
 
-**Pretrained model.** YOLOv9-T trained on COCO, from MultimediaTechLab/YOLO (release v1.0-alpha), as the ONNX
-file published by LibreYOLO, MIT licence. Details in `THIRD-PARTY-NOTICES.md`.
+- [Tap to Place Objects in Unity's AR Foundation](https://www.youtube.com/watch?v=lYDfV-GaKQA), samyam
+- [Setup a Unity 6 AR foundation project in 3 minutes](https://www.youtube.com/watch?v=hbBqu_LgAis), Alive Studios
+- [How to Configure XR Simulation in Unity for Augmented Reality (2024)](https://www.youtube.com/watch?v=NCIPFP_dTyc), Joed
+- [Unity 6: Place Objects in AR with Plane Detection](https://www.youtube.com/watch?v=e6WB3GVcF3E), Alive Studios
+- [Unity Input System in Unity 6 (1/7): Input Action Editor](https://www.youtube.com/watch?v=TiTKAseu17A), Unity
+- [Place UI Elements in your World!](https://www.youtube.com/watch?v=Zwgj3mwOVlg), Code Monkey
+- [Billboarding in Unity](https://www.youtube.com/watch?v=eiGvVgwtJ8k), Firnox
+- [How to convert the mouse position to world space in Unity](https://www.youtube.com/watch?v=5NTmxDSKj-Q), Game Dev Beginner
+- [Screen/World Point in Unity](https://www.youtube.com/watch?v=CRbd2A8u4Uo), { j }code
+- [Lerp smoothing is broken](https://www.youtube.com/watch?v=LSNQuFEDOyQ), Freya Holmér
+- [Unity 6 automated tests – Edit Mode and Play mode](https://www.youtube.com/watch?v=5G1pPvEf15k), Raz Men
+- [Unity Profiler Walkthrough & Tutorial](https://www.youtube.com/watch?v=xjsqv8nj0cw), Unity
+- [Unity Sentis and Meta Quest Camera Access](https://www.youtube.com/watch?v=V14cYfLa8Rc), Valem Tutorials
 
-**What was reused, and what was made in this project**
-- Reused unchanged: TextMesh Pro's font, shaders, style sheet and line-breaking lists; the Poly Haven models and
-  textures; the YOLOv9-T file; the COCO class list text. Unity's packages are not in the repository.
-- Reused and changed:
-  - Unity's template settings: AR Foundation's background renderer feature added to both renderers, and
-    Unity's own upgrades of the render pipeline settings.
-  - TextMesh Pro's settings: the default sprite asset set to none, after its unused emoji sheet was removed.
-  - The `.gitignore`, from GitHub's `Unity.gitignore`, with two lines added to keep out Unity's sample rooms.
-  - The monitor model: converted to FBX, its parts joined into one mesh, scaled to real size, a new screen
-    picture.
-  - The keyboard and mouse model: converted to FBX, split into two files, materials merged, scaled to real
-    size, fewer faces.
-  - The plant's leaf texture: its alpha joined into one file.
-- Designed and implemented in this project: all code in `Assets/Scripts` and the tests in `Assets/Tests`
-  (the 2D-to-3D placement, the label rules, the cube controls, the three detection sources and the model
-  runner); the scene, prefabs and settings asset; the test room (layout, furniture built from Unity shapes,
-  materials, placement of the props); the simulator controls file; the display names; the monitor's screen
-  picture.
-- Integrated: AR Foundation 6.3.5 with XR Simulation, and the Inference Engine 2.6.1 running YOLOv9-T on the AR
-  camera picture.
+</details>
+
+<details>
+<summary>Reused models and assets, with links and licences</summary>
+
+| What | From | Licence |
+|---|---|---|
+| YOLOv9-T model | [LibreYOLO](https://huggingface.co/LibreYOLO/LibreYOLO9t), weights from [MultimediaTechLab/YOLO](https://github.com/MultimediaTechLab/YOLO) | MIT |
+| Plant, vase, chairs, laptop, stationery, clock and bottle, plus floor and wall textures and room reflections | [Poly Haven](https://polyhaven.com) | CC0 |
+| Monitor, keyboard and mouse | [GregorJan](https://sketchfab.com/3d-models/monitor-dell-p2314h-c69f09bb812e46cdbd5bf6c62499b848), [gorzi](https://sketchfab.com/3d-models/mouse-and-keyboard-c63ee81b71ff45b68a778101b4df3d46) on Sketchfab | CC BY 4.0 |
+| Project template and TextMesh Pro files, and the Liberation Sans font | Unity | Unity Companion License, and SIL OFL 1.1 for the font |
+| The idea that a kept label inside a new box of its class is the same object | [Meta's object detection sample](https://github.com/oculus-samples/Unity-PassthroughCameraApiSamples) | idea only |
+
+</details>
+
+**Key reading.** Your [design space paper](https://arxiv.org/abs/2411.02607) helped me decide where a label's
+position, direction and size should come from. Your [glanceable AR paper](https://doi.org/10.1109/VR51125.2022.00063)
+uses the same chain I built, from the camera to a detector to a box. In your [iAR paper](https://arxiv.org/abs/2411.02684),
+my detector output is what you call a sensed input. Also Bell et al. on [view management](https://sites.cs.ucsb.edu/~holl/pubs/bell-2001-uist.pdf),
+Gabbard et al. on [text legibility](https://hdl.handle.net/10919/25504), and Madsen et al. on
+[temporal coherence](https://doi.org/10.1109/TVCG.2016.2518318) (abstract only). Everything else, and what I
+reused against what I made: [docs/SOURCES.md](docs/SOURCES.md).
 
 ## Licence
 
-The project's own code and files are under the MIT licence (`LICENSE`). The model, the font and the room's
-models and textures come from others under their own licences, listed with full texts in
-`THIRD-PARTY-NOTICES.md`.
+My code is MIT ([LICENSE](LICENSE)). Third-party files keep their own licences, with full texts in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
