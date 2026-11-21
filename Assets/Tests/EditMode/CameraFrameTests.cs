@@ -51,9 +51,13 @@ namespace ArObjectLabels.Tests
         public void AnyPoint_GivesTheSameRayAsUnitysOwnCamera(float x, float y)
         {
             var holder = new GameObject("test camera");
+            // Unity's camera works in the pixels of what it draws to, so a picture of fixed size keeps its answer
+            // from depending on the size of the Editor's Game view.
+            var picture = new RenderTexture(Width, Height, 0);
             try
             {
                 var camera = holder.AddComponent<Camera>();
+                camera.targetTexture = picture;
                 camera.fieldOfView = 60f;
                 camera.aspect = (float)Width / Height;
                 camera.transform.SetPositionAndRotation(new Vector3(0.4f, 1.45f, -1.2f), Quaternion.Euler(25f, -40f, 0f));
@@ -67,6 +71,7 @@ namespace ArObjectLabels.Tests
             finally
             {
                 Object.DestroyImmediate(holder);
+                Object.DestroyImmediate(picture);
             }
         }
 
